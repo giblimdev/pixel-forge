@@ -1,0 +1,392 @@
+{
+  "idea": [
+    {
+      "id": "idea-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "title": "Pixel-Forge — atelier de traitement d'images",
+      "problem": "Les développeurs et créateurs perdent du temps à jongler entre des outils en ligne payants, des scripts ImageMagick bricolés et des convertisseurs qui dégradent la qualité. Il n'existe pas d'atelier unifié, gratuit et local pour convertir en WebP, optimiser le poids, générer des .ico et produire des PNG transparents en respectant un design system.",
+      "hypotheses": "Une application locale, 100 % open-source, avec une UI cohérente (même design system que Genesis) et des traitements par lot peut couvrir 90 % des besoins des développeurs. Le traitement côté serveur Node (sharp) garantit une qualité supérieure aux convertisseurs navigateur.",
+      "context": "Première application métier branchée sur le socle Genesis. Doit respecter le RBAC plateforme, le design system chart-1..chart-5, et être extensible (autres formats, autres traitements) sans refonte."
+    }
+  ],
+  "feature": [
+    {
+      "id": "feature-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "title": "Conversion en WebP",
+      "description": "Conversion d'images JPEG, PNG, GIF, AVIF, TIFF en WebP avec contrôle de la qualité (1-100), du mode (lossy / lossless / near-lossless), des métadonnées (EXIF, ICC) et du redimensionnement (largeur, hauteur, fit cover / contain / inside). Traitement par lot avec files d'attente, aperçu avant/après et téléchargement ZIP.",
+      "interest": "WebP réduit le poids de 25 à 35 % à qualité visuelle égale par rapport au JPEG. C'est le premier besoin des développeurs web et la raison n°1 d'utiliser Pixel-Forge.",
+      "personas": [
+        "Développeur / Intégrateur",
+        "Designer",
+        "Créateur de contenu"
+      ]
+    },
+    {
+      "id": "feature-0000-0000-0000-000000000002",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 1,
+      "title": "Optimisation du poids et de la taille",
+      "description": "Réduction du poids par compression intelligente (qualité adaptative, quantization, strip des métadonnées inutiles), redimensionnement proportionnel ou libre, et recadrage intelligent (smart crop basé sur l'entropie). Comparaison avant/après (poids, dimensions, qualité SSIM). Seuils cibles configurables (ex. « ne pas dépasser 200 Ko »).",
+      "interest": "Chaque kilo-octet économisé améliore le SEO, le temps de chargement et l'expérience mobile. Les développeurs veulent une optimisation mesurable, pas une boîte noire.",
+      "personas": [
+        "Développeur / Intégrateur",
+        "Designer"
+      ]
+    },
+    {
+      "id": "feature-0000-0000-0000-000000000003",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 2,
+      "title": "Génération de .ico multi-résolutions",
+      "description": "Création de fichiers .ico à partir d'une image source (PNG, JPEG, SVG) avec sélection des tailles (16, 24, 32, 48, 64, 128, 256) dans un seul fichier ICO. Détection automatique des tailles recommandées pour Windows / navigateurs. Aperçu de chaque résolution et validation de la transparence.",
+      "interest": "Les favicons et icônes d'application sont fastidieux à produire. Un générateur multi-résolutions fiable évite les allers-retours avec des outils en ligne qui ajoutent des filigranes.",
+      "personas": [
+        "Développeur / Intégrateur",
+        "Designer"
+      ]
+    },
+    {
+      "id": "feature-0000-0000-0000-000000000004",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 3,
+      "title": "PNG transparents et détourage",
+      "description": "Suppression d'un fond uni (couleur choisie par pipette) avec tolérance réglable, remplacement par transparence, lissage des contours (anti-aliasing) et édition manuelle au pinceau gomme. Détection automatique des arrière-plans unis (blanc, noir, vert). Export PNG avec alpha.",
+      "interest": "Les PNG transparents sont partout : logos, mockups, illustrations. Le détourage manuel est chronophage ; un détourage automatique sur fond uni couvre la majorité des cas.",
+      "personas": [
+        "Designer",
+        "Créateur de contenu"
+      ]
+    }
+  ],
+  "persona": [
+    {
+      "id": "persona-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "name": "Développeur / Intégrateur",
+      "kind": "dev",
+      "need": "Persona technique : veut un outil local, scriptable et reproductible pour préparer des assets web (WebP, favicons) sans dépendre d'un service en ligne. Apprécie les presets, le traitement par lot et l'intégration CI.",
+      "relatedFeatures": [
+        "Conversion en WebP",
+        "Optimisation du poids et de la taille",
+        "Génération de .ico multi-résolutions"
+      ]
+    },
+    {
+      "id": "persona-0000-0000-0000-000000000002",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 1,
+      "name": "Designer",
+      "kind": "designer",
+      "need": "Persona visuel : veut contrôler la qualité, comparer avant/après, produire des PNG transparents propres et exporter des jeux d'icônes cohérents. Attaché au rendu et à la fidélité des couleurs.",
+      "relatedFeatures": [
+        "Conversion en WebP",
+        "PNG transparents et détourage",
+        "Génération de .ico multi-résolutions"
+      ]
+    },
+    {
+      "id": "persona-0000-0000-0000-000000000003",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 2,
+      "name": "Créateur de contenu",
+      "kind": "creator",
+      "need": "Persona non technique : veut optimiser des images pour un site, un blog ou une boutique sans comprendre la compression. Cherche des presets simples (Web/PNG/ICO), un aperçu clair et un téléchargement direct.",
+      "relatedFeatures": [
+        "Conversion en WebP",
+        "Optimisation du poids et de la taille",
+        "PNG transparents et détourage"
+      ]
+    }
+  ],
+  "epic": [
+    {
+      "id": "epic-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "name": "Pipeline de traitement d'images serveur",
+      "goal": "Poser un pipeline serveur robuste basé sur sharp (Node.js) et libvips : lecture multi-format (JPEG, PNG, GIF, AVIF, TIFF, SVG), conversion WebP (lossy / lossless / near-lossless), redimensionnement, recadrage intelligent, strip des métadonnées, génération ICO multi-résolutions via to-ico, détourage PNG par chroma-key avec tolérance. Traitement par lot avec file d'attente, limites de taille (25 Mo / image, 200 images / lot) et timeout (30 s / image).",
+      "scope": "Inclus : sharp + libvips, to-ico, file-type (détection MIME réelle), p-limit (concurrence), archiver (ZIP), Zod pour la validation des options. Exclu : détourage par IA (remove.bg, U2Net), édition manuelle avancée au pinceau (V2), SVG rasterization complexe (V2).",
+      "personas": [
+        "Développeur / Intégrateur",
+        "Designer"
+      ]
+    },
+    {
+      "id": "epic-0000-0000-0000-000000000002",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 1,
+      "name": "Interface de traitement par lot",
+      "goal": "Fournir une UI cohérente avec le design system Genesis (chart-1..chart-5, composants shadcn / Base UI) : drag & drop multi-fichiers, file d'attente avec progression, aperçu avant/après côte à côte, comparaison poids / dimensions / SSIM, presets (Web / PNG / ICO), téléchargement individuel ou ZIP, historique des traitements récents (localStorage). Mobile-first, tactile, tolérante aux erreurs.",
+      "scope": "Inclus : UploadZone (drag & drop + paste), QueueList, PreviewCompare (slider avant/après), PresetSelector, ResultDialog (téléchargement ZIP), hooks useImageQueue / useActionResult. Exclu : édition manuelle avancée, comptes utilisateurs (V2), sauvegarde cloud (V2).",
+      "personas": [
+        "Développeur / Intégrateur",
+        "Designer",
+        "Créateur de contenu"
+      ]
+    }
+  ],
+  "userStory": [
+    {
+      "id": "us-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "title": "Convertir une image en WebP",
+      "story": "En tant que développeur, je veux convertir une image JPEG ou PNG en WebP avec une qualité réglable afin de réduire le poids de mes assets web.",
+      "acceptance": "Étant donné que je dépose une image JPEG valide (≤ 25 Mo), quand je choisis le preset Web (qualité 80, lossy) et clique Convertir, alors une image WebP est générée côté serveur via sharp, son poids est affiché en comparaison avec l'original, et un bouton Télécharger me permet de récupérer le fichier. Le format MIME réel est vérifié via file-type (pas seulement l'extension). Une erreur 413 est renvoyée si l'image dépasse 25 Mo.",
+      "estimate": "5",
+      "epicId": "epic-0000-0000-0000-000000000001"
+    },
+    {
+      "id": "us-0000-0000-0000-000000000002",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 1,
+      "title": "Optimiser un lot d'images avec un seuil de poids",
+      "story": "En tant que créateur de contenu, je veux optimiser un lot d'images en imposant un seuil de poids maximal afin de respecter les contraintes d'un site ou d'un blog.",
+      "acceptance": "Étant donné que je dépose 10 images et fixe un seuil de 200 Ko, quand je lance l'optimisation, alors le serveur ajuste itérativement la qualité (sharp) jusqu'à ce que chaque image passe sous le seuil ou atteigne la qualité minimale (20). Le résultat affiche poids initial, poids final, taux d'économie et un avertissement si le seuil n'a pas pu être atteint. Le lot est téléchargeable en ZIP via archiver.",
+      "estimate": "8",
+      "epicId": "epic-0000-0000-0000-000000000001"
+    },
+    {
+      "id": "us-0000-0000-0000-000000000003",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 2,
+      "title": "Générer un fichier .ico multi-résolutions",
+      "story": "En tant que designer, je veux générer un fichier .ico contenant plusieurs résolutions à partir d'une image source afin de couvrir les favicons et icônes d'application.",
+      "acceptance": "Étant donné que je dépose une image carrée (≥ 256×256), quand je sélectionne les tailles 16, 32, 48, 256 et clique Générer, alors un fichier .ico unique est produit via to-ico, chaque résolution est prévisualisée, et le fichier est téléchargeable. Si l'image source est trop petite pour une résolution demandée, un avertissement est affiché et la résolution est ignorée.",
+      "estimate": "5",
+      "epicId": "epic-0000-0000-0000-000000000001"
+    },
+    {
+      "id": "us-0000-0000-0000-000000000004",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 3,
+      "title": "Détourer un fond uni en PNG transparent",
+      "story": "En tant que designer, je veux supprimer un fond uni d'une image afin d'obtenir un PNG transparent propre, sans passer par un outil en ligne.",
+      "acceptance": "Étant donné que je dépose une image avec un fond uni (blanc, noir ou vert), quand je sélectionne la couleur de fond à la pipette, règle la tolérance (0-100) et clique Détourer, alors sharp produit un PNG avec canal alpha, les contours sont lissés (anti-aliasing), et l'aperçu montre la transparence sur un damier. Le PNG est téléchargeable. Un avertissement est affiché si le fond n'est pas uni (variance trop élevée).",
+      "estimate": "8",
+      "epicId": "epic-0000-0000-0000-000000000001"
+    },
+    {
+      "id": "us-0000-0000-0000-000000000005",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 4,
+      "title": "Déposer plusieurs images par glisser-déposer",
+      "story": "En tant qu'utilisateur, je veux déposer plusieurs images par glisser-déposer afin de lancer un traitement par lot sans passer par un sélecteur de fichiers.",
+      "acceptance": "Étant donné que je suis sur la page d'accueil, quand je glisse 5 images sur la zone de dépôt, alors elles s'ajoutent à la file d'attente avec leur miniature, leur poids et leur format détecté. Un collage (Ctrl+V) d'image depuis le presse-papier fonctionne aussi. Les fichiers non-image sont rejetés avec un message clair. La file est vidable en un clic.",
+      "estimate": "3",
+      "epicId": "epic-0000-0000-0000-000000000002"
+    },
+    {
+      "id": "us-0000-0000-0000-000000000006",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 5,
+      "title": "Comparer avant / après avec un slider",
+      "story": "En tant que designer, je veux comparer visuellement l'image originale et l'image traitée afin de valider la qualité avant de télécharger.",
+      "acceptance": "Étant donné qu'une image a été traitée, quand je clique sur Comparer, alors un slider horizontal superpose l'original et le résultat, avec affichage en temps réel du poids de chaque version et du taux d'économie. Le slider est utilisable au clavier (flèches gauche/droite). Un indicateur SSIM (via sharp) est affiché pour quantifier la similarité.",
+      "estimate": "5",
+      "epicId": "epic-0000-0000-0000-000000000002"
+    }
+  ],
+  "sprint": [
+    {
+      "id": "sprint-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "name": "Sprint 1 — MVP Pixel-Forge",
+      "goal": "Livrer un MVP fonctionnel : conversion WebP + optimisation par lot + génération ICO + détourage PNG uni, avec UI de drag & drop, file d'attente, aperçu avant/après et téléchargement ZIP. À la fin du sprint, un développeur peut traiter un lot de 20 images en local et récupérer les fichiers optimisés sans passer par un service en ligne.",
+      "storyIds": [
+        "us-0000-0000-0000-000000000001",
+        "us-0000-0000-0000-000000000002",
+        "us-0000-0000-0000-000000000003",
+        "us-0000-0000-0000-000000000004",
+        "us-0000-0000-0000-000000000005",
+        "us-0000-0000-0000-000000000006"
+      ],
+      "startDate": "2026-11-06",
+      "endDate": "2026-11-27"
+    }
+  ],
+  "task": [
+    {
+      "id": "task-0000-0000-0000-000000000001",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 0,
+      "title": "Installer et configurer sharp",
+      "description": "npm i sharp @types/sharp. Configurer le pipeline de conversion WebP (lossy / lossless / near-lossless), le redimensionnement, le strip des métadonnées. Ajouter un timeout de 30 s par image via Promise.race. Ajouter serverExternalPackages: ['sharp'] dans next.config.ts (sharp n'est pas bundlé). Vérifier la compatibilité Windows / macOS / Linux (libvips est précompilé).",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000001",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "3h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000002",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 1,
+      "title": "Configurer next.config.ts pour les uploads volumineux",
+      "description": "Dans next.config.ts : experimental.serverActions.bodySizeLimit = '25mb' (la limite par défaut est 1 Mo, insuffisante). Exporter maxDuration = 60 dans les routes /miam/tools/* pour autoriser les gros lots (Vercel). Ajouter serverExternalPackages: ['sharp', 'to-ico', 'archiver'] pour éviter les erreurs de bundling des modules natifs.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000001",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "1h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000003",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 2,
+      "title": "Implémenter la validation Zod des options de traitement",
+      "description": "Créer app/miam/lib/validations.ts avec imageOptionsSchema (format cible, qualité 1-100, mode lossy/lossless/near-lossless, dimensions, fit cover/contain/inside, seuil de poids optionnel, tailles ICO (16-256), tolérance détourage 0-100, couleur cible hex). Mode strict. Dériver les types via z.infer. Ajouter fileTypeSchema (MIME acceptés : image/jpeg, image/png, image/gif, image/avif, image/tiff, image/webp).",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000001",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "2h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000004",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 3,
+      "title": "Détection MIME réelle avec file-type",
+      "description": "npm i file-type. Créer app/miam/lib/mime.ts avec detectMime(buffer): lit les magic bytes via file-type, retourne le MIME réel ou null. Rejeter dans les Server Actions toute image dont le MIME détecté n'est pas dans fileTypeSchema (protection contre les fichiers .jpg contenant un exécutable). Ne jamais se fier à l'extension ni au Content-Type déclaré par le navigateur.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000001",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "2h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000005",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 4,
+      "title": "Générer l'ICO multi-résolutions avec to-ico",
+      "description": "npm i to-ico. Créer app/miam/lib/ico.ts avec generateIco(buffer, sizes[]): redimensionne chaque taille via sharp, assemble via to-ico, retourne un Buffer ICO. Rejeter les tailles > dimensions source. Ajouter les tests unitaires vitest (vérifier que le fichier généré contient bien les tailles demandées et que l'en-tête ICO est valide).",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000003",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "4h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000006",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 5,
+      "title": "Détourage PNG par chroma-key avec sharp",
+      "description": "Créer app/miam/lib/chroma-key.ts avec removeBackground(buffer, hexColor, tolerance): sharp().raw() → parcours des pixels → alpha = f(distance RGB à la couleur cible, tolérance) → flou gaussien sur le canal alpha pour lisser les contours → sharp().png(). Rejeter les images > 4000×4000 px (limite CPU). Ajouter un test vitest avec une image à fond blanc et vérifier que le pixel de coin a alpha=0 et qu'un pixel central a alpha=255.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000004",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "6h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000007",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 6,
+      "title": "Optimisation itérative avec seuil de poids",
+      "description": "Créer app/miam/lib/optimize.ts avec optimizeToTarget(buffer, targetBytes, minQuality=20): boucle binaire sur la qualité (50 → 80 → 65 → 50 → …) en appelant sharp jusqu'à ce que buffer.length ≤ targetBytes ou quality ≤ minQuality. Retourne { buffer, quality, achieved: boolean }. Limiter à 8 itérations max. Logger chaque itération en dev.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000002",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "3h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000008",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 7,
+      "title": "Générer le ZIP de téléchargement avec archiver",
+      "description": "npm i archiver. Créer app/miam/lib/zip.ts avec createZip(files: { name, buffer }[]): retourne un Buffer ZIP via archiver (format 'zip', compression 'deflate' level 6). Streamer dans un PassThrough puis concaténer les chunks en Buffer. Limiter à 200 fichiers / ZIP. Rejeter si la taille totale > 500 Mo (protection mémoire).",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000002",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "3h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000009",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 8,
+      "title": "Écrire les Server Actions de traitement",
+      "description": "Créer app/miam/actions/convert-to-webp.ts, optimize-batch.ts, generate-ico.ts, remove-background.ts, create-zip.ts. Chacune : requireSession, validation Zod, détection MIME (file-type), appel sharp / to-ico / archiver, retour ActionResult<{ buffer, size, meta }>. Limiter la concurrence via p-limit(4). Renvoyer un message clair pour les erreurs 413 (payload), 415 (MIME non supporté), 422 (options invalides).",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000002",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "5h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000010",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 9,
+      "title": "Implémenter la zone de drag & drop",
+      "description": "Créer app/miam/components/UploadZone.tsx (Client Component) : gestion onDrop / onDragOver / onPaste, validation côté client (extension + taille ≤ 25 Mo + type MIME commençant par image/), ajout à la file via un contexte React (useImageQueue). Rejeter les fichiers non-image avec un toast sonner. Afficher la miniature via URL.createObjectURL (révoquer les URLs au démontage).",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000005",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "4h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000011",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 10,
+      "title": "Construire le slider de comparaison avant/après",
+      "description": "Créer app/miam/components/PreviewCompare.tsx (Client Component) : deux <img> superposées (object-cover), un <input type=range> stylé contrôle le clip-path ou la largeur visible de l'image du dessus. Afficher poids initial, poids final, taux d'économie et SSIM (calculé côté serveur via sharp.stats() et renvoyé dans ActionResult). Accessible au clavier (flèches gauche/droite). Fond damier pour les PNG transparents.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000006",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "3h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000012",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 11,
+      "title": "Construire le hub /miam (4 cartes outils)",
+      "description": "Créer app/miam/page.tsx : header de module + 4 cartes cliquables (WebP, Optimiser, ICO, PNG transparent) avec icônes lucide (Image, Gauge, FileImage, Scissors), accents chart-1..chart-5, bande colorée, description courte. Chaque carte pointe vers /miam/tools/<slug>. Respecter le pattern des cartes Genesis (rounded-2xl, hover -translate-y-0.5, focus-visible ring). Server Component pur, aucune interaction.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000005",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "2h"
+    },
+    {
+      "id": "task-0000-0000-0000-000000000013",
+      "createdAt": "2026-11-05T21:00:00.000Z",
+      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "order": 12,
+      "title": "Tests unitaires vitest (sharp, to-ico, chroma-key, optimize)",
+      "description": "npm i -D vitest. Créer app/miam/lib/__tests__/ avec fixtures (JPEG 800×600, PNG 512×512 fond blanc, PNG 512×512 fond transparent). Tests : convertWebP produit un buffer avec magic bytes RIFF/WEBP ; generateIco produit un buffer valide (header 00 00 01 00) et contient les tailles demandées ; removeBackground sur fond blanc produit alpha=0 aux coins ; optimizeToTarget atteint le seuil pour une image donnée. Lancer via npm test.",
+      "status": "todo",
+      "storyId": "us-0000-0000-0000-000000000003",
+      "assignee": "Développeur / Intégrateur",
+      "estimate": "4h"
+    }
+  ],
+  "meta": {
+    "schemaVersion": 1,
+    "updatedAt": "2026-11-05T20:55:14.947Z"
+  }
+}

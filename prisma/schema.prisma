@@ -1,0 +1,189 @@
+/**
+ * Si soft delet proposer hard delte dans le trach
+ */
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+///////////////////////////////
+/////     Better Auth     /////
+///////////////////////////////
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  platformRole  String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // soft delete
+
+  // Better Auth
+  sessions    Session[]
+  accounts    Account[]
+  // App (multi-tenant)
+  profile     Profile?
+  memberships CommerceMember[]
+
+  @@index([deletedAt])
+  @@map("user")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  impersonatedBy String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+////////////////////////
+/////     user     /////
+////////////////////////
+
+model Profile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  displayOrder Int      @default(0)
+  name         String
+  bio          String?
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([displayOrder])
+  @@map("profil")
+}
+
+////////////////////////
+/////   multi-tenant ///
+////////////////////////
+
+model Commerce {
+  id        String         @id @default(cuid())
+  slug      String         @unique
+  name      String
+  kind      CommerceKind
+  status    CommerceStatus @default(pending)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime? // soft delete
+
+  members CommerceMember[]
+
+  @@index([kind])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("commerce")
+}
+
+model CommerceMember {
+  id          String        @id @default(cuid())
+  commerceId  String
+  userId      String
+  role        AppRole
+  status      AppRoleStatus @default(pending)
+  invitedById String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  commerce Commerce @relation(fields: [commerceId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commerceId, userId, role])
+  @@index([commerceId, role])
+  @@index([userId])
+  @@map("commerce_members")
+}
+
+///////////////////////////////
+/////     enums Tenant   //////
+///////////////////////////////
+
+enum PlatformRole {
+  visitor
+  user
+  admin
+  dev
+  superAdmin
+}
+
+enum CommerceKind {
+  restaurant
+  food_truck
+  grocery
+  market
+  greengrocer
+}
+
+enum CommerceStatus {
+  pending
+  active
+  suspended
+}
+
+enum AppRole {
+  owner
+  admin
+  staff
+  courier
+  client
+}
+
+enum AppRoleStatus {
+  pending
+  active
+  banned
+}
+
+////////////////////////
+/////     ****     /////
+////////////////////////
