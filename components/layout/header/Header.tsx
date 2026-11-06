@@ -1,6 +1,6 @@
 /*
 path :           components/layout/header/Header.tsx
-tag :            ["layout", "header", "navigation", "sheet", "drawer", "ui", "platform-role", "recursive", "accordion", "production", "suspense", "wide", "responsive", "pixel-forge"]
+tag :            ["layout", "header", "navigation", "sheet", "drawer", "ui", "platform-role", "recursive", "accordion", "production", "suspense", "wide", "responsive", "pixel-forge", "pixel-forge-charte", "search"]
 projectId:       new-genesis
 type :           component
 generic:         false
@@ -9,11 +9,13 @@ role:            En-tête global niveau production, responsive 2 paliers
                  (mobile/tablette jusqu'à xl, desktop à partir de xl).
 
                  PALIERS :
-                 - < xl (mobile + tablette) : [☰] [Logo] ... [recherche md+] ... [cloche] [avatar]
+                 - < xl (mobile + tablette) :
+                     [☰] [Logo] ... [recherche md+] ... [cloche] [avatar]
                    → burger visible, ouvre le drawer accordéon
                    → nav inline MASQUÉE
                    → barre de recherche visible ≥ md
-                 - ≥ xl (desktop) : [Logo] [nav inline complète] ... [recherche large] [cloche] [avatar]
+                 - ≥ xl (desktop) :
+                     [Logo] [nav inline complète] ... [recherche large] [cloche] [avatar]
                    → burger MASQUÉ
                    → nav inline VISIBLE (MainNav)
                    → barre de recherche large
@@ -22,22 +24,31 @@ role:            En-tête global niveau production, responsive 2 paliers
                  intermédiaire `md:` qui créait une confusion (burger
                  + nav inline en même temps).
 
-                 ORDRE ZONE GAUCHE : burger AVANT logo (demande explicite
-                 de l'utilisateur).
+                 ORDRE ZONE GAUCHE : burger AVANT logo (demande
+                 utilisateur explicite).
 
-                 ⚠️ COULEUR : ajout d'une BANDE DÉGRADÉE de 2px en bas
-                 du header (chart-1 → chart-2 → chart-3), identique aux
-                 cartes Genesis/Pixel-Forge. Rend le header "coloré"
-                 au lieu du monochrome actuel. Subtile, non intrusive,
-                 cohérente avec le design system.
-
-                 ⚠️ TEXTES "Pixel-Forge" : les mentions "Miam-miam Listo
-                 · MVP" (ancienne app supprimée) sont remplacées par
-                 "Pixel-Forge · Atelier d'images" dans le SheetHeader
-                 et SheetFooter.
+                 ⚠️ CHARTE PIXELFORGE :
+                 - Fond : var(--pf-background) à 85% + backdrop-blur-xl
+                 - Bande dégradée 2px en bas :
+                   --pf-primary → --pf-secondary → --pf-info
+                   (violet → indigo → cyan) — signature PixelForge
+                 - Burger hover : bg --pf-primary/10 + text --pf-primary
+                 - Drawer : fond --pf-surface, titre gradient
+                   pf-primary → pf-primary-light → pf-secondary
+                 - Textes "PixelForge · Atelier d'images"
+                 - Accordéon : hover --pf-primary/5, chevron ouvert
+                   --pf-primary, lien actif --pf-primary/10
 
                  ⚠️ DRAWER ACCORDÉON : correctif conservé (AccordionGroup
                  repliable + ouverture initiale sur la route active).
+
+                 ⚠️ RECHERCHE FONCTIONNELLE :
+                 <HeaderActions> reçoit désormais `platformRole` (prop
+                 obligatoire) pour filtrer les items de la palette
+                 <SearchDialog /> par rôle (canSee partagé). C'est la
+                 SEULE modification apportée à ce fichier par rapport
+                 à la version précédente — tout le reste (burger,
+                 nav, accordéon, bande dégradée) est inchangé.
 
                  Props INCHANGÉES (contrat app/layout.tsx préservé) :
                  - notificationSlot?: React.ReactNode
@@ -46,10 +57,13 @@ role:            En-tête global niveau production, responsive 2 paliers
 flow:            Client Component → useState(drawerOpen) → rend
                  <header role="banner" sticky> → bande dégradée en bas
                  → zone gauche (burger < xl:, Logo) → zone centrale
-                 (nav inline ≥ xl:) → zone droite (<HeaderActions />)
-                 → <Sheet> (Pixel-Forge) avec <DrawerNav /> accordéon.
+                 (nav inline ≥ xl:) → zone droite (<HeaderActions />
+                 avec notificationSlot + platformRole) → <Sheet> avec
+                 <DrawerNav /> accordéon.
 
 ecosystem:       Layout = [
+                   "@/components/layout/header/search/SearchDialog.tsx",
+                   "@/components/layout/header/search/search-items.ts",
                    "@/components/layout/header/CommandKButton.tsx",
                    "@/components/layout/header/Header.tsx",
                    "@/components/layout/header/HeaderActions.tsx",
@@ -94,7 +108,8 @@ useBy:           ["@/app/layout.tsx"]
 userStories:     ["*en tant que développeur je veux un header professionnel responsive 2 paliers",
                   "*en tant qu'utilisateur je veux une nav inline sur grand écran",
                   "*en tant qu'utilisateur je veux un drawer avec sous-menus repliables",
-                  "*en tant qu'utilisateur je veux un header coloré cohérent avec Pixel-Forge"]
+                  "*en tant qu'utilisateur je veux un header coloré cohérent avec PixelForge",
+                  "*en tant qu'utilisateur je veux une recherche fonctionnelle depuis le header"]
 
 status:          wip
 pathChecked:     ✔true
@@ -148,7 +163,7 @@ export interface HeaderProps {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Icônes par item racine (fallback : Sparkles)                       */
+/*  Icônes par item racine                                             */
 /* ------------------------------------------------------------------ */
 
 const ROOT_ICONS: Record<string, LucideIcon> = {
@@ -177,7 +192,7 @@ function containsActive(item: NavItem, pathname: string): boolean {
 }
 
 /* ------------------------------------------------------------------ */
-/*  AccordionGroup — groupe repliable récursif (drawer)                */
+/*  AccordionGroup                                                     */
 /* ------------------------------------------------------------------ */
 
 interface AccordionGroupProps {
@@ -212,13 +227,15 @@ function AccordionGroup({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="group/accordion flex items-center justify-between gap-2 rounded-md py-2 pr-3 text-left text-sm font-semibold text-foreground transition-colors hover:bg-chart-1/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chart-1/40"
+        className="group/accordion flex items-center justify-between gap-2 rounded-md py-2 pr-3 text-left text-sm font-semibold text-[var(--pf-foreground)] transition-colors hover:bg-[var(--pf-primary)]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--pf-primary)]/40"
         style={indent}
       >
         <span className="flex-1">{item.label}</span>
         <ChevronDown
-          className={`size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
-            open ? "rotate-180 text-chart-1" : ""
+          className={`size-4 shrink-0 transition-transform duration-200 ${
+            open
+              ? "rotate-180 text-[var(--pf-primary)]"
+              : "text-[var(--pf-muted)]"
           }`}
           aria-hidden
         />
@@ -244,21 +261,21 @@ function AccordionGroup({
                     aria-current={active ? "page" : undefined}
                     className={`flex flex-col gap-0.5 rounded-md py-2 pr-3 text-sm transition-colors ${
                       active
-                        ? "bg-chart-1/10 font-semibold text-chart-1"
-                        : "hover:bg-muted"
+                        ? "bg-[var(--pf-primary)]/10 font-semibold text-[var(--pf-primary)]"
+                        : "text-[var(--pf-foreground)] hover:bg-[var(--pf-primary)]/5"
                     }`}
                     style={childIndent}
                   >
                     <span className="font-medium">{child.label}</span>
                     {child.description && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-[var(--pf-muted)]">
                         {child.description}
                       </span>
                     )}
                   </Link>
                 ) : (
                   <span
-                    className="block py-2 pr-3 text-sm text-muted-foreground"
+                    className="block py-2 pr-3 text-sm text-[var(--pf-muted)]"
                     style={childIndent}
                   >
                     {child.label}
@@ -284,7 +301,7 @@ function AccordionGroup({
 }
 
 /* ------------------------------------------------------------------ */
-/*  DrawerNav — feuille client qui appelle usePathname()               */
+/*  DrawerNav                                                          */
 /* ------------------------------------------------------------------ */
 
 interface DrawerNavProps {
@@ -323,13 +340,13 @@ function DrawerNav({ platformRole, onNavigate }: DrawerNavProps) {
                   aria-current={active ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     active
-                      ? "bg-chart-1/10 text-chart-1"
-                      : "text-foreground hover:bg-chart-1/5"
+                      ? "bg-[var(--pf-primary)]/10 text-[var(--pf-primary)]"
+                      : "text-[var(--pf-foreground)] hover:bg-[var(--pf-primary)]/5"
                   }`}
                 >
                   <Icon
                     className={`size-4 shrink-0 ${
-                      active ? "text-chart-1" : ""
+                      active ? "text-[var(--pf-primary)]" : ""
                     }`}
                     aria-hidden
                   />
@@ -337,14 +354,14 @@ function DrawerNav({ platformRole, onNavigate }: DrawerNavProps) {
                   {active && (
                     <span
                       aria-hidden
-                      className="size-1.5 rounded-full bg-chart-1"
+                      className="size-1.5 rounded-full bg-[var(--pf-primary)]"
                     />
                   )}
                 </Link>
               ) : (
-                <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground">
+                <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-[var(--pf-foreground)]">
                   <Icon
-                    className="size-4 shrink-0 text-muted-foreground"
+                    className="size-4 shrink-0 text-[var(--pf-muted)]"
                     aria-hidden
                   />
                   <span className="flex-1">{item.label}</span>
@@ -369,7 +386,7 @@ function DrawerNav({ platformRole, onNavigate }: DrawerNavProps) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Fallback du DrawerNav                                              */
+/*  Fallback                                                           */
 /* ------------------------------------------------------------------ */
 
 function DrawerNavFallback() {
@@ -378,7 +395,7 @@ function DrawerNavFallback() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="h-10 animate-pulse rounded-lg bg-muted/40"
+          className="h-10 animate-pulse rounded-lg bg-[var(--pf-surface-hover)]"
         />
       ))}
     </div>
@@ -403,17 +420,16 @@ export default function Header({
       <header
         role="banner"
         aria-label="En-tête principal"
-        className="sticky top-0 z-40 w-full bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70"
+        className="sticky top-0 z-40 w-full border-b border-[var(--pf-border)] bg-[var(--pf-background)]/85 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--pf-background)]/70"
       >
         <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:h-[68px] lg:px-8">
-          {/* ===================== ZONE GAUCHE ===================== */}
-          {/* Burger AVANT le logo (demande utilisateur). Visible < xl. */}
+          {/* ZONE GAUCHE — burger AVANT logo, visible < xl */}
           <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="shrink-0 text-foreground hover:bg-chart-1/10 hover:text-chart-1 xl:hidden"
+              className="shrink-0 text-[var(--pf-foreground)] hover:bg-[var(--pf-primary)]/10 hover:text-[var(--pf-primary)] xl:hidden"
               aria-label={drawerOpen ? "Fermer le menu" : "Ouvrir le menu"}
               aria-expanded={drawerOpen}
               aria-controls="main-drawer"
@@ -429,32 +445,34 @@ export default function Header({
             <Logo />
           </div>
 
-          {/* ===================== ZONE CENTRALE — NAV INLINE ===== */}
-          {/* Nav inline visible ≥ xl uniquement. */}
+          {/* ZONE CENTRALE — nav inline visible ≥ xl */}
           <div className="hidden min-w-0 flex-1 xl:flex xl:justify-start">
             <MainNav items={mainNavData} platformRole={platformRole} />
           </div>
 
-          {/* ===================== ZONE DROITE ==================== */}
-          {/* Espaceur < md pour pousser les actions à droite */}
+          {/* Espaceur < md */}
           <div className="flex-1 md:hidden" aria-hidden />
 
-          <HeaderActions notificationSlot={notificationSlot} />
+          {/* ZONE DROITE — recherche fonctionnelle + actions */}
+          <HeaderActions
+            notificationSlot={notificationSlot}
+            platformRole={platformRole}
+          />
         </div>
 
-        {/* Bande dégradée Pixel-Forge (2px) — cohérence chart-1..chart-5 */}
+        {/* Bande dégradée PixelForge (signature visuelle) */}
         <div
           aria-hidden
-          className="h-[2px] w-full bg-gradient-to-r from-chart-1 via-chart-2 to-chart-3 opacity-80"
+          className="h-[2px] w-full bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] opacity-80"
         />
       </header>
 
-      {/* ===================== DRAWER =========================== */}
+      {/* DRAWER */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="left" id="main-drawer">
           <SheetHeader>
-            <SheetTitle className="bg-gradient-to-r from-chart-1 via-chart-2 to-chart-5 bg-clip-text text-transparent">
-              Pixel-Forge
+            <SheetTitle className="bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-secondary)] bg-clip-text text-transparent">
+              PixelForge
             </SheetTitle>
             <SheetDescription>
               Atelier d&apos;images · Navigation
@@ -466,8 +484,8 @@ export default function Header({
           </Suspense>
 
           <SheetFooter>
-            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-              Pixel-Forge · Atelier d&apos;images
+            <p className="text-center text-[11px] leading-relaxed text-[var(--pf-muted)]">
+              PixelForge · Atelier d&apos;images
               <br />
               Les mentions légales sont disponibles dans le pied de page.
             </p>

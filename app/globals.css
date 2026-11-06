@@ -1,30 +1,44 @@
 /*
 path :           app/globals.css
-tag :            ["styles", "tailwind", "theme", "fonts", "colors", "tokens"]
+tag :            ["global", "css", "theme", "tailwind", "pixel-forge", "dark", "palette"]
 projectId:       new-genesis
 type:            config
-generic:         true
+generic:         false
 
-role:            Feuille de style globale. Importe Tailwind v4, définit le thème
-                 (couleurs sémantiques + palette chart-1..chart-5), mappe les polices
-                 brutes (--font-inter, --font-fraunces, --font-jetbrains-mono) vers
-                 des tokens sémantiques (--font-body, --font-heading, --font-code),
-                 et déclare les variantes dark/light. Utilisé par app/layout.tsx.
+role:            Feuille de style globale. Contient les directives
+                 Tailwind v4 et le bloc @theme qui définit :
+                 - Les tokens PIXEL-FORGE (--pf-*) : palette complète
+                   Dark Creative Studio (Obsidian, Surface, Electric
+                   Violet, Indigo, Cyan, Emerald, Amber, Danger).
+                 - Les alias --chart-1..--chart-5 → pf-* pour
+                   compatibilité avec Genesis (Scrum, Genesis DEV)
+                   qui utilise encore chart-* partout. Les deux
+                   systèmes pointent vers les MÊMES couleurs.
+                 - Les polices : Plus Jakarta Sans (interface),
+                   JetBrains Mono (valeurs techniques). Les variables
+                   --font-sans et --font-mono sont branchées dessus.
+                 - Les rayons : sm/md/lg (6/10/16 px) selon charte.
+                 - Le thème CLAIR optionnel (via .light) : surfaces
+                   inversées, mêmes couleurs de marque. Sombre par
+                   défaut.
 
-flow:            @import "tailwindcss" → @theme inline (tokens Tailwind) →
-                 :root { tokens clairs } → .dark { tokens sombres } → @layer base
-                 (reset + application des polices).
+                 ⚠️ Ne PAS supprimer les alias chart-* : Genesis en
+                 dépend. Si un jour Genesis migre vers pf-*, on pourra
+                 les retirer.
+
+flow:            @import "tailwindcss" → @custom-variant dark →
+                 @theme (tokens pf-*, alias chart-*, fonts, radius) →
+                 styles de base (:root, body).
 
 ecosystem:       Layout = [
                    "@/app/globals.css",
                    "@/app/layout.tsx",
-                   "@/components/layout/footer/Footer.tsx",
-                   "@/components/layout/header/Header.tsx",
-                   "@/components/ui/sonner.tsx",
-                   "@/components/ui/tooltip.tsx",
                  ]
 
-relatedFiles:    ["@/app/layout.tsx"]
+relatedFiles:    ["@/app/layout.tsx",
+                  "@/components/layout/header/Header.tsx",
+                  "@/components/layout/header/Logo.tsx",
+                  "@/components/layout/footer/Footer.tsx"]
 
 imports:         ["tailwindcss", "tw-animate-css"]
 
@@ -32,12 +46,12 @@ exports:         []
 
 useBy:           ["@/app/layout.tsx"]
 
-userStories:     ["*en tant que développeur je veux un thème cohérent avec polices et couleurs"]
+userStories:     ["*en tant que développeur je veux une palette PixelForge centralisée en CSS"]
 
-status:          planned
-pathChecked:     ✘false
-metaDataChecked: ✘false
-scriptChecked:   ✘false
+status:          wip
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 @import "tailwindcss";
@@ -46,180 +60,223 @@ scriptChecked:   ✘false
 @custom-variant dark (&:is(.dark *));
 
 /* ------------------------------------------------------------------ */
-/*  Thème Tailwind v4 — mapping tokens → utilitaires                   */
+/*  THÈME — Dark Creative Studio (charte PixelForge)                   */
 /* ------------------------------------------------------------------ */
 
-@theme inline {
-  /* Polices sémantiques → variables brutes injectées par next/font */
-  --font-body: var(--font-inter);
-  --font-heading: var(--font-fraunces);
-  --font-code: var(--font-jetbrains-mono);
+@theme {
+  /* ================================================================ */
+  /*  TOKENS PIXEL-FORGE (charte officielle)                          */
+  /* ================================================================ */
 
-  /* Couleurs sémantiques */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  /* --- Brand --- */
+  --pf-primary:          #7C3AED;   /* Electric Violet */
+  --pf-primary-hover:    #6D28D9;
+  --pf-primary-light:    #A78BFA;   /* Soft Violet */
+  --pf-secondary:        #4F46E5;   /* Indigo */
 
-  /* Palette chart — utilisée par les cartes, graphiques, halos */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  /* --- Background / Surfaces (dark) --- */
+  --pf-background:       #09090F;   /* Obsidian */
+  --pf-surface:          #12121C;   /* Surface */
+  --pf-surface-hover:    #1A1A28;
+
+  /* --- Border --- */
+  --pf-border:           #272735;
+
+  /* --- Text --- */
+  --pf-foreground:       #F4F4F8;   /* White cassé */
+  --pf-muted:            #9292A6;
+
+  /* --- Semantic --- */
+  --pf-success:          #10B981;   /* Emerald */
+  --pf-info:             #06B6D4;   /* Cyan */
+  --pf-warning:          #F59E0B;   /* Amber */
+  --pf-danger:           #EF4444;   /* Rouge */
+
+  /* --- Radius --- */
+  --pf-radius-sm:        6px;
+  --pf-radius-md:        10px;
+  --pf-radius-lg:        16px;
+
+  /* ================================================================ */
+  /*  ALIAS chart-* → pf-* (compatibilité Genesis)                    */
+  /*  Genesis utilise encore chart-1..chart-5 partout (Scrum,         */
+  /*  Genesis DEV). Les deux systèmes pointent vers les MÊMES         */
+  /*  couleurs — aucune incohérence visuelle.                         */
+  /* ================================================================ */
+
+  --chart-1:             var(--pf-primary);      /* violet électrique */
+  --chart-2:             var(--pf-secondary);    /* indigo */
+  --chart-3:             var(--pf-info);         /* cyan */
+  --chart-4:             var(--pf-success);      /* emerald */
+  --chart-5:             var(--pf-warning);      /* amber */
+
+  /* ================================================================ */
+  /*  TOKENS SEMANTIQUES TAILWIND (branchés sur pf-*)                 */
+  /*  Utilisés par shadcn/ui (bg-background, text-foreground…).       */
+  /* ================================================================ */
+
+  --color-background:           var(--pf-background);
+  --color-foreground:           var(--pf-foreground);
+
+  --color-card:                 var(--pf-surface);
+  --color-card-foreground:      var(--pf-foreground);
+
+  --color-popover:              var(--pf-surface);
+  --color-popover-foreground:   var(--pf-foreground);
+
+  --color-primary:              var(--pf-primary);
+  --color-primary-foreground:   #FFFFFF;
+
+  --color-secondary:            var(--pf-secondary);
+  --color-secondary-foreground: #FFFFFF;
+
+  --color-muted:                var(--pf-surface-hover);
+  --color-muted-foreground:     var(--pf-muted);
+
+  --color-accent:               var(--pf-primary-light);
+  --color-accent-foreground:    var(--pf-background);
+
+  --color-destructive:          var(--pf-danger);
+  --color-destructive-foreground: #FFFFFF;
+
+  --color-border:               var(--pf-border);
+  --color-input:                var(--pf-border);
+  --color-ring:                 var(--pf-primary);
+
+  /* ================================================================ */
+  /*  POLICES                                                          */
+  /* ================================================================ */
+
+  --font-sans:          var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:          var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* ================================================================ */
+  /*  RADIUS                                                           */
+  /* ================================================================ */
+
+  --radius-sm:          var(--pf-radius-sm);
+  --radius-md:          var(--pf-radius-md);
+  --radius-lg:          var(--pf-radius-lg);
+  --radius-xl:          20px;
+  --radius-2xl:         24px;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Tokens — mode clair (par défaut)                                   */
+/*  BASE — Dark par défaut                                             */
 /* ------------------------------------------------------------------ */
 
 :root {
-  --radius: 0.75rem;
+  color-scheme: dark;
+}
 
-  /* Base */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+html,
+body {
+  background-color: var(--pf-background);
+  color: var(--pf-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  /* Cartes & popovers */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+/* --- Thème CLAIR optionnel (à activer via .light sur <html>) --- */
+.light {
+  color-scheme: light;
 
-  /* Primaire / secondaire */
-  --primary: oklch(0.55 0.22 295);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --pf-background:      #FAFAFC;
+  --pf-surface:         #FFFFFF;
+  --pf-surface-hover:   #F4F4F8;
 
-  /* Muted / accent */
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --pf-border:          #E4E4EC;
 
-  /* Destructive */
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  --pf-foreground:      #09090F;
+  --pf-muted:           #52526A;
+}
 
-  /* Bordures & focus */
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+/* --- Code inline : JetBrains Mono --- */
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono);
+}
 
-  /* Palette chart — 5 couleurs distinctes pour les cartes */
-  --chart-1: oklch(0.62 0.22 295);   /* violet */
-  --chart-2: oklch(0.68 0.18 330);   /* fuchsia / rose */
-  --chart-3: oklch(0.72 0.16 55);    /* orange chaud */
-  --chart-4: oklch(0.68 0.17 250);   /* bleu */
-  --chart-5: oklch(0.65 0.18 155);   /* vert */
+/* --- Sélection (accent violet) --- */
+::selection {
+  background-color: var(--pf-primary);
+  color: #FFFFFF;
+}
+
+/* --- Scrollbar (sobre, sombre) --- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf-border) transparent;
+}/* ------------------------------------------------------------------ */
+/*  ANIMATIONS PIXELFORGE — effet "wahoo"                              */
+/* ------------------------------------------------------------------ */
+
+/* Orbes flottants — mouvement lent et organique */
+@keyframes pf-float-slow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(30px, -40px) scale(1.05); }
+  66%      { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+@keyframes pf-float-slower {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-40px, 40px) scale(1.08); }
+}
+
+@keyframes pf-float-reverse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%      { transform: translate(50px, 20px) scale(0.9); }
+  70%      { transform: translate(-30px, -50px) scale(1.1); }
+}
+
+/* Bande dégradée shimmer (cartes au hover) */
+@keyframes pf-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Lueur pulsée (titres / CTA) */
+@keyframes pf-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.3)); }
+  50%      { filter: drop-shadow(0 0 24px rgba(124, 58, 237, 0.6)); }
+}
+
+/* Classes utilitaires (Tailwind v4 les détecte via @theme mais on peut aussi les appeler directement) */
+.pf-float-slow {
+  animation: pf-float-slow 20s ease-in-out infinite;
+}
+
+.pf-float-slower {
+  animation: pf-float-slower 28s ease-in-out infinite;
+}
+
+.pf-float-reverse {
+  animation: pf-float-reverse 24s ease-in-out infinite;
+}
+
+.pf-glow-pulse {
+  animation: pf-glow-pulse 3s ease-in-out infinite;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Tokens — mode sombre                                               */
+/*  VARIABLE MÉTAL (vert-gris patiné)                                  */
 /* ------------------------------------------------------------------ */
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-
-  --primary: oklch(0.68 0.22 295);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-
-  --chart-1: oklch(0.72 0.22 295);
-  --chart-2: oklch(0.75 0.18 330);
-  --chart-3: oklch(0.78 0.16 55);
-  --chart-4: oklch(0.72 0.17 250);
-  --chart-5: oklch(0.72 0.18 155);
+:root {
+  --pf-metal: #2D4A45;
+  --pf-metal-light: #3A5A53;
+  --pf-metal-dark: #1F3530;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Base — reset + application des polices                             */
-/* ------------------------------------------------------------------ */
-
-@layer base {
-  * {
-    border-color: var(--border);
-    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
-  }
-
-  html {
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-heading), ui-serif, Georgia, serif;
-    letter-spacing: -0.02em;
-  }
-
-  code,
-  pre,
-  kbd,
-  samp {
-    font-family: var(--font-code), ui-monospace, SFMono-Regular, monospace;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Utilitaires personnalisés                                          */
-/* ------------------------------------------------------------------ */
-
-@layer utilities {
-  .font-heading {
-    font-family: var(--font-heading);
-  }
-
-  .font-body {
-    font-family: var(--font-body);
-  }
-
-  .font-code {
-    font-family: var(--font-code);
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .pf-float-slow,
+  .pf-float-slower,
+  .pf-float-reverse,
+  .pf-glow-pulse {
+    animation: none;
   }
 }

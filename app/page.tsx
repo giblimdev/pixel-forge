@@ -1,76 +1,82 @@
 /*
 path :           app/page.tsx
-tag :            ["home", "page", "landing", "genesis", "scrum", "socle", "ready-for-business-app"]
+tag :            ["pixel", "pixel-forge", "page", "hub", "landing", "roadmap-dev", "atlas", "pixel-forge-charte", "wahoo", "immersive"]
 projectId:       new-genesis
-type :           page
+type:            page
 generic:         false
 
-role:            Landing publique de Genesis. Pose la promesse du projet :
-                 un SOCLE applicatif prêt à recevoir une application métier,
-                 équipé de deux ateliers complémentaires :
-                 1. SCRUM — l'atelier de conception (flux scrum-business :
-                    idées → features → personas → epics → user stories
-                    → sprints → tasks).
-                 2. GENESIS DEV — l'atelier de développement assisté par IA
-                    (SelectFiles, CreateFiles, CopyToIA) avec garde-fous
-                    (backups, whitelist d'extensions, refus des fichiers
-                    critiques).
+role:            Page d'entrée PixelForge — expérience immersive.
 
-                 La page est statique (Server Component pur, aucune donnée
-                 dynamique, aucun fetch). Aucune Server Action. Les CTA
-                 pointent vers les routes réelles du projet :
-                 - /genesis            (hub DEV)
-                 - /scrum/scrum-business (conception)
-                 - /auth/login         (connexion)
-                 - /auth/register      (inscription)
-                 - /super-admin/user-manager (si connecté, mais non conditionné
-                   ici : la page reste publique et statique).
+                 ⚠️ REFONTE VISUELLE "WAHOO" :
+                 - Le fond du hero devient le fond de TOUTE la page :
+                   gradient vertical 3 stops violet électrique →
+                   violet profond → vert-gris métal (--pf-metal).
+                 - 3 orbes flottantes FIXES (position: fixed) animées
+                   en boucle (pf-float-*) restent visibles au scroll :
+                   violet haut-gauche, cyan milieu-droit, vert métal
+                   bas-gauche.
+                 - Cartes en glassmorphism : bg-[var(--pf-surface)]/40
+                   + backdrop-blur-xl (au lieu d'opaque).
+                 - Bandes dégradées des cartes animées au hover via
+                   pf-shimmer (background-size 200%).
+                 - Lueur violette au hover : shadow-[0_0_40px_var(--pf-primary)]/20.
+                 - Titres gradient avec pf-glow-pulse (respiration).
+                 - Chaque section PERD son fond propre → transparent,
+                   les halos persistent partout.
 
-                 Design aligné sur le design system existant :
-                 - palette chart-1..chart-5, dégradés, bandes colorées ;
-                 - cartes rounded-2xl, shadows, hover -translate-y-0.5 ;
-                 - icônes lucide-react (aucune icône de marque) ;
-                 - typographie gradient text-transparent.
+                 ⚠️ TRANSITION VIOLET → VERT MÉTAL :
+                 Le gradient de fond fait 180deg :
+                   0%   : violet électrique (--pf-primary)
+                   35%  : violet profond (--pf-secondary)
+                   70%  : brun-violacé (mix)
+                   100% : vert-gris métal (--pf-metal #2D4A45)
+                 Le regard descend du violet vers le métal patiné.
 
-                 Remplace l'ancienne landing Miam-miam Listo (livraison,
-                 commerces, courier) — supprimée avec le module Miam.
+                 ⚠️ PARTIE A — PRÉSENTATION MÉTIER (prod) :
+                 Hero, 4 cartes outils, 3 personas, CTA final.
+                 Server Component pur.
 
-flow:            Server Component pur → rend un wrapper min-h-svh gradient
-                 → Hero (badge, titre gradient, sous-titre, 2 CTA) →
-                 section "Les deux ateliers" (2 grandes cartes : Scrum
-                 et Genesis DEV) → section "Socle prêt" (4 piliers :
-                 Auth, RBAC, UI, FS sécurisé) → section "Prochaines
-                 étapes" (3 étapes : connecter une app métier, définir
-                 les rôles métier, brancher la persistance) → CTA final.
+                 ⚠️ PARTIE B — FEUILLE DE ROUTE DEV (supprimable) :
+                 Section DevRoadmap avec les 33 fichiers.
+                 Suppression en prod : retirer <DevRoadmap /> + la
+                 constante DEV_ROADMAP + types + sous-composants.
+
+                 ⚠️ CHARTE PIXELFORGE RESPECTÉE :
+                 Tokens pf-* partout, JetBrains Mono pour les valeurs
+                 techniques, halos décoratifs, bandes dégradées.
+
+                 ⚠️ ACCESSIBILITÉ :
+                 - prefers-reduced-motion : les animations sont coupées
+                   via @media dans globals.css.
+                 - Contraste : le texte reste en --pf-foreground
+                   (#F4F4F8) sur fond sombre, ratio > 7:1.
+                 - Focus visible sur tous les liens/boutons.
+
+flow:            Server Component sync → wrapper relatif avec
+                 gradient vertical violet→métal → 3 orbes fixed
+                 animés → <div relative z-10> avec Hero → outils →
+                 personas → CTA → DevRoadmap.
                  Aucun état, aucun effet, aucun fetch.
 
-ecosystem:       Home = [
-                   "@/app/page.tsx",
-                   "@/app/layout.tsx",
-                   "@/components/ui/button.tsx",
-                   "@/components/ui/card.tsx",
-                   "@/config/roles.ts",
+ecosystem:       Pixel = [
+                   "@/app/pixel/page.tsx",
                  ]
 
-relatedFiles:    ["@/app/layout.tsx",
-                  "@/app/genesis/page.tsx",
-                  "@/app/scrum/scrum-business/page.tsx",
-                  "@/app/auth/login/page.tsx",
-                  "@/app/auth/register/page.tsx",
-                  "@/components/ui/button.tsx",
-                  "@/components/ui/card.tsx"]
+relatedFiles:    ["@/components/ui/button.tsx",
+                  "@/components/ui/card.tsx",
+                  "@/app/globals.css",
+                  "@/app/page.tsx"]
 
 imports:         ["next", "next/link", "lucide-react",
-                  "@/components/ui/button", "@/components/ui/card"]
+                  "@/components/ui/button",
+                  "@/components/ui/card"]
 
-exports:         ["default HomePage", "metadata"]
+exports:         ["default PixelPage", "metadata"]
 
 useBy:           []
 
-userStories:     ["*en tant que visiteur je veux comprendre ce qu'est Genesis",
-                  "*en tant que visiteur je veux savoir que le socle est prêt à recevoir une app métier",
-                  "*en tant que visiteur je veux accéder à l'atelier Scrum et à l'atelier DEV",
-                  "*en tant que visiteur je veux pouvoir me connecter ou m'inscrire"]
+userStories:     ["*en tant que visiteur je veux vivre une expérience immersive sur PixelForge",
+                  "*en tant que développeur je veux connaître les fichiers à créer pour PixelForge"]
 
 status:          wip
 pathChecked:     ✔true
@@ -82,19 +88,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
-  Boxes,
-  ClipboardCopy,
-  Database,
+  BookOpen,
+  Code2,
   FolderTree,
-  KeyRound,
+  Gauge,
+  Image as ImageIcon,
   Layers,
-  Lock,
+  ListChecks,
   Palette,
-  Rocket,
-  ShieldCheck,
+  Scissors,
+  Shield,
   Sparkles,
-  Store,
-  Users,
+  Terminal,
+  Workflow,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -113,287 +119,714 @@ import {
 /* ------------------------------------------------------------------ */
 
 export const metadata: Metadata = {
-  title: "Genesis — Le socle prêt pour votre application métier",
+  title: "PixelForge",
   description:
-    "Genesis est un socle applicatif prêt à recevoir une application métier, équipé d'un atelier de conception Scrum et d'un atelier de développement assisté par IA.",
+    "Une suite professionnelle pour convertir, optimiser et transformer vos images — en local, gratuit, open-source.",
 };
 
 /* ------------------------------------------------------------------ */
-/*  Types                                                              */
+/*  Types — Partie A                                                   */
 /* ------------------------------------------------------------------ */
 
-interface Pillar {
+interface PixelTool {
+  readonly slug: string;
+  readonly href: string;
   readonly title: string;
   readonly tagline: string;
   readonly description: string;
-  readonly href: string;
-  readonly ctaLabel: string;
-  readonly icon: LucideIcon;
-  readonly accent: string;
-  readonly bullets: readonly string[];
-}
-
-interface Foundation {
-  readonly title: string;
-  readonly description: string;
   readonly icon: LucideIcon;
   readonly accent: string;
 }
 
-interface NextStep {
-  readonly step: string;
-  readonly title: string;
-  readonly description: string;
+interface PixelPersona {
+  readonly name: string;
+  readonly kind: string;
+  readonly need: string;
   readonly icon: LucideIcon;
   readonly accent: string;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Config — les deux ateliers                                         */
+/*  Config — 4 outils                                                  */
 /* ------------------------------------------------------------------ */
 
-const PILLARS: readonly Pillar[] = [
+const TOOLS: readonly PixelTool[] = [
   {
-    title: "Atelier Scrum",
-    tagline: "Concevoir",
+    slug: "webp",
+    href: "/pixel/tools/webp",
+    title: "Conversion en WebP",
+    tagline: "Rapide, léger, universel",
     description:
-      "Structurer la conception d'un projet : idées, features, personas, epics, user stories, sprints et tasks. Un flux complet, du problème à l'incrément livrable.",
-    href: "/scrum/scrum-business",
-    ctaLabel: "Ouvrir l'atelier Scrum",
-    icon: Layers,
-    accent: "chart-1",
-    bullets: [
-      "Flux guidé : idée → feature → persona → epic → US → sprint → task",
-      "Board DnD : Epic ↔ US, Task ↔ US, US ↔ Sprint",
-      "Vue d'ensemble, Roadmap, Progress et export Global JSON",
-    ],
+      "Convertir des images JPEG, PNG, GIF, AVIF, TIFF en WebP avec contrôle de la qualité, du mode (lossy / lossless / near-lossless) et des métadonnées.",
+    icon: ImageIcon,
+    accent: "var(--pf-primary)",
   },
   {
-    title: "Atelier Genesis DEV",
-    tagline: "Développer",
+    slug: "optimize",
+    href: "/pixel/tools/optimize",
+    title: "Optimisation du poids",
+    tagline: "Mesurable, pas une boîte noire",
     description:
-      "Développer plus vite avec un assistant IA bien cadré : sélectionner du contexte, copier un prompt propre, injecter les scripts retournés avec garde-fous.",
-    href: "/genesis",
-    ctaLabel: "Ouvrir l'atelier DEV",
-    icon: Wrench,
-    accent: "chart-2",
-    bullets: [
-      "SelectFiles : générer le JSON d'un module à confier à l'IA",
-      "CopyToIA : assembler conventions + stack + schéma BDD",
-      "CreateFiles : écrire les scripts avec backup automatique",
-    ],
+      "Réduire le poids par compression intelligente et redimensionnement, avec seuil cible (ex. « ne pas dépasser 200 Ko ») et comparaison avant/après (poids, dimensions, SSIM).",
+    icon: Gauge,
+    accent: "var(--pf-secondary)",
+  },
+  {
+    slug: "ico",
+    href: "/pixel/tools/ico",
+    title: "Génération .ico",
+    tagline: "Favicons et icônes d'app",
+    description:
+      "Générer un fichier .ico multi-résolutions (16, 24, 32, 48, 64, 128, 256) à partir d'une image source, avec aperçu par résolution et validation de la transparence.",
+    icon: ImageIcon,
+    accent: "var(--pf-info)",
+  },
+  {
+    slug: "png",
+    href: "/pixel/tools/png",
+    title: "PNG transparents",
+    tagline: "Détourage propre, anti-aliasing",
+    description:
+      "Supprimer un fond uni (couleur pipette + tolérance réglable), lisser les contours, exporter un PNG avec canal alpha. Détection automatique des arrière-plans unis.",
+    icon: Scissors,
+    accent: "var(--pf-success)",
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Config — le socle prêt                                             */
+/*  Config — 3 personas                                                */
 /* ------------------------------------------------------------------ */
 
-const FOUNDATIONS: readonly Foundation[] = [
+const PERSONAS: readonly PixelPersona[] = [
   {
-    title: "Authentification",
-    description:
-      "Better Auth intégré (email + mot de passe, sessions, routes catch-all). Pages login, register et welcome prêtes à l'emploi.",
-    icon: KeyRound,
-    accent: "chart-3",
+    name: "Développeur / Intégrateur",
+    kind: "dev",
+    need: "Outil local, scriptable et reproductible pour préparer des assets web (WebP, favicons) sans service en ligne. Apprécie les presets, le traitement par lot et l'intégration CI.",
+    icon: Code2,
+    accent: "var(--pf-primary)",
   },
   {
-    title: "RBAC plateforme",
-    description:
-      "Rôles hiérarchiques (visitor < user < admin < dev < superAdmin) avec gardes serveur et helpers partagés. Prêt à recevoir des rôles métier.",
-    icon: ShieldCheck,
-    accent: "chart-4",
-  },
-  {
-    title: "Design system",
-    description:
-      "Composants UI (shadcn / Base UI), palette chart-1..chart-5, polices Inter / Fraunces / JetBrains Mono, thème clair / sombre.",
+    name: "Designer",
+    kind: "designer",
+    need: "Contrôle qualité, comparaison avant/après, PNG transparents propres et jeux d'icônes cohérents. Attaché au rendu et à la fidélité des couleurs.",
     icon: Palette,
-    accent: "chart-5",
+    accent: "var(--pf-secondary)",
   },
   {
-    title: "Accès fichiers sécurisé",
-    description:
-      "Lecture / écriture FS atomique, backups automatiques, whitelist d'extensions, refus des fichiers critiques (.env, next.config.*).",
-    icon: Lock,
-    accent: "chart-1",
+    name: "Créateur de contenu",
+    kind: "creator",
+    need: "Optimiser des images pour un site, un blog ou une boutique sans comprendre la compression. Presets simples (Web/PNG/ICO), aperçu clair et téléchargement direct.",
+    icon: Sparkles,
+    accent: "var(--pf-info)",
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Config — prochaines étapes                                         */
+/*  Types — Partie B                                                   */
+/*  ⚠️ À SUPPRIMER EN PROD                                              */
 /* ------------------------------------------------------------------ */
 
-const NEXT_STEPS: readonly NextStep[] = [
+interface DevFile {
+  readonly path: string;
+  readonly role: string;
+  readonly estimate: string;
+  readonly status: "planned" | "wip" | "done";
+  readonly epic: string;
+  readonly us?: string;
+}
+
+interface DevGroup {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly icon: LucideIcon;
+  readonly accent: string;
+  readonly files: readonly DevFile[];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Config — feuille de route                                          */
+/*  ⚠️ À SUPPRIMER EN PROD                                              */
+/* ------------------------------------------------------------------ */
+
+const DEV_ROADMAP: readonly DevGroup[] = [
   {
-    step: "1",
-    title: "Connecter votre application métier",
+    id: "types-validation",
+    title: "Types & Validation",
     description:
-      "Le socle est prêt : il suffit d'ajouter vos routes, vos modèles de données et vos écrans sous un nouveau préfixe (ex. /app, /studio).",
-    icon: Boxes,
-    accent: "chart-1",
+      "Fondation : les types partagés et les schémas Zod. Aucune dépendance runtime hors zod.",
+    icon: Shield,
+    accent: "var(--pf-primary)",
+    files: [
+      {
+        path: "app/pixel/lib/types.ts",
+        role: "Types partagés : ImageOptions, ImageFormat, FitMode, IcoSize, ProcessResult, ZipInput, ActionResult.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Convertir une image en WebP",
+      },
+      {
+        path: "app/pixel/lib/validations.ts",
+        role: "imageOptionsSchema (format, qualité 1-100, mode, dimensions, fit, seuil, tailles ICO, tolérance, couleur hex) + fileTypeSchema (MIME acceptés). Mode strict, types inférés.",
+        estimate: "2h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Convertir une image en WebP",
+      },
+    ],
   },
   {
-    step: "2",
-    title: "Définir vos rôles métier",
+    id: "helpers-fs",
+    title: "Helpers fichiers",
     description:
-      "En plus des rôles plateforme, Genesis est prêt à recevoir des rôles contextuels (par organisation, commerce, équipe) via Better Auth + Prisma.",
-    icon: Users,
-    accent: "chart-2",
+      "Pipeline serveur : détection MIME, ICO, chroma-key, optimisation, ZIP. Tous purs et testables unitairement.",
+    icon: Wrench,
+    accent: "var(--pf-secondary)",
+    files: [
+      {
+        path: "app/pixel/lib/mime.ts",
+        role: "detectMime(buffer) via file-type : lit les magic bytes, retourne le MIME réel ou null.",
+        estimate: "2h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Convertir une image en WebP",
+      },
+      {
+        path: "app/pixel/lib/ico.ts",
+        role: "generateIco(buffer, sizes[]) : redimensionne chaque taille via sharp, assemble via to-ico.",
+        estimate: "4h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Générer un fichier .ico multi-résolutions",
+      },
+      {
+        path: "app/pixel/lib/chroma-key.ts",
+        role: "removeBackground(buffer, hexColor, tolerance) : sharp().raw() → parcours pixels → alpha → flou gaussien → sharp().png().",
+        estimate: "6h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Détourer un fond uni en PNG transparent",
+      },
+      {
+        path: "app/pixel/lib/optimize.ts",
+        role: "optimizeToTarget(buffer, targetBytes, minQuality=20) : boucle binaire sur la qualité, max 8 itérations.",
+        estimate: "3h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Optimiser un lot d'images avec un seuil de poids",
+      },
+      {
+        path: "app/pixel/lib/zip.ts",
+        role: "createZip(files) : Buffer ZIP via archiver (deflate level 6). Limite 200 fichiers / 500 Mo.",
+        estimate: "3h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Optimiser un lot d'images avec un seuil de poids",
+      },
+    ],
   },
   {
-    step: "3",
-    title: "Brancher la persistance",
+    id: "actions",
+    title: "Server Actions",
     description:
-      "Prisma + PostgreSQL (ou SQLite en dev) est déjà câblé. Ajoutez vos modèles, générez les migrations, et vos entités métier sont prêtes.",
-    icon: Database,
-    accent: "chart-3",
+      "Points d'entrée HTTP : requireSession + Zod + détection MIME + sharp. Retour ActionResult<T>. Concurrence limitée via p-limit(4).",
+    icon: Workflow,
+    accent: "var(--pf-info)",
+    files: [
+      {
+        path: "app/pixel/actions/convert-to-webp.ts",
+        role: "convertToWebpAction(buffer, options) : validation Zod, detectMime, sharp.toFormat('webp'), timeout 30s.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Convertir une image en WebP",
+      },
+      {
+        path: "app/pixel/actions/optimize-batch.ts",
+        role: "optimizeBatchAction(buffers, targetBytes) : p-limit(4) sur optimizeToTarget.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Optimiser un lot d'images avec un seuil de poids",
+      },
+      {
+        path: "app/pixel/actions/generate-ico.ts",
+        role: "generateIcoAction(buffer, sizes) : validation tailles, generateIco.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Générer un fichier .ico multi-résolutions",
+      },
+      {
+        path: "app/pixel/actions/remove-background.ts",
+        role: "removeBackgroundAction(buffer, hexColor, tolerance) : validation, removeBackground.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Détourer un fond uni en PNG transparent",
+      },
+      {
+        path: "app/pixel/actions/create-zip.ts",
+        role: "createZipAction(files) : validation, createZip.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Optimiser un lot d'images avec un seuil de poids",
+      },
+    ],
+  },
+  {
+    id: "components-ui",
+    title: "Composants UI",
+    description:
+      "Présentation pure. Client Components justifiés par le state (drag & drop, slider, file input).",
+    icon: Layers,
+    accent: "var(--pf-success)",
+    files: [
+      {
+        path: "app/pixel/components/UploadZone.tsx",
+        role: "Zone drag & drop + paste multi-fichiers. Validation côté client. Miniatures via URL.createObjectURL.",
+        estimate: "4h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+        us: "Déposer plusieurs images par glisser-déposer",
+      },
+      {
+        path: "app/pixel/components/QueueList.tsx",
+        role: "Liste de la file avec miniature, poids, format, progression, actions retirer / vider.",
+        estimate: "2h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+      },
+      {
+        path: "app/pixel/components/PreviewCompare.tsx",
+        role: "Slider avant/après : deux <img> superposées, <input type=range>. Poids initial/final, SSIM. Damier pour PNG.",
+        estimate: "3h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+        us: "Comparer avant / après avec un slider",
+      },
+      {
+        path: "app/pixel/components/PresetSelector.tsx",
+        role: "Sélection de presets (Web / PNG / ICO) + formulaire d'options avancées.",
+        estimate: "2h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+      },
+      {
+        path: "app/pixel/components/ResultDialog.tsx",
+        role: "Dialog plein écran : liste des résultats, téléchargement individuel, téléchargement ZIP global.",
+        estimate: "2h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+      },
+      {
+        path: "app/pixel/hooks/useImageQueue.ts",
+        role: "Hook React (contexte + reducer) : file d'attente, statuts, progression, reset.",
+        estimate: "3h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+      },
+    ],
+  },
+  {
+    id: "pages",
+    title: "Pages",
+    description:
+      "Composition UI. Chaque page lit son contexte et rend des composants. Server Components + Client Components.",
+    icon: FolderTree,
+    accent: "var(--pf-warning)",
+    files: [
+      {
+        path: "app/pixel/page.tsx",
+        role: "Page d'entrée PixelForge (cette page). Présentation métier + feuille de route dev (supprimable).",
+        estimate: "2h",
+        status: "wip",
+        epic: "Interface de traitement par lot",
+        us: "Déposer plusieurs images par glisser-déposer",
+      },
+      {
+        path: "app/pixel/tools/webp/page.tsx",
+        role: "Page de conversion WebP : UploadZone + PresetSelector + PreviewCompare + ResultDialog.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+        us: "Convertir une image en WebP",
+      },
+      {
+        path: "app/pixel/tools/optimize/page.tsx",
+        role: "Page d'optimisation par lot : UploadZone + seuil cible + ResultDialog.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+        us: "Optimiser un lot d'images avec un seuil de poids",
+      },
+      {
+        path: "app/pixel/tools/ico/page.tsx",
+        role: "Page de génération ICO : UploadZone + sélection des tailles + aperçu multi-résolutions.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+        us: "Générer un fichier .ico multi-résolutions",
+      },
+      {
+        path: "app/pixel/tools/png/page.tsx",
+        role: "Page de détourage PNG : UploadZone + pipette couleur + tolérance + PreviewCompare.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+        us: "Détourer un fond uni en PNG transparent",
+      },
+    ],
+  },
+  {
+    id: "infra",
+    title: "Infrastructure",
+    description:
+      "Configuration transverse : next.config, nav, dépendances.",
+    icon: Terminal,
+    accent: "var(--pf-primary)",
+    files: [
+      {
+        path: "next.config.ts",
+        role: "serverActions.bodySizeLimit='25mb', serverExternalPackages=['sharp','to-ico','archiver'], maxDuration=60.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+      },
+      {
+        path: "components/layout/header/nav/frontWorkSpace.ts",
+        role: "Brancher /pixel dans la nav : entrée 'PixelForge' avec minPlatformRole='user'.",
+        estimate: "0.5h",
+        status: "planned",
+        epic: "Interface de traitement par lot",
+      },
+      {
+        path: "package.json",
+        role: "Ajouter sharp, to-ico, file-type, archiver, p-limit (prod), vitest (dev).",
+        estimate: "0.5h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+      },
+    ],
+  },
+  {
+    id: "tests",
+    title: "Tests",
+    description:
+      "Tests unitaires vitest sur le pipeline serveur.",
+    icon: ListChecks,
+    accent: "var(--pf-secondary)",
+    files: [
+      {
+        path: "app/pixel/lib/__tests__/convert.test.ts",
+        role: "convertWebP produit un buffer avec magic bytes RIFF/WEBP.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Convertir une image en WebP",
+      },
+      {
+        path: "app/pixel/lib/__tests__/ico.test.ts",
+        role: "generateIco produit un buffer valide (header 00 00 01 00).",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Générer un fichier .ico multi-résolutions",
+      },
+      {
+        path: "app/pixel/lib/__tests__/chroma-key.test.ts",
+        role: "removeBackground sur fond blanc : alpha=0 aux coins, alpha=255 au centre.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Détourer un fond uni en PNG transparent",
+      },
+      {
+        path: "app/pixel/lib/__tests__/optimize.test.ts",
+        role: "optimizeToTarget atteint le seuil pour une image donnée.",
+        estimate: "1h",
+        status: "planned",
+        epic: "Pipeline de traitement d'images serveur",
+        us: "Optimiser un lot d'images avec un seuil de poids",
+      },
+    ],
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Composants locaux                                                  */
+/*  Sous-composants — Partie A                                         */
 /* ------------------------------------------------------------------ */
 
-function PillarCard({ pillar }: { readonly pillar: Pillar }) {
-  const Icon = pillar.icon;
-  const accent = pillar.accent;
+function ToolCard({ tool }: { readonly tool: PixelTool }) {
+  const Icon = tool.icon;
+  const accent = tool.accent;
 
   return (
     <article
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-xl"
-      style={{ "--accent": `var(--${accent})` } as React.CSSProperties}
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 p-5 shadow-sm backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-[var(--pf-primary)]/60 hover:shadow-[0_0_40px_var(--pf-primary)]/25"
+      style={{ "--accent": accent } as React.CSSProperties}
     >
+      {/* Bande top animée (shimmer au hover) */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-1 opacity-70"
+        className="absolute inset-x-0 top-0 h-1 opacity-70 bg-[length:200%_100%] transition-opacity group-hover:opacity-100 group-hover:animate-[pf-shimmer_2s_linear_infinite]"
         style={{
-          background: `linear-gradient(90deg, var(--${accent}), transparent)`,
+          background: `linear-gradient(90deg, var(--accent), var(--pf-primary-light), var(--accent))`,
         }}
       />
 
-      <header className="mb-4 flex items-start gap-3">
+      <header className="mb-3 flex items-start gap-3">
         <div
-          className="grid size-12 shrink-0 place-items-center rounded-xl text-white shadow-md"
+          className="grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-md transition-transform group-hover:scale-110"
           style={{
-            background: `linear-gradient(135deg, var(--${accent}), color-mix(in oklab, var(--${accent}) 60%, black))`,
+            background: `linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 60%, black))`,
           }}
         >
-          <Icon className="size-6" aria-hidden />
+          <Icon className="size-5" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
           <p
             className="text-[11px] font-semibold uppercase tracking-wider"
-            style={{ color: `var(--${accent})` }}
+            style={{ color: `var(--accent)` }}
           >
-            {pillar.tagline}
+            {tool.tagline}
           </p>
-          <h3 className="text-lg font-bold tracking-tight text-foreground">
-            {pillar.title}
+          <h3 className="text-base font-bold tracking-tight text-[var(--pf-foreground)]">
+            {tool.title}
           </h3>
         </div>
       </header>
-
-      <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
-        {pillar.description}
+      <p className="flex-1 text-sm leading-relaxed text-[var(--pf-muted)]">
+        {tool.description}
       </p>
-
-      <ul className="mb-6 space-y-2 text-sm text-foreground/80">
-        {pillar.bullets.map((bullet) => (
-          <li key={bullet} className="flex gap-2">
-            <span
-              aria-hidden
-              className="mt-1 shrink-0"
-              style={{ color: `var(--${accent})` }}
-            >
-              •
-            </span>
-            <span>{bullet}</span>
-          </li>
-        ))}
-      </ul>
-
-      <Link
-        href={pillar.href}
-        className={buttonVariants({
-          variant: "outline",
-          size: "sm",
-        })}
-      >
-        {pillar.ctaLabel}
-        <ArrowRight className="size-4" aria-hidden />
-      </Link>
+      <footer className="mt-4 flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-surface-hover)]/60 px-2 py-0.5 text-[11px] font-medium text-[var(--pf-muted)] backdrop-blur">
+          À venir
+        </span>
+        <span
+          className="inline-flex items-center gap-1.5 text-sm font-medium transition-transform group-hover:translate-x-1"
+          style={{ color: `var(--accent)` }}
+        >
+          Ouvrir
+          <ArrowRight className="size-4" aria-hidden />
+        </span>
+      </footer>
     </article>
   );
 }
 
-function FoundationCard({ foundation }: { readonly foundation: Foundation }) {
-  const Icon = foundation.icon;
-  const accent = foundation.accent;
+function PersonaCard({ persona }: { readonly persona: PixelPersona }) {
+  const Icon = persona.icon;
+  const accent = persona.accent;
 
   return (
-    <article
-      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-5 shadow-sm"
-      style={{ "--accent": `var(--${accent})` } as React.CSSProperties}
+    <Card
+      className="group relative h-full overflow-hidden border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl transition-all hover:border-[var(--pf-primary)]/60 hover:shadow-[0_0_40px_var(--pf-primary)]/20"
+      style={{ "--accent": accent } as React.CSSProperties}
     >
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-1 opacity-60"
+        className="absolute inset-x-0 top-0 h-1 opacity-70 transition-opacity group-hover:opacity-100"
         style={{
-          background: `linear-gradient(90deg, var(--${accent}), transparent)`,
+          background: `linear-gradient(90deg, var(--accent), transparent)`,
         }}
       />
-      <header className="mb-2 flex items-center gap-2.5">
+      <CardHeader className="flex flex-row items-start gap-3">
         <div
-          className="grid size-9 shrink-0 place-items-center rounded-lg text-white shadow-sm"
+          className="grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-md transition-transform group-hover:scale-110"
           style={{
-            background: `linear-gradient(135deg, var(--${accent}), color-mix(in oklab, var(--${accent}) 60%, black))`,
+            background: `linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 60%, black))`,
           }}
         >
-          <Icon className="size-4" aria-hidden />
+          <Icon className="size-5" aria-hidden />
         </div>
-        <h3 className="text-sm font-bold tracking-tight text-foreground">
-          {foundation.title}
-        </h3>
-      </header>
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        {foundation.description}
-      </p>
-    </article>
+        <div className="min-w-0 flex-1">
+          <CardTitle className="text-base text-[var(--pf-foreground)]">
+            {persona.name}
+          </CardTitle>
+          <CardDescription className="mt-0.5 font-mono text-xs text-[var(--pf-muted)]">
+            {persona.kind}
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm leading-relaxed text-[var(--pf-foreground)]/80">
+          {persona.need}
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
-function StepCard({ step }: { readonly step: NextStep }) {
-  const Icon = step.icon;
-  const accent = step.accent;
+/* ------------------------------------------------------------------ */
+/*  Sous-composants — Partie B                                         */
+/*  ⚠️ À SUPPRIMER EN PROD                                              */
+/* ------------------------------------------------------------------ */
+
+const STATUS_BADGE: Record<DevFile["status"], string> = {
+  planned: "bg-[var(--pf-surface-hover)] text-[var(--pf-muted)]",
+  wip: "bg-[var(--pf-info)]/15 text-[var(--pf-info)]",
+  done: "bg-[var(--pf-success)]/15 text-[var(--pf-success)]",
+};
+
+const STATUS_LABEL: Record<DevFile["status"], string> = {
+  planned: "planifié",
+  wip: "en cours",
+  done: "terminé",
+};
+
+function DevRoadmapFile({ file }: { readonly file: DevFile }) {
+  return (
+    <li className="space-y-1 rounded-lg border border-[var(--pf-border)]/60 bg-[var(--pf-background)]/60 p-3 backdrop-blur">
+      <div className="flex flex-wrap items-center gap-2">
+        <code className="min-w-0 flex-1 break-all font-mono text-xs font-semibold text-[var(--pf-foreground)]">
+          {file.path}
+        </code>
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_BADGE[file.status]}`}
+        >
+          {STATUS_LABEL[file.status]}
+        </span>
+        <span className="font-mono text-[10px] tabular-nums text-[var(--pf-muted)]">
+          {file.estimate}
+        </span>
+      </div>
+      <p className="text-xs leading-relaxed text-[var(--pf-muted)]">
+        {file.role}
+      </p>
+      <p className="text-[10px] text-[var(--pf-muted)]/70">
+        Epic : {file.epic}
+        {file.us ? ` · US : ${file.us}` : ""}
+      </p>
+    </li>
+  );
+}
+
+function DevRoadmapGroup({ group }: { readonly group: DevGroup }) {
+  const Icon = group.icon;
+  const accent = group.accent;
 
   return (
-    <li
-      className="relative flex flex-col gap-2 rounded-2xl border border-border/60 bg-card p-5"
-      style={{ "--accent": `var(--${accent})` } as React.CSSProperties}
+    <Card
+      className="relative h-full overflow-hidden border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl"
+      style={{ "--accent": accent } as React.CSSProperties}
     >
-      <div className="flex items-center gap-2.5">
-        <span
-          className="grid size-8 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white shadow-md"
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-1"
+        style={{
+          background: `linear-gradient(90deg, var(--accent), transparent)`,
+        }}
+      />
+      <CardHeader className="flex flex-row items-start gap-3">
+        <div
+          className="grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-md"
           style={{
-            background: `linear-gradient(135deg, var(--${accent}), color-mix(in oklab, var(--${accent}) 60%, black))`,
+            background: `linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 60%, black))`,
           }}
         >
-          {step.step}
+          <Icon className="size-5" aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1">
+          <CardTitle className="text-base text-[var(--pf-foreground)]">
+            {group.title}
+          </CardTitle>
+          <CardDescription className="mt-0.5 text-xs text-[var(--pf-muted)]">
+            {group.files.length} fichier{group.files.length > 1 ? "s" : ""}
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs leading-relaxed text-[var(--pf-muted)]">
+          {group.description}
+        </p>
+        <ul className="space-y-2">
+          {group.files.map((file) => (
+            <DevRoadmapFile key={file.path} file={file} />
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DevRoadmap() {
+  const totalFiles = DEV_ROADMAP.reduce(
+    (sum, group) => sum + group.files.length,
+    0,
+  );
+  const totalEstimate = DEV_ROADMAP.reduce(
+    (sum, group) =>
+      sum +
+      group.files.reduce((acc, f) => {
+        const h = parseFloat(f.estimate.replace("h", ""));
+        return acc + (Number.isFinite(h) ? h : 0);
+      }, 0),
+    0,
+  );
+
+  return (
+    <section
+      aria-labelledby="roadmap-title"
+      className="rounded-2xl border border-dashed border-[var(--pf-info)]/40 bg-[var(--pf-info)]/5 p-5 backdrop-blur-xl sm:p-6"
+    >
+      <header className="mb-6 space-y-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-info)]/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--pf-info)]">
+          <Wrench className="size-3" aria-hidden />
+          Atelier de développement · supprimable en prod
         </span>
-        <h3 className="text-sm font-bold tracking-tight text-foreground">
-          {step.title}
-        </h3>
+        <h2
+          id="roadmap-title"
+          className="text-xl font-bold tracking-tight text-[var(--pf-foreground)]"
+        >
+          Fichiers à développer pour PixelForge
+        </h2>
+        <p className="text-sm text-[var(--pf-muted)]">
+          <span className="font-mono">{totalFiles}</span> fichiers ·{" "}
+          <span className="font-mono">{totalEstimate.toFixed(1)} h</span>{" "}
+          estimées · <span className="font-mono">{DEV_ROADMAP.length}</span>{" "}
+          couches. Cette section est délimitée par des marqueurs clairs et peut
+          être supprimée en production (retirer{" "}
+          <code className="mx-1 rounded bg-[var(--pf-surface-hover)] px-1.5 py-0.5 font-mono text-xs">
+            &lt;DevRoadmap /&gt;
+          </code>{" "}
+          du rendu + la constante DEV_ROADMAP).
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {DEV_ROADMAP.map((group) => (
+          <DevRoadmapGroup key={group.id} group={group} />
+        ))}
       </div>
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        {step.description}
-      </p>
-      <Icon
-        aria-hidden
-        className="absolute right-4 top-4 size-5 opacity-20"
-        style={{ color: `var(--${accent})` }}
-      />
-    </li>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Orbes décoratifs (wahoo) — position fixed, persistent au scroll   */
+/* ------------------------------------------------------------------ */
+
+function FloatingOrbs() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+    >
+      {/* Orbe violet haut-gauche */}
+      <div className="pf-float-slow absolute -left-40 -top-40 size-[32rem] rounded-full bg-[var(--pf-primary)]/25 blur-3xl" />
+
+      {/* Orbe cyan milieu-droit */}
+      <div className="pf-float-slower absolute -right-40 top-1/3 size-[28rem] rounded-full bg-[var(--pf-info)]/20 blur-3xl" />
+
+      {/* Orbe vert métal bas-gauche */}
+      <div className="pf-float-reverse absolute -left-32 bottom-0 size-[30rem] rounded-full bg-[var(--pf-metal)]/40 blur-3xl" />
+
+      {/* Orbe violet supplémentaire bas-droit */}
+      <div className="pf-float-slower absolute -right-20 bottom-1/4 size-[24rem] rounded-full bg-[var(--pf-secondary)]/20 blur-3xl" />
+    </div>
   );
 }
 
@@ -401,166 +834,151 @@ function StepCard({ step }: { readonly step: NextStep }) {
 /*  Page                                                               */
 /* ------------------------------------------------------------------ */
 
-export default function HomePage() {
+export default function PixelPage() {
   return (
-    <div className="min-h-svh bg-gradient-to-b from-background via-background to-muted/20">
-      {/* ===================== HERO ================================== */}
-      <section className="relative overflow-hidden px-4 pt-16 pb-12 sm:px-6 sm:pt-20 sm:pb-16">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-chart-1/15 blur-3xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-32 top-16 size-96 rounded-full bg-chart-5/15 blur-3xl"
-        />
+    <div
+      className="relative min-h-svh overflow-hidden bg-gradient-to-b from-[var(--pf-primary)]/15 via-[var(--pf-secondary)]/10 to-[var(--pf-metal)]/60"
+      style={{
+        // Gradient de fond global : violet électrique → violet profond → vert métal
+        backgroundImage:
+          "linear-gradient(180deg, " +
+          "color-mix(in oklab, var(--pf-primary) 15%, var(--pf-background)) 0%, " +
+          "color-mix(in oklab, var(--pf-secondary) 10%, var(--pf-background)) 35%, " +
+          "color-mix(in oklab, var(--pf-metal) 40%, var(--pf-background)) 70%, " +
+          "var(--pf-metal) 100%)",
+      }}
+    >
+      {/* Orbes flottants persistants (fond global) */}
+      <FloatingOrbs />
 
-        <div className="relative mx-auto max-w-4xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-            <Sparkles className="size-3.5 text-chart-2" aria-hidden />
-            Socle applicatif · prêt à recevoir une application métier
-          </span>
-
-          <h1 className="mt-5 bg-gradient-to-r from-chart-1 via-chart-2 to-chart-5 bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl md:text-6xl">
-            Genesis — le socle prêt pour votre application métier
-          </h1>
-
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Genesis fournit l&apos;infrastructure commune (authentification,
-            RBAC, design system, accès fichiers sécurisé) et deux ateliers
-            complémentaires : <strong>Scrum</strong> pour concevoir,{" "}
-            <strong>Genesis DEV</strong> pour développer plus vite avec
-            l&apos;IA. Il ne reste plus qu&apos;à brancher votre métier.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-            <Link
-              href="/genesis"
-              className={`${buttonVariants()} gap-2 bg-gradient-to-r from-chart-1 via-chart-2 to-chart-5 text-white shadow-lg shadow-chart-1/30 hover:brightness-110`}
-            >
-              <Wrench className="size-4" aria-hidden />
-              Découvrir les ateliers
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-            <Link
-              href="/auth/login"
-              className={buttonVariants({ variant: "outline" })}
-            >
-              <KeyRound className="size-4" aria-hidden />
-              Se connecter
-            </Link>
-            <Link
-              href="/auth/register"
-              className={buttonVariants({ variant: "ghost" })}
-            >
-              Créer un compte
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== LES DEUX ATELIERS ===================== */}
-      <section className="px-4 pb-16 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          <header className="mb-8 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Les deux ateliers
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Concevoir avec Scrum, développer avec l&apos;IA. Deux outils
-              qui s&apos;enchaînent naturellement.
-            </p>
-          </header>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {PILLARS.map((pillar) => (
-              <PillarCard key={pillar.title} pillar={pillar} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== LE SOCLE PRÊT ========================= */}
-      <section className="px-4 pb-16 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          <header className="mb-8 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Un socle déjà prêt
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Ce qui est déjà en place et qui n&apos;a plus à être réinventé
-              quand vous branchez votre métier.
-            </p>
-          </header>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {FOUNDATIONS.map((foundation) => (
-              <FoundationCard
-                key={foundation.title}
-                foundation={foundation}
+      {/* Contenu au-dessus des orbes */}
+      <div className="relative z-10">
+        {/* ===================== HERO ================================== */}
+        <section className="relative px-4 pt-16 pb-12 sm:px-6 sm:pt-20 sm:pb-16">
+          <div className="relative mx-auto max-w-4xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 px-3 py-1 text-xs font-medium text-[var(--pf-muted)] backdrop-blur-xl">
+              <Sparkles
+                className="size-3.5 text-[var(--pf-primary)]"
+                aria-hidden
               />
-            ))}
-          </div>
-        </div>
-      </section>
+              Atelier d&apos;images · local, gratuit, open-source
+            </span>
 
-      {/* ===================== PROCHAINES ÉTAPES ===================== */}
-      <section className="px-4 pb-16 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          <header className="mb-8 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Prochaines étapes
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Trois chantiers pour transformer le socle en application
-              métier.
+            <h1 className="pf-glow-pulse mt-5 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-info)] bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl md:text-6xl">
+              PixelForge
+            </h1>
+
+            {/* Bande dégradée sous le titre — violet → cyan → vert métal */}
+            <div
+              aria-hidden
+              className="mx-auto mt-4 h-1 w-32 rounded-full bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-info)] to-[var(--pf-metal)]"
+            />
+
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--pf-muted)] sm:text-lg">
+              Convertir en WebP, optimiser le poids, générer des{" "}
+              <code className="rounded bg-[var(--pf-surface-hover)]/60 px-1.5 py-0.5 font-mono text-xs text-[var(--pf-foreground)] backdrop-blur">
+                .ico
+              </code>{" "}
+              multi-résolutions et produire des PNG transparents — sans passer
+              par un service en ligne.
             </p>
-          </header>
 
-          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {NEXT_STEPS.map((step) => (
-              <StepCard key={step.step} step={step} />
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ===================== CTA FINAL ============================= */}
-      <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-4xl overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-chart-1/10 via-chart-2/10 to-chart-5/10 p-8 text-center sm:p-12">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-            <Rocket className="size-3.5 text-chart-3" aria-hidden />
-            Prêt à démarrer
-          </span>
-
-          <h2 className="mt-4 bg-gradient-to-r from-chart-1 via-chart-2 to-chart-5 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
-            Votre métier n&apos;a plus qu&apos;à se brancher
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Authentification, rôles, UI, FS sécurisé : le socle est prêt.
-            Créez un compte, explorez les ateliers, puis commencez à ajouter
-            vos entités métier.
-          </p>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Link
-              href="/auth/register"
-              className={`${buttonVariants()} gap-2 bg-gradient-to-r from-chart-1 via-chart-2 to-chart-5 text-white shadow-lg shadow-chart-1/30 hover:brightness-110`}
-            >
-              Créer un compte
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-            <Link
-              href="/genesis/help"
-              className={buttonVariants({ variant: "outline" })}
-            >
-              <ClipboardCopy className="size-4" aria-hidden />
-              Mode d&apos;emploi Genesis
-            </Link>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+              <Link
+                href="#tools"
+                className={`${buttonVariants()} gap-2 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] text-white shadow-lg shadow-[var(--pf-primary)]/40 hover:brightness-110`}
+              >
+                Découvrir les outils
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+              <Link
+                href="/genesis"
+                className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
+              >
+                <BookOpen className="size-4" aria-hidden />
+                Atelier Genesis DEV
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* ===================== 4 OUTILS ============================== */}
+        <section id="tools" className="px-4 pb-16 sm:px-6">
+          <div className="mx-auto max-w-6xl">
+            <header className="mb-8 text-center">
+              <h2 className="text-2xl font-bold tracking-tight text-[var(--pf-foreground)] sm:text-3xl">
+                4 outils, un atelier
+              </h2>
+              <p className="mt-2 text-sm text-[var(--pf-muted)]">
+                Chaque outil est autonome. Traitement par lot, aperçu
+                avant/après, téléchargement direct ou ZIP.
+              </p>
+            </header>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {TOOLS.map((tool) => (
+                <ToolCard key={tool.slug} tool={tool} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===================== PERSONAS ============================== */}
+        <section className="px-4 pb-16 sm:px-6">
+          <div className="mx-auto max-w-6xl">
+            <header className="mb-8 text-center">
+              <h2 className="text-2xl font-bold tracking-tight text-[var(--pf-foreground)] sm:text-3xl">
+                Pour qui ?
+              </h2>
+              <p className="mt-2 text-sm text-[var(--pf-muted)]">
+                3 profils, 3 besoins, un même atelier.
+              </p>
+            </header>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {PERSONAS.map((persona) => (
+                <PersonaCard key={persona.name} persona={persona} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ===================== CTA FINAL ============================= */}
+        <section className="px-4 pb-16 sm:px-6">
+          <div className="mx-auto max-w-4xl overflow-hidden rounded-3xl border border-[var(--pf-border)]/60 bg-gradient-to-br from-[var(--pf-primary)]/20 via-[var(--pf-secondary)]/15 to-[var(--pf-metal)]/40 p-8 text-center shadow-[0_0_60px_var(--pf-primary)]/20 backdrop-blur-xl sm:p-12">
+            <h2 className="bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-info)] bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
+              Prêt à forger vos images ?
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[var(--pf-muted)]">
+              Aucun compte requis pour les outils de base. Sélectionnez un
+              outil ci-dessus, déposez vos images, récupérez-les optimisées.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              <Link
+                href="#tools"
+                className={`${buttonVariants()} gap-2 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] text-white shadow-lg shadow-[var(--pf-primary)]/40 hover:brightness-110`}
+              >
+                Commencer
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+              <Link
+                href="/genesis/help"
+                className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
+              >
+                Mode d&apos;emploi Genesis
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ===================== PARTIE B — DEV ROADMAP ================ */}
+        {/* ⚠️ À SUPPRIMER EN PROD : retirer ce bloc + DEV_ROADMAP + sous-composants */}
+        <section className="px-4 pb-20 sm:px-6">
+          <div className="mx-auto max-w-6xl">
+            <DevRoadmap />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

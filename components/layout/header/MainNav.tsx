@@ -1,6 +1,6 @@
 /*
 path :           components/layout/header/MainNav.tsx
-tag :            ["layout", "header", "nav", "platform-role", "rbac", "recursive", "hover", "responsive", "pixel-forge"]
+tag :            ["layout", "header", "nav", "platform-role", "rbac", "recursive", "hover", "responsive", "pixel-forge-charte"]
 projectId:       new-genesis
 type :           component
 generic:         true
@@ -8,59 +8,27 @@ generic:         true
 role:            Navigation principale desktop. Reçoit les items (déjà
                  filtrés par Header) + le rôle plateforme. Filtre les
                  items ET leurs enfants (récursif) selon `visible` ET
-                 `minPlatformRole` via canSee (source unique de vérité
-                 partagée avec le drawer).
+                 `minPlatformRole` via canSee (source unique).
 
-                 ⚠️ RESPONSIVE : le <nav> ne porte PLUS `hidden md:block`.
-                 C'est le PARENT (Header.tsx) qui contrôle la visibilité
-                 via un wrapper `hidden xl:flex`. Sinon, double masquage
-                 → nav invisible sur desktop. Le MainNav est rendu
-                 inconditionnellement ici ; il s'affiche quand son
-                 parent le montre (≥ xl).
+                 ⚠️ CHARTE PIXELFORGE : tous les états visuels utilisent
+                 les tokens pf-* (violet électrique) au lieu de chart-*
+                 ou primary. Le rendu est identique (mêmes valeurs), mais
+                 l'intention est explicite.
+                 - Lien actif : bg-[var(--pf-primary)]/10 text-[var(--pf-primary)]
+                 - Hover : hover:bg-[var(--pf-primary)]/5
+                 - Focus ring : focus-visible:ring-[var(--pf-primary)]/40
+                 - Chevron ouvert : text-[var(--pf-primary)]
+                 - Sous-menu : ring-1 ring-[var(--pf-primary)]/5
 
-                 ⚠️ COULEUR : les états actif, hover et focus utilisent
-                 la palette Pixel-Forge (chart-1) au lieu de `primary` :
-                 - Lien actif : bg-chart-1/10 text-chart-1
-                 - Hover : hover:bg-chart-1/5
-                 - Focus ring : focus-visible:ring-chart-1/40
-                 - Chevron ouvert : text-chart-1
-                 Cohérent avec le header, le drawer, les cartes
-                 Genesis et la landing.
+                 ⚠️ RESPONSIVE : pas de `hidden md:block` sur <nav>.
+                 C'est Header.tsx qui contrôle la visibilité (≥ xl:).
+                 ⚠️ ESPACEMENT : gap-1 (au lieu de gap-0.5).
+                 ⚠️ COMPORTEMENT : hover desktop (mouseenter/leave avec
+                 delay 120ms), chaque item a son state `open`.
 
-                 ⚠️ ESPACEMENT : `gap-0.5` → `gap-1` sur la liste
-                 racine, pour mieux respirer sur `max-w-screen-2xl`
-                 (1536px). Les sous-menus gardent leur padding
-                 d'origine.
-
-                 ⚠️ COMPORTEMENT : ouverture au survol UNIQUEMENT
-                 (mouseenter/mouseleave avec delay 120ms). Chaque
-                 item avec children gère son propre état `open` via
-                 useState (false par défaut). Le sous-menu n'est
-                 RENDU DANS LE DOM que si `open === true`. Le clavier
-                 (focus/blur) déclenche le même comportement que la
-                 souris. Les liens externes ajoutent target=_blank +
-                 rel noopener noreferrer.
-
-                 Le composant est réutilisé par le Header à partir
-                 de `xl:` (≥ 1280px). Sous xl, seul le drawer
-                 accordéon (corrigé dans Header.tsx) assure la
-                 navigation.
-
-flow:            Client Component → reçoit items + platformRole →
-                 useMemo(filtre via canSee + tri displayOrder) →
-                 pour chaque item racine, rend <NavItemRow> (state
-                 local `open`) → wrapper <li onMouseEnter/onMouseLeave/
-                 onFocus/onBlur> → bouton ou lien + sous-menu
-                 conditionnel (<ChildrenList> si open).
-
-                 NavItemRow → resolveHrefString(item.href, EMPTY_PARAMS)
-                 → si href : <NavActiveLink> (avec fallback <NeutralLink>
-                 sous Suspense) ; sinon : <button disabled> → chevron
-                 animé si hasChildren.
-
-                 ChildrenListItem (récursif) → même logique, mais
-                 sous-menu positionné à droite (left-full top-0 ml-1)
-                 pour les niveaux ≥ 1.
+flow:            Client Component → useMemo(filtre canSee + tri) →
+                 NavItemRow (state open) → hover/focus → ChildrenList
+                 conditionnel → ChildrenListItem (récursif).
 
 ecosystem:       Layout = [
                    "@/components/layout/header/CommandKButton.tsx",
@@ -97,8 +65,7 @@ exports:         ["default MainNav", "MainNavProps"]
 useBy:           ["@/components/layout/header/Header.tsx"]
 
 userStories:     ["*en tant que développeur je veux une nav desktop paramétrable par rôle plateforme",
-                  "*en tant que superAdmin je veux voir tous les items de navigation",
-                  "*en tant qu'utilisateur je veux une nav desktop colorée cohérente avec Pixel-Forge"]
+                  "*en tant que superAdmin je veux voir tous les items de navigation"]
 
 status:          wip
 pathChecked:     ✔true
@@ -126,30 +93,25 @@ import type { PlatformRole } from "@/config/roles";
 /*  Constante : params vides (routes statiques)                        */
 /* ------------------------------------------------------------------ */
 
-/**
- * Le projet n'a qu'un flux Scrum (scrum-business) : les hrefs sont
- * statiques. On passe un objet vide pour que resolveHrefString ne
- * fasse aucune substitution (aucun placeholder à résoudre).
- */
 const EMPTY_PARAMS: RouteParams = {};
 
 /* ------------------------------------------------------------------ */
-/*  Helpers de style — palette chart-1 (Pixel-Forge)                   */
+/*  Helpers de style — palette pf-* (PixelForge)                       */
 /* ------------------------------------------------------------------ */
 
 const LINK_BASE =
-  "inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-chart-1/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--pf-primary)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
-const LINK_INACTIVE = `${LINK_BASE} text-muted-foreground hover:bg-chart-1/5 hover:text-foreground`;
+const LINK_INACTIVE = `${LINK_BASE} text-[var(--pf-muted)] hover:bg-[var(--pf-primary)]/5 hover:text-[var(--pf-foreground)]`;
 
-const LINK_ACTIVE = `${LINK_BASE} bg-chart-1/10 text-chart-1`;
+const LINK_ACTIVE = `${LINK_BASE} bg-[var(--pf-primary)]/10 text-[var(--pf-primary)]`;
 
 const SUB_LINK_BASE =
-  "flex items-start gap-2 rounded-md px-2.5 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-chart-1/40";
+  "flex items-start gap-2 rounded-md px-2.5 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--pf-primary)]/40";
 
-const SUB_LINK_INACTIVE = `${SUB_LINK_BASE} text-foreground hover:bg-chart-1/5`;
+const SUB_LINK_INACTIVE = `${SUB_LINK_BASE} text-[var(--pf-foreground)] hover:bg-[var(--pf-primary)]/5`;
 
-const SUB_LINK_ACTIVE = `${SUB_LINK_BASE} bg-chart-1/10 text-chart-1`;
+const SUB_LINK_ACTIVE = `${SUB_LINK_BASE} bg-[var(--pf-primary)]/10 text-[var(--pf-primary)]`;
 
 /* ------------------------------------------------------------------ */
 /*  Fallback : lien neutre (prérendu, sans usePathname)                */
@@ -181,11 +143,11 @@ function NeutralLink({ item }: { readonly item: NavItem }) {
 function NeutralSubLink({ child }: { readonly child: NavItem }) {
   if (!child.href) {
     return (
-      <span className="flex items-start gap-2 rounded-md px-2.5 py-2 text-sm text-muted-foreground">
+      <span className="flex items-start gap-2 rounded-md px-2.5 py-2 text-sm text-[var(--pf-muted)]">
         <span className="flex flex-1 flex-col gap-0.5">
           <span className="font-medium">{child.label}</span>
           {child.description && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-[var(--pf-muted)]">
               {child.description}
             </span>
           )}
@@ -203,7 +165,7 @@ function NeutralSubLink({ child }: { readonly child: NavItem }) {
       <span className="flex flex-1 flex-col gap-0.5">
         <span className="font-medium">{child.label}</span>
         {child.description && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-[var(--pf-muted)]">
             {child.description}
           </span>
         )}
@@ -245,7 +207,7 @@ function ChildrenList({ children, platformRole, depth }: ChildrenListProps) {
   return (
     <ul
       role="menu"
-      className={`absolute z-50 min-w-[220px] rounded-lg border border-border bg-popover p-1.5 shadow-lg ring-1 ring-chart-1/5 ${positionClass}`}
+      className={`absolute z-50 min-w-[220px] rounded-lg border border-[var(--pf-border)] bg-[var(--pf-surface)] p-1.5 shadow-lg ring-1 ring-[var(--pf-primary)]/10 ${positionClass}`}
     >
       {sorted.map((child) => (
         <li key={child.id} role="none">
@@ -295,8 +257,6 @@ function ChildrenListItem({
     setOpen(true);
   }
 
-  /* Résolution défensive : les hrefs sont statiques aujourd'hui,
-     donc resolveHrefString retourne child.href inchangé. */
   const resolvedHref = child.href
     ? (resolveHrefString(child.href, EMPTY_PARAMS) ?? child.href)
     : undefined;
@@ -306,7 +266,7 @@ function ChildrenListItem({
       <span className="flex flex-1 flex-col gap-0.5">
         <span className="font-medium">{child.label}</span>
         {child.description && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-[var(--pf-muted)]">
             {child.description}
           </span>
         )}
@@ -320,7 +280,7 @@ function ChildrenListItem({
       {hasChildren && (
         <ChevronRight
           className={`mt-0.5 h-3.5 w-3.5 shrink-0 transition-colors ${
-            open ? "text-chart-1" : "opacity-60"
+            open ? "text-[var(--pf-primary)]" : "opacity-60"
           }`}
           aria-hidden
         />
@@ -349,7 +309,7 @@ function ChildrenListItem({
           </NavActiveLink>
         </Suspense>
       ) : (
-        <span className="flex items-start gap-2 rounded-md px-2.5 py-2 text-sm text-muted-foreground">
+        <span className="flex items-start gap-2 rounded-md px-2.5 py-2 text-sm text-[var(--pf-muted)]">
           {content}
         </span>
       )}
@@ -434,7 +394,7 @@ function NavItemRow({ item, platformRole }: NavItemRowProps) {
             {hasChildren && (
               <ChevronDown
                 className={`h-3.5 w-3.5 transition-transform ${
-                  open ? "rotate-180 text-chart-1" : "opacity-60"
+                  open ? "rotate-180 text-[var(--pf-primary)]" : "opacity-60"
                 }`}
                 aria-hidden
               />
@@ -453,7 +413,7 @@ function NavItemRow({ item, platformRole }: NavItemRowProps) {
           {hasChildren && (
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform ${
-                open ? "rotate-180 text-chart-1" : "opacity-60"
+                open ? "rotate-180 text-[var(--pf-primary)]" : "opacity-60"
               }`}
               aria-hidden
             />
@@ -490,8 +450,6 @@ export default function MainNav({ items, platformRole }: MainNavProps) {
     [items, platformRole],
   );
 
-  /* ⚠️ Pas de `hidden md:block` ici : le parent (Header.tsx) contrôle
-     la visibilité via `hidden xl:flex`. Double masquage = invisible. */
   return (
     <nav aria-label="Navigation principale" className="w-full">
       <ul className="flex items-center gap-1">

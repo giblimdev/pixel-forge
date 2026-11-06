@@ -1,6 +1,6 @@
 /*
 path :           app/layout.tsx
-tag :            ["layout", "root", "fonts", "theme", "providers", "notification-slot", "platform-role", "suspense", "io", "pixel-forge"]
+tag :            ["layout", "root", "fonts", "theme", "providers", "notification-slot", "platform-role", "suspense", "io", "pixel-forge", "plus-jakarta", "jetbrains-mono"]
 projectId:       new-genesis
 type :           layout
 generic:         false
@@ -8,35 +8,32 @@ generic:         false
 role:            Layout racine : html/body, polices, ThemeProvider,
                  TooltipProvider, Toaster, Header, Footer.
 
-                 ⚠️ REFONTE : les métadonnées globales sont réalignées
-                 sur Pixel-Forge (au lieu de "Miam-miam Listo") :
-                 - title.default : "Pixel-Forge — Atelier de traitement d'images"
-                 - title.template : "%s · Pixel-Forge"
-                 - description : "Convertir, optimiser et détourer vos
-                   images — en local, gratuit, open-source."
-                 - applicationName : "Pixel-Forge"
+                 ⚠️ CHARTE PIXELFORGE APPLIQUÉE :
+                 - Police principale : Plus Jakarta Sans (remplace Inter).
+                   Variable CSS --font-plus-jakarta.
+                 - Police technique : JetBrains Mono (conservée).
+                   Variable CSS --font-jetbrains-mono.
+                 - Thème SOMBRE par défaut (charte "Dark Creative
+                   Studio"). `defaultTheme="dark"` + `enableSystem=false`
+                   pour forcer le sombre. L'utilisateur peut basculer
+                   en clair via le toggle (thème `.light` défini dans
+                   globals.css).
+                 - Métadonnées alignées sur PixelForge :
+                   title.default "PixelForge", title.template
+                   "%s · PixelForge", applicationName "PixelForge",
+                   description = "Precision meets creativity…".
+                 - lang="fr", className du <html> inclut les
+                   variables de police + `dark` forcé.
 
-                 La lecture de la session (getSession + prisma.user.platformRole)
-                 est ISOLÉE dans un composant enfant `<HeaderWithRole>`
-                 monté sous `<Suspense>`. `io()` est appelé AVANT
-                 `getSession()` ET avant Prisma : Prisma 7 lit `new Date()`
-                 de manière synchrone (bug connu, issue #28588), donc même
-                 derrière un `await`, il bloque le prérendu si `io()` n'a
-                 pas suspendu avant.
+                 La lecture de la session reste ISOLÉE dans
+                 <HeaderWithRole> (Suspense + io() + getSession +
+                 Prisma), exactement comme avant — aucune régression
+                 sur le pattern Cache Components / Prisma 7.
 
-flow:            RootLayout (sync) → html/body → ThemeProvider →
-                 TooltipProvider →
-                 <Suspense fallback={<HeaderFallback />}>
-                   <HeaderWithRole />
-                 </Suspense> →
-                 {children} + Footer + Toaster.
-
-                 HeaderWithRole → await io() → getSession() → si null :
-                 platformRole null → sinon : <Suspense fallback={<Header
-                 platformRole={null} />}><UserRoleReader userId /></Suspense>.
-                 UserRoleReader → await io() → prisma.user.findUnique
-                 ({ platformRole }) → platformRole → <Header
-                 platformRole={platformRole} notificationSlot={...} />.
+flow:            RootLayout (sync) → html.dark → body → ThemeProvider
+                 (dark) → TooltipProvider → <Suspense><HeaderWithRole />
+                 </Suspense> → <main>{children}</main> → Footer →
+                 Toaster.
 
 ecosystem:       Layout = [
                    "@/app/globals.css",
@@ -62,7 +59,6 @@ ecosystem:       Layout = [
 relatedFiles:    ["@/app/globals.css",
                   "@/components/layout/footer/Footer.tsx",
                   "@/components/layout/header/Header.tsx",
-                  "@/app/blog/components/NotificationBell.tsx",
                   "@/lib/auth/session.ts",
                   "@/lib/prisma.ts",
                   "@/config/roles.ts"]
@@ -83,8 +79,8 @@ exports:         ["metadata", "default RootLayout"]
 
 useBy:           []
 
-userStories:     ["*en tant que développeur je veux un layout racine avec polices thémables et rôle plateforme",
-                  "*en tant qu'utilisateur je veux des métadonnées Pixel-Forge"]
+userStories:     ["*en tant que développeur je veux un layout racine dark par défaut avec les polices PixelForge",
+                  "*en tant qu'utilisateur je veux une identité visuelle sombre et premium"]
 
 status:          wip
 pathChecked:     ✔true
@@ -93,7 +89,7 @@ scriptChecked:   ✔true
 */
 
 import type { Metadata } from "next";
-import { Inter, Fraunces, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { io } from "next/cache";
@@ -112,16 +108,11 @@ import { isPlatformRole, type PlatformRole } from "@/config/roles";
 /*  Polices                                                            */
 /* ------------------------------------------------------------------ */
 
-const inter = Inter({
-  variable: "--font-inter",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
   display: "swap",
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -136,12 +127,12 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Pixel-Forge — Atelier de traitement d'images",
-    template: "%s · Pixel-Forge",
+    default: "PixelForge — Precision meets creativity",
+    template: "%s · PixelForge",
   },
   description:
-    "Convertir en WebP, optimiser le poids, générer des .ico multi-résolutions et produire des PNG transparents — en local, gratuit, open-source.",
-  applicationName: "Pixel-Forge",
+    "Une suite professionnelle pour convertir, optimiser et transformer vos images — en local, gratuit, open-source.",
+  applicationName: "PixelForge",
 };
 
 /* ------------------------------------------------------------------ */
@@ -161,10 +152,6 @@ function HeaderFallback() {
 /* ------------------------------------------------------------------ */
 
 async function UserRoleReader({ userId }: { readonly userId: string }) {
-  /* io() force un point de suspension AVANT Prisma.
-     Prisma 7 lit new Date() de manière synchrone dans son
-     NowGenerator — sans ce point de suspension, Next.js
-     bloque le prérendu. */
   await io();
 
   const rawRole = (
@@ -174,9 +161,6 @@ async function UserRoleReader({ userId }: { readonly userId: string }) {
     })
   )?.platformRole;
 
-  /* Garde-fou : si la valeur en base est corrompue (ex. "superadmin",
-     "SuperAdmin"), on retombe sur "user". isPlatformRole valide
-     contre PLATFORM_ROLES (source unique). */
   const platformRole: PlatformRole = isPlatformRole(rawRole) ? rawRole : "user";
 
   return (
@@ -188,25 +172,18 @@ async function UserRoleReader({ userId }: { readonly userId: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Header avec rôle plateforme (Server Component async, sous Suspense)*/
+/*  Header avec rôle plateforme (async, sous Suspense)                 */
 /* ------------------------------------------------------------------ */
 
 async function HeaderWithRole() {
-  /* ⚠️ CRITIQUE : io() AVANT getSession().
-     getSession() déclenche une lecture de cookies/headers qui, combinée
-     à Prisma 7 (NowGenerator synchrone), bloque le prérendu si io() n'a
-     pas suspendu avant. */
   await io();
 
   const session = await getSession();
 
-  /* Anonyme : Header sans rôle, pas de cloche */
   if (!session?.user) {
     return <Header platformRole={null} />;
   }
 
-  /* Connecté : le rôle plateforme est lu dans un Suspense séparé,
-     pour que Prisma ne bloque pas le prérendu de HeaderWithRole. */
   return (
     <Suspense fallback={<Header platformRole={null} />}>
       <UserRoleReader userId={session.user.id} />
@@ -226,14 +203,14 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`dark ${plusJakarta.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <TooltipProvider>
