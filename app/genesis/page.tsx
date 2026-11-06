@@ -5,19 +5,22 @@ projectId:       new-genesis
 type:            page
 generic:         false
 
-role:            Hub du module Genesis. Affiche trois cards (SelectFiles,
-                 CreateFiles, CopyToIA) avec icône, titre, description et CTA
-                 vers la route correspondante. Server Component pur, aucune
-                 donnée dynamique.
+role:            Hub du module Genesis. Affiche quatre cards (SelectFiles,
+                 CreateFiles, CopyToIA, CheckHeaders) avec icône, titre,
+                 description et CTA vers la route correspondante. Server
+                 Component pur, aucune donnée dynamique.
 
-flow:            Server Component → rend un grid responsive 1 / 2 / 3 colonnes
-                 avec 3 cards cliquables.
+flow:            Server Component → rend un grid responsive 1 / 2 / 3 / 4
+                 colonnes avec 4 cards cliquables.
 
 ecosystem:       Genesis = [
                    "@/app/genesis/actions/context-files.ts",
                    "@/app/genesis/actions/exclusions.ts",
+                   "@/app/genesis/actions/header-check.ts",
                    "@/app/genesis/actions/read-files.ts",
+                   "@/app/genesis/actions/reports.ts",
                    "@/app/genesis/actions/write-files.ts",
+                   "@/app/genesis/check-headers/page.tsx",
                    "@/app/genesis/components/ContextFileEditor.tsx",
                    "@/app/genesis/components/ContextOutput.tsx",
                    "@/app/genesis/components/CopyToIaPanel.tsx",
@@ -26,18 +29,35 @@ ecosystem:       Genesis = [
                    "@/app/genesis/components/FileTree.tsx",
                    "@/app/genesis/components/FileTreeRow.tsx",
                    "@/app/genesis/components/GenesisNav.tsx",
+                   "@/app/genesis/components/HeaderCheckPanel.tsx",
+                   "@/app/genesis/components/HeaderCheckReport.tsx",
+                   "@/app/genesis/components/HeaderCheckRow.tsx",
+                   "@/app/genesis/components/HeaderExclusionsDialog.tsx",
+                   "@/app/genesis/components/HeaderReciprocityReport.tsx",
                    "@/app/genesis/components/ReadFilesPanel.tsx",
+                   "@/app/genesis/components/ReportsList.tsx",
                    "@/app/genesis/components/ResultDialog.tsx",
+                   "@/app/genesis/components/ScriptAnalyzer.tsx",
                    "@/app/genesis/components/ScriptInput.tsx",
                    "@/app/genesis/components/ScriptQueue.tsx",
                    "@/app/genesis/components/ScriptQueueItem.tsx",
                    "@/app/genesis/components/WriteReport.tsx",
                    "@/app/genesis/copy-to-ia/page.tsx",
                    "@/app/genesis/create-files/page.tsx",
+                   "@/app/genesis/create-files/reports/page.tsx",
                    "@/app/genesis/layout.tsx",
+                   "@/app/genesis/lib/analyze-script.ts",
                    "@/app/genesis/lib/context-files.ts",
+                   "@/app/genesis/lib/exclusions-path.ts",
                    "@/app/genesis/lib/exclusions.ts",
+                   "@/app/genesis/lib/header-check.ts",
+                   "@/app/genesis/lib/header-parser.ts",
+                   "@/app/genesis/lib/header-rules.ts",
+                   "@/app/genesis/lib/header-types.ts",
+                   "@/app/genesis/lib/header-validations.ts",
                    "@/app/genesis/lib/parse-script.ts",
+                   "@/app/genesis/lib/report-types.ts",
+                   "@/app/genesis/lib/reports.ts",
                    "@/app/genesis/lib/storage.ts",
                    "@/app/genesis/lib/tree.ts",
                    "@/app/genesis/lib/types.ts",
@@ -55,7 +75,7 @@ exports:         ["default GenesisPage"]
 
 useBy:           []
 
-userStories:     ["*en tant qu'utilisateur je veux accéder aux trois outils Genesis"]
+userStories:     ["*en tant qu'utilisateur je veux accéder aux quatre outils Genesis"]
 
 status:          planned
 pathChecked:     ✘false
@@ -64,7 +84,13 @@ scriptChecked:   ✘false
 */
 
 import Link from "next/link";
-import { ArrowRight, ClipboardCopy, FilePlus2, FolderTree } from "lucide-react";
+import {
+  ArrowRight,
+  ClipboardCopy,
+  FileCheck2,
+  FilePlus2,
+  FolderTree,
+} from "lucide-react";
 
 interface ToolCard {
   readonly href: string;
@@ -99,11 +125,19 @@ const TOOLS: readonly ToolCard[] = [
     icon: ClipboardCopy,
     accent: "var(--chart-5)",
   },
+  {
+    href: "/genesis/check-headers",
+    title: "CheckHeaders",
+    description:
+      "Vérifier la conformité des en-têtes /* */ de chaque fichier sélectionné : champs obligatoires, valeurs valides, cohérence status ↔ *Checked, correspondance path. Détecte aussi les relations non réciproques (ecosystem ↔ useBy, relatedFiles ↔ relatedFiles).",
+    icon: FileCheck2,
+    accent: "var(--chart-3)",
+  },
 ];
 
 export default function GenesisPage() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {TOOLS.map((tool) => {
         const Icon = tool.icon;
         return (

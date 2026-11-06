@@ -6,31 +6,24 @@ type:            helper
 generic:         true
 
 role:            Analyse de complétude d'un script collé dans CreateFiles.
-                 Utilise le PARSER TYPESCRIPT (déjà présent via Next.js) pour
-                 détecter les erreurs de syntaxe réelles (troncature, accolades
-                 non fermées, chaînes non fermées, etc.) au lieu d'un
-                 tokenizer maison. Détecte aussi les placeholders (TODO,
-                 FIXME, ...), les imports suspendus, et l'absence d'export.
-                 Calcule un score 0-100. Ne lève jamais.
+                 Utilise le PARSER TYPESCRIPT pour détecter les erreurs
+                 de syntaxe réelles. Détecte aussi les placeholders
+                 (TODO, FIXME, ...), les imports suspendus, et l'absence
+                 d'export. Calcule un score 0-100. Ne lève jamais.
+
+                 ⚠️ Un script qui ne contient QUE l'en-tête (sans code)
+                 est une ERREUR bloquante : le fichier serait créé vide.
+                 Score 50/100, hasError=true, bouton Ajouter désactivé,
+                 bouton Forcer visible.
 
                  ⚠️ parseDiagnostics n'est pas dans les types publics de
-                 TypeScript : on y accède via un cast `as unknown as
-                 { parseDiagnostics: ts.Diagnostic[] }`. La propriété
-                 existe bien à l'exécution.
-
-                 ⚠️ Avantages vs tokenizer maison :
-                 - Zéro faux positif sur JSX (`/>`, `</tag>`, attributs
-                   multi-lignes, expressions `{{...}}`).
-                 - Zéro faux positif sur les classes Tailwind (`chart-1/50`).
-                 - Détecte les vraies erreurs de syntaxe (accolade manquante,
-                   string non fermée, etc.).
-                 - Robuste aux regex, templates, commentaires imbriqués.
+                 TypeScript : on y accède via un cast explicite.
 
 flow:            analyzeScript(body) → parseScriptHeader (en-tête) →
-                 ts.createSourceFile (parse) → si parseSucceeded : score
-                 100 (moins placeholders + imports suspendus + pas d'export)
-                 → si parseFailed : score réduit selon le nombre d'erreurs
-                 → ScriptAnalysis.
+                 hasCodeAfterHeader (détection code) → si en-tête seul :
+                 error « fichier vide » + score 50 → si code :
+                 ts.createSourceFile (parse) + checks habituels →
+                 ScriptAnalysis.
 
 ecosystem:       CreateFiles = [
                    "@/app/genesis/components/ScriptAnalyzer.tsx",
@@ -48,7 +41,7 @@ exports:         ["ScriptIssue", "ScriptAnalysis", "analyzeScript"]
 useBy:           ["@/app/genesis/components/ScriptAnalyzer.tsx",
                   "@/app/genesis/components/ScriptInput.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux savoir si mon script est complet avant de l'ajouter"]
+userStories:     ["*en tant qu'utilisateur je veux être alerté si mon script est vide"]
 
 status:          planned
 pathChecked:     ✘false
@@ -90,6 +83,23 @@ export interface ScriptAnalysis {
   readonly hasExport: boolean;
   readonly lineCount: number;
   readonly hasError: boolean;
+  readonly hasCode: boolean;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+function extractHeaderBlock(body: string): string | null {
+  const match = body.match(/^\s*\/\*([\s\S]*?)\*\//);
+  return match ? match[0] : null;
+}
+
+function hasCodeAfterHeader(body: string): boolean {
+  const headerBlock = extractHeaderBlock(body);
+  if (!headerBlock) return false;
+  const afterHeader = body.slice(body.indexOf(headerBlock) + headerBlock.length);
+  return afterHeader.trim().length > 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -104,21 +114,11 @@ interface TsParseResult {
   readonly bracketBalance: number;
 }
 
-/**
- * Type interne pour accéder à `parseDiagnostics` qui n'est pas exposé
- * dans les types publics de TypeScript mais existe à l'exécution.
- */
 interface SourceFileWithDiagnostics extends ts.SourceFile {
   readonly parseDiagnostics: readonly ts.Diagnostic[];
 }
 
-/**
- * Parse le script avec TypeScript. Retourne les erreurs de syntaxe
- * réelles (pas d'heuristique) et un équilibrage approximatif des
- * délimiteurs (calculé sur l'AST, donc fiable).
- */
 function parseWithTypeScript(body: string): TsParseResult {
-  // Détermine le ScriptKind selon l'extension détectée dans l'en-tête.
   const parsed = parseScriptHeader(body);
   const ext = parsed.path?.split(".").pop()?.toLowerCase() ?? "ts";
   const scriptKind =
@@ -135,8 +135,6 @@ function parseWithTypeScript(body: string): TsParseResult {
     scriptKind,
   );
 
-  // parseDiagnostics existe à l'exécution mais n'est pas dans les types
-  // publics de TypeScript. On y accède via un cast explicite.
   const diagnostics =
     (sourceFile as SourceFileWithDiagnostics).parseDiagnostics ?? [];
 
@@ -151,7 +149,6 @@ function parseWithTypeScript(body: string): TsParseResult {
     },
   );
 
-  // Équilibrage fiable via l'AST : on compte les tokens réels.
   let braces = 0;
   let parens = 0;
   let brackets = 0;
@@ -180,7 +177,6 @@ function parseWithTypeScript(body: string): TsParseResult {
   };
   visit(sourceFile);
 
-  // Un déséquilibre dans l'AST est un signal fort.
   if (braces !== 0 || parens !== 0 || brackets !== 0) {
     ok = false;
     if (braces !== 0) {
@@ -308,6 +304,7 @@ export function analyzeScript(body: string): ScriptAnalysis {
 
   const parsed = parseScriptHeader(body);
   const hasHeader = parsed.path !== null;
+  const codeAfterHeader = hasCodeAfterHeader(body);
 
   if (!hasHeader) {
     issues.push({
@@ -318,7 +315,34 @@ export function analyzeScript(body: string): ScriptAnalysis {
     score -= 40;
   }
 
-  // Parse TypeScript : c'est LUI qui détecte les vraies erreurs de syntaxe.
+  // ⚠️ En-tête seul (sans code) = ERREUR bloquante.
+  if (hasHeader && !codeAfterHeader) {
+    issues.push({
+      severity: "error",
+      category: "content",
+      message: "Aucun code après l'en-tête — le fichier serait créé vide.",
+    });
+    score -= 50;
+
+    const lineCount = body.split(/\r?\n/).length;
+
+    return {
+      score: Math.max(0, Math.min(100, score)),
+      complete: false,
+      issues,
+      hasHeader,
+      headerPath: parsed.path,
+      braceBalance: 0,
+      parenBalance: 0,
+      bracketBalance: 0,
+      hasExport: false,
+      lineCount,
+      hasError: true,
+      hasCode: false,
+    };
+  }
+
+  // À partir d'ici, le script a du code.
   const tsResult = parseWithTypeScript(body);
   for (const err of tsResult.errors) {
     issues.push({
@@ -385,5 +409,6 @@ export function analyzeScript(body: string): ScriptAnalysis {
     hasExport,
     lineCount,
     hasError,
+    hasCode: true,
   };
 }

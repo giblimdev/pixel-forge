@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-06T16-47-43-199Z",
+  "createdAt": "2026-11-06T16:47:43.199Z",
+  "scriptCount": 1,
+  "createdCount": 0,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/genesis/page.tsx"
+    ],
+    "backedUp": [
+      "app/genesis/page.tsx"
+    ],
+    "rejected": []
+  }
+}

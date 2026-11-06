@@ -1,7 +1,7 @@
 /*
 path :           app/pixel/page.tsx
 tag :            ["pixel", "pixel-forge", "page", "hub", "landing", "pixel-forge-charte"]
-projectId:       new-genesis
+projectId:       pixel
 type:            page
 generic:         false
 
@@ -12,7 +12,8 @@ flow:            Server Component sync → hero → grille 6 cartes familles
                  → CTA final.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/page.tsx",
+                   "@/app/pixel/analyze/metadata/page.tsx",      ⚠️ À CRÉER
+                   "@/app/pixel/analyze/page.tsx",               ⚠️ À CRÉER
                    "@/app/pixel/components/PixelNav.tsx",
                    "@/app/pixel/convert/page.tsx",
                    "@/app/pixel/dashboard/page.tsx",
@@ -22,6 +23,11 @@ ecosystem:       Pixel = [
                    "@/app/pixel/optimize/page.tsx",
                    "@/app/pixel/page.tsx",
                  ]
+
+                 ⚠️ NOTE : `analyze/page.tsx` et `analyze/metadata/page.tsx`
+                 sont référencés (règle du CONTRIBUTING : tous les fichiers
+                 du domaine portent le même tableau) mais les fichiers
+                 n'existent pas encore.
 
 relatedFiles:    ["@/app/pixel/layout.tsx",
                   "@/components/ui/button.tsx"]

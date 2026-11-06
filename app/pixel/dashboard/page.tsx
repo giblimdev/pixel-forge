@@ -11,7 +11,8 @@ role:            Tableau de bord PixelForge. Affiche l'historique
 flow:            Server Component → header → historique → raccourcis.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/page.tsx",
+                   "@/app/pixel/analyze/metadata/page.tsx",      ⚠️ À CRÉER
+                   "@/app/pixel/analyze/page.tsx",               ⚠️ À CRÉER
                    "@/app/pixel/components/PixelNav.tsx",
                    "@/app/pixel/convert/page.tsx",
                    "@/app/pixel/dashboard/page.tsx",
@@ -21,6 +22,9 @@ ecosystem:       Pixel = [
                    "@/app/pixel/optimize/page.tsx",
                    "@/app/pixel/page.tsx",
                  ]
+
+                 ⚠️ NOTE : `analyze/page.tsx` et `analyze/metadata/page.tsx`
+                 sont référencés mais n'existent pas encore.
 
 relatedFiles:    ["@/app/pixel/page.tsx",
                   "@/components/ui/button.tsx"]
@@ -63,7 +67,8 @@ export default function PixelDashboardPage() {
           Vue d&apos;ensemble
         </h2>
         <p className="text-sm text-[var(--pf-muted)]">
-          Accédez rapidement à vos outils et retrouvez vos derniers traitements.
+          Accédez rapidement à vos outils et retrouvez vos derniers
+          traitements.
         </p>
       </header>
 
@@ -83,7 +88,8 @@ export default function PixelDashboardPage() {
         </h3>
         <p className="mx-auto mt-1 max-w-md text-sm text-[var(--pf-muted)]">
           Vos derniers traitements apparaîtront ici. L&apos;historique est
-          stocké localement (localStorage) et ne quitte jamais votre navigateur.
+          stocké localement (localStorage) et ne quitte jamais votre
+          navigateur.
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           <Link

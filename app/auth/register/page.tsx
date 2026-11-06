@@ -1,16 +1,24 @@
 /*
 path :           app/auth/register/page.tsx
+tag :            ["auth", "register", "page", "session", "suspense"]
 projectId:       new-genesis
 type:            page
 generic:         false
 
-role:            Page d'inscription. Vérifie la session dans un composant enfant
-                 asynchrone enveloppé dans <Suspense> (Cache Components). Si
-                 l'utilisateur est déjà connecté, redirige vers /auth/welcome.
-                 Sinon, rend <RegisterForm />.
+role:            Page d'inscription. Vérifie la session dans un composant
+                 enfant asynchrone (SessionGate) enveloppé dans <Suspense>
+                 pour respecter le pattern Cache Components de Next.js 16.
+                 Si l'utilisateur est déjà connecté, redirige vers
+                 /auth/welcome. Sinon, rend <RegisterForm
+                 callbackUrl="/auth/login" />. Le skeleton (RegisterSkeleton)
+                 reprend la structure visuelle du formulaire (avatar + nom +
+                 email + mot de passe + force + confirmation) pour éviter
+                 le CLS pendant le chargement.
 
-flow:            Server Component sync → <Suspense fallback=<RegisterSkeleton />> →
-                 <SessionGate /> (async) → getSession() → redirect ou <RegisterForm />.
+flow:            Server Component sync → <Suspense fallback=<RegisterSkeleton />>
+                 → <SessionGate /> (async) → getSession() → si session :
+                 redirect("/auth/welcome") → sinon : <RegisterForm
+                 callbackUrl="/auth/login" />.
 
 ecosystem:       Auth = [
                    "@/app/api/auth/[...all]/route.ts",
@@ -29,7 +37,9 @@ ecosystem:       Auth = [
                  ]
 
 relatedFiles:    ["@/app/auth/register/RegisterForm.tsx",
-                  "@/lib/auth/session.ts"]
+                  "@/lib/auth/session.ts",
+                  "@/components/ui/skeleton.tsx",
+                  "@/app/auth/welcome/page.tsx"]
 
 imports:         ["next", "react", "next/navigation",
                   "@/lib/auth/session",

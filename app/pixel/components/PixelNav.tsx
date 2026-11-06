@@ -12,7 +12,8 @@ role:            Navigation interne PixelForge. 6 onglets : Dashboard,
 flow:            Client Component → usePathname → Link actif/inactif.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/page.tsx",
+                   "@/app/pixel/analyze/metadata/page.tsx",      ⚠️ À CRÉER
+                   "@/app/pixel/analyze/page.tsx",               ⚠️ À CRÉER
                    "@/app/pixel/components/PixelNav.tsx",
                    "@/app/pixel/convert/page.tsx",
                    "@/app/pixel/dashboard/page.tsx",
@@ -22,6 +23,16 @@ ecosystem:       Pixel = [
                    "@/app/pixel/optimize/page.tsx",
                    "@/app/pixel/page.tsx",
                  ]
+
+                 ⚠️ NOTE : `analyze/page.tsx` et `analyze/metadata/page.tsx`
+                 sont référencés (règle du CONTRIBUTING : tous les fichiers
+                 du domaine portent le même tableau) mais les fichiers
+                 n'existent pas encore. Ils seront créés dans l'itération
+                 suivante. Tant qu'ils n'existent pas, la route
+                 /pixel/analyze renverra 404 — c'est attendu et documenté.
+                 Ne PAS retirer les lignes du tableau : cela casserait la
+                 cohérence avec les autres fichiers PixelForge qui les
+                 listent aussi.
 
 relatedFiles:    ["@/app/pixel/layout.tsx"]
 

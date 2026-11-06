@@ -1,7 +1,7 @@
 /*
 path :           app/pixel/layout.tsx
 tag :            ["pixel", "pixel-forge", "layout", "pixel-forge-charte"]
-projectId:       new-genesis
+projectId:       pixel
 type:            layout
 generic:         false
 
@@ -22,7 +22,8 @@ flow:            Server Component → wrapper min-h-svh dégradé →
                  <main> conteneur max-w-screen-2xl → {children}.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/page.tsx",
+                   "@/app/pixel/analyze/metadata/page.tsx",      ⚠️ À CRÉER
+                   "@/app/pixel/analyze/page.tsx",               ⚠️ À CRÉER
                    "@/app/pixel/components/PixelNav.tsx",
                    "@/app/pixel/convert/page.tsx",
                    "@/app/pixel/dashboard/page.tsx",
@@ -32,6 +33,12 @@ ecosystem:       Pixel = [
                    "@/app/pixel/optimize/page.tsx",
                    "@/app/pixel/page.tsx",
                  ]
+
+                 ⚠️ NOTE : `analyze/page.tsx` et `analyze/metadata/page.tsx`
+                 sont référencés (règle du CONTRIBUTING : tous les fichiers
+                 du domaine portent le même tableau) mais les fichiers
+                 n'existent pas encore. Ils seront créés dans l'itération
+                 suivante.
 
 relatedFiles:    ["@/app/pixel/components/PixelNav.tsx",
                   "@/app/pixel/page.tsx",
@@ -72,15 +79,12 @@ export default function PixelLayout({
 }) {
   return (
     <div className="min-h-svh bg-gradient-to-b from-[var(--pf-background)] via-[var(--pf-background)] to-[var(--pf-surface)]/30">
-      {/* Bande dégradée signature PixelForge */}
       <div
         aria-hidden
         className="h-[2px] w-full bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] opacity-80"
       />
-
       <div className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="space-y-6">
-          {/* Header interne PixelForge */}
           <header className="space-y-3">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-primary)]">
               Atelier d&apos;images
@@ -95,11 +99,7 @@ export default function PixelLayout({
               </p>
             </div>
           </header>
-
-          {/* Navigation principale */}
           <PixelNav />
-
-          {/* Contenu */}
           <div className="pt-2">{children}</div>
         </div>
       </div>

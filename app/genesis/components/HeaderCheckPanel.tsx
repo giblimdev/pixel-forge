@@ -11,28 +11,29 @@ role:            Orchestrateur de l'outil check-headers. Reprend le
                  en-têtes » qui envoie UNIQUEMENT les fichiers cochés à
                  checkHeadersAction (qui retourne aussi la réciprocité
                  calculée globalement). Affiche le rapport de base puis
-                 le rapport de réciprocité.
+                 le rapport de réciprocité ACTIONNABLE (chaque anomalie
+                 a 2 boutons : « Copier les deux fichiers » +
+                 « Copier le message »). Le composant passe `report` ET
+                 `reciprocity` à HeaderReciprocityReportView (les deux
+                 sont requis pour accéder aux contenus des fichiers).
 
 flow:            Reçoit tree + exclusions → useState(exclusionsOpen,
                  selectedPaths, report, reciprocity) → FileTree +
                  HeaderExclusionsDialog + bouton Vérifier → à chaque
                  changement de sélection → Vérifier → checkHeadersAction
                  (selectedPaths) → setReport + setReciprocity →
-                 HeaderCheckReportView + HeaderReciprocityReportView.
+                 HeaderCheckReportView + HeaderReciprocityReportView
+                 (reciprocity + report).
 
 ecosystem:       CheckHeaders = [
                    "@/app/genesis/lib/header-types.ts",
-                   "@/app/genesis/lib/header-rules.ts",
-                   "@/app/genesis/lib/header-parser.ts",
-                   "@/app/genesis/lib/header-check.ts",
-                   "@/app/genesis/lib/header-validations.ts",
                    "@/app/genesis/actions/header-check.ts",
-                   "@/app/genesis/components/HeaderExclusionsDialog.tsx",
-                   "@/app/genesis/components/HeaderFileViewerDialog.tsx",
-                   "@/app/genesis/components/HeaderReciprocityReport.tsx",
-                   "@/app/genesis/components/HeaderCheckPanel.tsx",
+                   "@/app/genesis/components/FileTree.tsx",
                    "@/app/genesis/components/HeaderCheckReport.tsx",
                    "@/app/genesis/components/HeaderCheckRow.tsx",
+                   "@/app/genesis/components/HeaderReciprocityReport.tsx",
+                   "@/app/genesis/components/HeaderExclusionsDialog.tsx",
+                   "@/app/genesis/components/HeaderCheckPanel.tsx",
                    "@/app/genesis/check-headers/page.tsx",
                  ]
 
@@ -57,7 +58,7 @@ exports:         ["HeaderCheckPanel", "HeaderCheckPanelProps"]
 
 useBy:           ["@/app/genesis/check-headers/page.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux sélectionner les fichiers à scanner et voir la réciprocité"]
+userStories:     ["*en tant qu'utilisateur je veux sélectionner les fichiers à scanner et copier les fichiers incriminés"]
 
 status:          planned
 pathChecked:     ✘false
@@ -139,8 +140,11 @@ export function HeaderCheckPanel({ tree, exclusions }: HeaderCheckPanelProps) {
       </div>
 
       {report && <HeaderCheckReportView report={report} />}
-      {reciprocity && (
-        <HeaderReciprocityReportView reciprocity={reciprocity} />
+      {reciprocity && report && (
+        <HeaderReciprocityReportView
+          reciprocity={reciprocity}
+          report={report}
+        />
       )}
 
       <HeaderExclusionsDialog

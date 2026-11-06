@@ -1,40 +1,42 @@
 /*
 path :           app/genesis/check-headers/page.tsx
-tag :            ["genesis", "check-headers", "page"]
+tag :            ["genesis", "check-headers", "page", "dynamic"]
 projectId:       new-genesis
 type:            page
 generic:         false
 
 role:            Page de l'outil check-headers. Sync page + Suspense ;
-                 lecture de l'arbre et des exclusions dédiées dans un
-                 composant async pour éviter de bloquer le premier rendu.
-                 Le skeleton reprend la structure (toolbar + zone rapport).
+                 lecture des exclusions et de l'arbre dans un composant
+                 async. `await connection()` force le rendu dynamique
+                 (sinon Next.js 16 tente de pré-rendre la page au build
+                 et bloque sur "rendering (cold cache)" à cause des I/O
+                 FS de buildFileTree). L'arbre est filtré DEUX FOIS :
+                 1. buildFileTree applique les exclusions simples.
+                 2. filterByPathExclusion retire les exclusions par
+                    chemin (components/ui, tous les .next, etc.).
 
 flow:            Sync page → <Suspense fallback=<CheckHeadersSkeleton />>
-                 → <CheckHeadersSection /> async →
-                 getHeaderExclusionsAction → buildFileTree(exclusions) →
+                 → <CheckHeadersSection /> async → await connection()
+                 (force dynamique) → getHeaderExclusionsAction →
+                 buildFileTree(exclusions) → filterByPathExclusion →
                  <HeaderCheckPanel tree exclusions />.
 
 ecosystem:       CheckHeaders = [
-                   "@/app/genesis/lib/header-types.ts",
-                   "@/app/genesis/lib/header-rules.ts",
-                   "@/app/genesis/lib/header-parser.ts",
-                   "@/app/genesis/lib/header-check.ts",
-                   "@/app/genesis/lib/header-validations.ts",
+                   "@/app/genesis/lib/exclusions-path.ts",
+                   "@/app/genesis/lib/tree.ts",
                    "@/app/genesis/actions/header-check.ts",
-                   "@/app/genesis/components/HeaderExclusionsDialog.tsx",
                    "@/app/genesis/components/HeaderCheckPanel.tsx",
-                   "@/app/genesis/components/HeaderCheckReport.tsx",
-                   "@/app/genesis/components/HeaderCheckRow.tsx",
                    "@/app/genesis/check-headers/page.tsx",
                  ]
 
-relatedFiles:    ["@/app/genesis/components/HeaderCheckPanel.tsx",
+relatedFiles:    ["@/app/genesis/lib/exclusions-path.ts",
+                  "@/app/genesis/lib/tree.ts",
                   "@/app/genesis/actions/header-check.ts",
-                  "@/app/genesis/lib/tree.ts"]
+                  "@/app/genesis/components/HeaderCheckPanel.tsx"]
 
-imports:         ["react",
+imports:         ["react", "next/server",
                   "@/app/genesis/lib/tree",
+                  "@/app/genesis/lib/exclusions-path",
                   "@/app/genesis/lib/types",
                   "@/app/genesis/actions/header-check",
                   "@/app/genesis/components/HeaderCheckPanel",
@@ -53,8 +55,10 @@ scriptChecked:   ✘false
 */
 
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 import { buildFileTree } from "@/app/genesis/lib/tree";
+import { filterByPathExclusion } from "@/app/genesis/lib/exclusions-path";
 import type { FileNode } from "@/app/genesis/lib/types";
 import { getHeaderExclusionsAction } from "@/app/genesis/actions/header-check";
 import { HeaderCheckPanel } from "@/app/genesis/components/HeaderCheckPanel";
@@ -69,9 +73,18 @@ export default function CheckHeadersPage() {
 }
 
 async function CheckHeadersSection() {
+  // Force le rendu dynamique : sans ça, Next.js 16 (Cache Components)
+  // tente de pré-rendre la page au build et bloque sur les I/O FS de
+  // buildFileTree ("rendering (cold cache)").
+  await connection();
+
   const exclusionsResponse = await getHeaderExclusionsAction();
-  const exclusions = exclusionsResponse.ok ? exclusionsResponse.data.exclusions : [];
-  const tree: readonly FileNode[] = await buildFileTree(exclusions);
+  const exclusions = exclusionsResponse.ok
+    ? exclusionsResponse.data.exclusions
+    : [];
+
+  const rawTree: readonly FileNode[] = await buildFileTree(exclusions);
+  const tree = filterByPathExclusion(rawTree, exclusions);
 
   return <HeaderCheckPanel tree={tree} exclusions={exclusions} />;
 }

@@ -1,7 +1,7 @@
 /*
 path :           app/genesis/components/ResultDialog.tsx
-tag :            ["genesis", "result", "dialog", "export", "ui"]
-projectId:       new-genesis
+tag :            ["genesis", "result", "dialog", "export", "ui", "select-files"]
+projectId:       genesis
 type:            component
 generic:         false
 
@@ -25,6 +25,7 @@ ecosystem:       Genesis = [
                    "@/app/genesis/actions/exclusions.ts",
                    "@/app/genesis/actions/read-files.ts",
                    "@/app/genesis/actions/write-files.ts",
+                   "@/app/genesis/cmd/page.tsx",
                    "@/app/genesis/components/ContextFileEditor.tsx",
                    "@/app/genesis/components/ContextOutput.tsx",
                    "@/app/genesis/components/CopyToIaPanel.tsx",
@@ -39,8 +40,12 @@ ecosystem:       Genesis = [
                    "@/app/genesis/components/ScriptQueue.tsx",
                    "@/app/genesis/components/ScriptQueueItem.tsx",
                    "@/app/genesis/components/WriteReport.tsx",
+                   "@/app/genesis/components/cmd/CommandList.tsx",
+                   "@/app/genesis/components/cmd/DesignShowcase.tsx",
+                   "@/app/genesis/components/cmd/StackCard.tsx",
                    "@/app/genesis/copy-to-ia/page.tsx",
                    "@/app/genesis/create-files/page.tsx",
+                   "@/app/genesis/help/page.tsx",
                    "@/app/genesis/layout.tsx",
                    "@/app/genesis/lib/context-files.ts",
                    "@/app/genesis/lib/exclusions.ts",
@@ -69,7 +74,7 @@ useBy:           ["@/app/genesis/components/ReadFilesPanel.tsx"]
 
 userStories:     ["*en tant qu'utilisateur je veux prévisualiser et exporter le JSON de ma sélection"]
 
-status:          planned
+status:          done
 pathChecked:     ✔true
 metaDataChecked: ✔true
 scriptChecked:   ✔true
@@ -158,7 +163,11 @@ function buildMarkdown(result: ReadFilesResult): string {
 /*  Composant                                                          */
 /* ------------------------------------------------------------------ */
 
-export function ResultDialog({ open, onOpenChange, result }: ResultDialogProps) {
+export function ResultDialog({
+  open,
+  onOpenChange,
+  result,
+}: ResultDialogProps) {
   const [copied, setCopied] = useState(false);
   const [view, setView] = useState<ViewMode>("json");
   const [isPending, startTransition] = useTransition();
@@ -167,7 +176,10 @@ export function ResultDialog({ open, onOpenChange, result }: ResultDialogProps) 
     () => (result ? JSON.stringify(result, null, 2) : ""),
     [result],
   );
-  const mdString = useMemo(() => (result ? buildMarkdown(result) : ""), [result]);
+  const mdString = useMemo(
+    () => (result ? buildMarkdown(result) : ""),
+    [result],
+  );
 
   const displayed = view === "json" ? jsonString : mdString;
   const isJsonView = view === "json";
@@ -251,7 +263,11 @@ export function ResultDialog({ open, onOpenChange, result }: ResultDialogProps) 
                   size="sm"
                   onClick={handleCopy}
                   disabled={!isJsonView}
-                  title={!isJsonView ? "Disponible en vue JSON uniquement" : undefined}
+                  title={
+                    !isJsonView
+                      ? "Disponible en vue JSON uniquement"
+                      : undefined
+                  }
                 >
                   {copied ? (
                     <>
@@ -270,7 +286,11 @@ export function ResultDialog({ open, onOpenChange, result }: ResultDialogProps) 
                   size="sm"
                   onClick={handleSave}
                   disabled={isPending || !isJsonView}
-                  title={!isJsonView ? "Disponible en vue JSON uniquement" : undefined}
+                  title={
+                    !isJsonView
+                      ? "Disponible en vue JSON uniquement"
+                      : undefined
+                  }
                 >
                   <Save className="size-4" aria-hidden />
                   {isPending ? "Sauvegarde…" : "Sauvegarder"}

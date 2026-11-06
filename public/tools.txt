@@ -606,13 +606,17 @@ lib/image-engine/
 14 — Persistance	Historique des traitements et préférences Prisma
 
 
-///
+/// 
 
 genesis/check-headers : Réciprocité des relations
 selement un bouton pour copier les deux fichiers et le message d'erreur
 
-/////
+///// 
 
+
+
+
+http://localhost:3000/genesis brancher checkheader
 
 ////
 s'assurer que te tous les fichier passer en prompt on ete lu 
@@ -624,9 +628,6 @@ s'assurer que te tous les fichier passer en prompt on ete lu
 s'assurere que tout les entete ont ete analyser
 /////
 
-///
-genesis/create-files : rapport ecriture muet met sauvgardé et bouton d'ouverture de la page pour voir les rapport (dix dernier ou tous et possibilité de nettoyage)
-///
 
 
 ///////////////////////

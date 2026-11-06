@@ -1,5 +1,6 @@
 /*
 path :           app/auth/register/RegisterForm.tsx
+tag :            ["auth", "register", "form", "component"]
 projectId:       new-genesis
 type:            component
 generic:         false
@@ -30,13 +31,14 @@ ecosystem:       Auth = [
                    "@/lib/auth/auth.ts",
                    "@/lib/auth/session.ts",
                    "@/lib/validations/auth.ts",
+                   "@/utils/initials.ts",
                  ]
 
 relatedFiles:    ["@/app/auth/register/page.tsx",
                   "@/components/auth/PasswordInput.tsx",
                   "@/components/auth/PasswordStrength.tsx",
                   "@/lib/auth/auth-client.ts",
-                  "@/lib/utils/initials.ts",
+                  "@/utils/initials.ts",
                   "@/lib/validations/auth.ts",
                   "@/components/ui/alert.tsx",
                   "@/components/ui/avatar.tsx",
@@ -55,7 +57,7 @@ imports:         ["react", "next/link", "next/navigation",
                   "@/components/auth/PasswordInput",
                   "@/components/auth/PasswordStrength",
                   "@/lib/auth/auth-client",
-                  "@/lib/utils/initials",
+                  "@/utils/initials",
                   "@/lib/validations/auth"]
 
 exports:         ["RegisterForm", "RegisterFormProps"]
@@ -64,10 +66,10 @@ useBy:           ["@/app/auth/register/page.tsx"]
 
 userStories:     ["*en tant qu'utilisateur je veux créer un compte avec mon email"]
 
-status:          planned
-pathChecked:     ✘false
-metaDataChecked: ✘false
-scriptChecked:   ✘false
+status:          done
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 "use client";

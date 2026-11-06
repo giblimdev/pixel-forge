@@ -1,6 +1,6 @@
 {
-  "id": "2026-11-06T15-45-47-273Z",
-  "createdAt": "2026-11-06T15:45:47.273Z",
+  "id": "2026-11-06T16-27-38-197Z",
+  "createdAt": "2026-11-06T16:27:38.197Z",
   "scriptCount": 1,
   "createdCount": 0,
   "overwrittenCount": 1,
@@ -9,10 +9,10 @@
   "report": {
     "created": [],
     "overwritten": [
-      "app/genesis/lib/analyze-script.ts"
+      "app/genesis/components/HeaderCheckPanel.tsx"
     ],
     "backedUp": [
-      "app/genesis/lib/analyze-script.ts"
+      "app/genesis/components/HeaderCheckPanel.tsx"
     ],
     "rejected": []
   }
