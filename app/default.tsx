@@ -1,16 +1,22 @@
 /*
 path :           app/default.tsx
-projectId:       <à fournir>
-type:            layout
-generic:         false
+tag :            ["app", "default", "fallback", "slot", "next-special"]
+projectId:       new-genesis
+type:            component
+generic:         true
 
-role:            Fallback de route par défaut. Utilisé par Next.js comme
-                 contenu de secours pour un slot parallèle non matché lors
-                 d'une navigation. L'application n'utilise pas de routes
-                 parallèles (@slot) pour l'instant — ce fichier existe comme
-                 point d'ancrage, rend null et ne produit aucun effet visuel.
+role:            Fallback de route par défaut. Fichier spécial Next.js
+                 (`default.tsx`) : utilisé comme contenu de secours pour
+                 un slot parallèle non matché lors d'une navigation
+                 (App Router). L'application n'utilise pas encore de
+                 routes parallèles (@slot) — ce fichier existe comme
+                 point d'ancrage, rend null et ne produit aucun effet
+                 visuel. Server Component pur (aucune donnée, aucun
+                 état, aucun effet).
 
-flow:            Server Component → retourne null. Aucune donnée, aucun état.
+flow:            Server Component → retourne null. Next.js le monte
+                 automatiquement si un slot parallèle n'a pas de match
+                 pour la route courante. Aucun rendu.
 
 ecosystem:       AppShell = [
                    "@/app/layout.tsx",
@@ -21,12 +27,17 @@ ecosystem:       AppShell = [
                    "@/app/template.tsx",
                    "@/app/default.tsx",
                  ]
+
 relatedFiles:    ["@/app/layout.tsx"]
+
 imports:         []
+
 exports:         ["default Default"]
+
 useBy:           []
 
 userStories:     ["*en tant que développeur je veux un fallback de route par défaut"]
+
 status:          planned
 pathChecked:     ✘false
 metaDataChecked: ✘false

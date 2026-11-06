@@ -1,6 +1,7 @@
 /*
 path :           app/auth/welcome/page.tsx
-projectId : new-genesis
+tag :            ["auth", "welcome", "page", "animation", "motion", "redirect"]
+projectId:       new-genesis
 type:            page
 generic:         false
 
@@ -11,28 +12,48 @@ role:            Page d'accueil affichée juste après une connexion réussie.
                  À la fin : exit animé puis redirection automatique vers /.
                  Un bouton « Passer » (top-right) et un Link vers / (bottom)
                  permettent de court-circuiter l'animation à tout moment.
+                 Respecte prefers-reduced-motion (version statique rendue).
 
 flow:            Client Component → useReducedMotion (accessibilité) →
-                 useEffect programme exitTimer (5,5 s) et redirectTimer (6 s)
-                 → état `exiting` déclenche la variante "exit" de motion →
-                 router.push("/") en fin de séquence. Bouton Passer → même
-                 chemin accéléré.
+                 useEffect programme exitTimer (5,5 s) et redirectTimer
+                 (6 s) → état `exiting` déclenche la variante "exit" de
+                 motion → router.push("/") en fin de séquence. Bouton
+                 Passer → même chemin accéléré (setExiting + push après
+                 200 ms). Si reduced-motion : rendu statique sans timers.
 
 ecosystem:       Auth = [
+                   "@/app/api/auth/[...all]/route.ts",
+                   "@/app/auth/layout.tsx",
+                   "@/app/auth/login/LoginForm.tsx",
                    "@/app/auth/login/page.tsx",
+                   "@/app/auth/register/RegisterForm.tsx",
                    "@/app/auth/register/page.tsx",
                    "@/app/auth/welcome/page.tsx",
+                   "@/components/auth/PasswordInput.tsx",
+                   "@/components/auth/PasswordStrength.tsx",
+                   "@/lib/auth/auth-client.ts",
+                   "@/lib/auth/auth.ts",
+                   "@/lib/auth/session.ts",
+                   "@/lib/validations/auth.ts",
                  ]
+
 relatedFiles:    ["@/app/auth/login/page.tsx",
+                  "@/app/auth/register/page.tsx",
                   "@/components/ui/button.tsx"]
+
 imports:         ["react", "next/link", "next/navigation",
                   "motion/react", "lucide-react",
                   "@/components/ui/button"]
+
 exports:         ["default WelcomePage"]
-useBy:           []
+
+useBy:           ["@/app/auth/login/LoginForm.tsx",
+                  "@/app/auth/login/page.tsx",
+                  "@/app/auth/register/page.tsx"]
 
 userStories:     ["*en tant qu'utilisateur je veux une page de bienvenue animée après connexion",
                   "*en tant qu'utilisateur je veux être redirigé vers l'accueil à la fin"]
+
 status:          planned
 pathChecked:     ✘false
 metaDataChecked: ✘false

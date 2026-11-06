@@ -1,14 +1,22 @@
 /*
 path :           app/auth/login/page.tsx
+tag :            ["auth", "login", "page", "session", "suspense"]
 projectId:       new-genesis
 type:            page
 generic:         false
 
-role:            Page de connexion. Vérifie la session dans un composant enfant
-                 asynchrone enveloppé, redirige vers /auth/welcome. Sinon, rend <LoginForm />.
+role:            Page de connexion. Vérifie la session dans un composant
+                 enfant asynchrone (SessionGate) enveloppé dans <Suspense>
+                 pour respecter le pattern Cache Components de Next.js 16.
+                 Si une session existe, redirige vers /auth/welcome. Sinon,
+                 rend <LoginForm callbackUrl="/auth/welcome" />. Le
+                 skeleton (LoginSkeleton) reprend la structure visuelle
+                 du formulaire pour éviter le CLS pendant le chargement.
 
-flow:            Server Component sync → <Suspense fallback=<LoginSkeleton />> →
-                 <SessionGate /> (async) → getSession() → redirect ou <LoginForm />.
+flow:            Server Component sync → <Suspense fallback=<LoginSkeleton />>
+                 → <SessionGate /> (async) → getSession() → si session :
+                 redirect("/auth/welcome") → sinon : <LoginForm
+                 callbackUrl="/auth/welcome" />.
 
 ecosystem:       Auth = [
                    "@/app/api/auth/[...all]/route.ts",
@@ -27,7 +35,9 @@ ecosystem:       Auth = [
                  ]
 
 relatedFiles:    ["@/app/auth/login/LoginForm.tsx",
-                  "@/lib/auth/session.ts"]
+                  "@/lib/auth/session.ts",
+                  "@/components/ui/skeleton.tsx",
+                  "@/app/auth/welcome/page.tsx"]
 
 imports:         ["next", "react", "next/navigation",
                   "@/lib/auth/session",

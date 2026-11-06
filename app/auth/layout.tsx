@@ -1,6 +1,6 @@
 /*
 path :           app/auth/layout.tsx
-tag :            ["auth", "layout", "branding"]
+tag :            ["auth", "layout", "branding", "suspense"]
 projectId:       new-genesis
 type:            layout
 generic:         false
@@ -9,11 +9,15 @@ role:            Layout commun aux pages /auth/* (login, register, welcome).
                  Présente un panneau de marque à gauche (desktop) et la zone
                  de formulaire centrée à droite (tous formats). Affiche un
                  mini-logo en haut de la zone formulaire sur mobile (le panneau
-                 gauche est masqué sous lg). Server Component pur.
+                 gauche est masqué sous lg). Server Component pur : aucun
+                 state, aucun effet, aucun hook client. Le branding est
+                 décoratif (dégradés, orbes floues) et n'affecte pas
+                 l'accessibilité (aria-hidden sur les éléments décoratifs).
 
 flow:            Server Component → rend une grille min-h-svh lg:grid-cols-2
-                 → aside branding (masqué < lg) + main formulaire qui monte
-                 les enfants (page login/register/welcome).
+                 → aside branding (masqué < lg) avec logo Sparkles + tagline
+                 + copyright → main formulaire qui monte les enfants (page
+                 login/register/welcome) + mini-logo mobile (lg:hidden).
 
 ecosystem:       Auth = [
                    "@/app/api/auth/[...all]/route.ts",
@@ -39,7 +43,9 @@ imports:         ["next/link", "lucide-react"]
 
 exports:         ["default AuthLayout"]
 
-useBy:           []
+useBy:           ["@/app/auth/login/page.tsx",
+                  "@/app/auth/register/page.tsx",
+                  "@/app/auth/welcome/page.tsx"]
 
 userStories:     ["*en tant qu'utilisateur je veux une mise en page de marque cohérente pour l'authentification"]
 

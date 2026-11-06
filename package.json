@@ -34,6 +34,7 @@
     "@tiptap/starter-kit": "^3.32.0",
     "archiver": "^8.0.0",
     "better-auth": "^1.7.10",
+    "blurhash": "^2.0.5",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
     "cn": "^0.4.0",

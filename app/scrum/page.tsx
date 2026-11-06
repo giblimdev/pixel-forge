@@ -1,8 +1,8 @@
 /*
 path :           app/scrum/page.tsx
 tag :            ["scrum", "hub", "redirect", "mono-flux"]
-projectId:       <à fournir>
-type:            page d'entrée
+projectId:       new-genesis
+type:            page
 generic:         false
 
 role:            Point d'entrée du module /scrum. Avec un seul flux

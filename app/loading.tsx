@@ -1,18 +1,25 @@
 /*
 path :           app/loading.tsx
-projectId:       <à fournir>
+tag :            ["app", "loading", "suspense", "ui", "next-special"]
+projectId:       new-genesis
 type:            component
 generic:         true
 
-role:            Écran de chargement global de l'application. Affiché par Next.js
-                 pendant le streaming d'une route dont le rendu n'est pas encore prêt
-                 (Suspense boundary automatique au niveau du root layout).
-                 Design cohérent avec la marque : pastille dégradée (chart-1 → chart-3)
-                 avec halo pulsant + message discret.
+role:            Écran de chargement global de l'application. Affiché par
+                 Next.js pendant le streaming d'une route dont le rendu
+                 n'est pas encore prêt (Suspense boundary automatique au
+                 niveau du root layout). Fichier spécial Next.js
+                 (`loading.tsx`) : son export default est monté
+                 automatiquement par le framework, pas par un parent React.
+                 Design cohérent avec la marque : pastille dégradée
+                 (chart-1 → chart-3) avec halo pulsant + message discret.
+                 Server Component pur (les animations Tailwind
+                 `animate-ping` / `animate-spin` sont compatibles SSR).
 
-flow:            Rendu statique → aucune donnée, aucun état. Composant purement
-                 présentationnel. Les animations (animate-ping / animate-spin) sont
-                 du CSS Tailwind, donc compatibles Server Component.
+flow:            Rendu statique → aucune donnée, aucun état, aucun effet.
+                 Composant purement présentationnel. Next.js le monte
+                 automatiquement pendant le chargement de la route
+                 correspondante (root = toutes les routes).
 
 ecosystem:       AppShell = [
                    "@/app/layout.tsx",
@@ -23,12 +30,17 @@ ecosystem:       AppShell = [
                    "@/app/template.tsx",
                    "@/app/default.tsx",
                  ]
+
 relatedFiles:    ["@/app/layout.tsx"]
+
 imports:         ["lucide-react"]
+
 exports:         ["default Loading"]
+
 useBy:           []
 
 userStories:     ["*en tant qu'utilisateur je veux voir un indicateur de chargement"]
+
 status:          planned
 pathChecked:     ✘false
 metaDataChecked: ✘false

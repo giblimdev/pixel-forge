@@ -1,0 +1,664 @@
+tool 1 — Conversion de format universelle
+Description : 
+Convertir entre tous les formats supportés par sharp : JPEG ↔ PNG ↔ WebP ↔ AVIF ↔ TIFF ↔ GIF
+Conversion d'images JPEG, PNG, GIF, AVIF, TIFF en WebP avec contrôle de la qualité (1-100), et svg
+du mode (lossy / lossless / near-lossless), des métadonnées (EXIF, ICC) et du redimensionnement (fit cover / contain / inside). Traitement par lot avec files d'attente, aperçu avant/après et téléchargement ZIP.
+Intérêt : WebP réduit le poids de 25 à 35 % à qualité visuelle égale par rapport au JPEG. C'est le premier besoin des développeurs web.
+
+tool 2 — Optimisation du poids et de la taille
+Description : Réduction du poids par compression intelligente 
+(qualité adaptative, quantization, strip des métadonnées inutiles), redimensionnement proportionnel ou libre, 
+et recadrage intelligent (smart crop basé sur l'entropie). Comparaison avant/après (poids, dimensions, qualité SSIM). 
+Seuils cibles configurables (ex. « ne pas dépasser 200 Ko »).
+Intérêt : Chaque kilo-octet économisé améliore le SEO, le temps de chargement et l'expérience mobile.
+
+tool 3 — Génération de favicons complets (ICO + PNG + manifest)
+Description : Création de fichiers .ico à partir d'une image source (PNG, JPEG, SVG) avec sélection des tailles (16, 24, 32, 48, 64, 128, 256) dans un seul fichier ICO. Détection automatique des tailles recommandées pour Windows / navigateurs. Aperçu de chaque résolution et validation de la transparence.
+À partir d'une image source, générer tous les favicons nécessaires : favicon.ico, apple-touch-icon.png, android-chrome-192x192.png, android-chrome-512x512.png, manifest.webmanifest. ZIP téléchargeable.
+Intérêt : Les favicons et icônes d'application sont fastidieux à produire. Un générateur multi-résolutions fiable évite les allers-retours avec des outils en ligne qui ajoutent des filigranes.
+
+tool 4 — PNG transparents et détourage
+Description : Suppression d'un fond uni (couleur choisie par pipette) avec tolérance réglable, remplacement par transparence, lissage des contours (anti-aliasing) et édition manuelle au pinceau gomme. Détection automatique des arrière-plans unis (blanc, noir, vert). Export PNG avec alpha.
+
+Intérêt : Les PNG transparents sont partout : logos, mockups, illustrations. Le détourage manuel est chronophage ; un détourage automatique sur fond uni couvre la majorité des cas.
+
+tool 5 — Compression PNG / JPEG (sans changer de format)
+Description : Réduire le poids d'un PNG ou JPEG en gardant le même format. Utile pour les assets qui doivent rester en PNG (transparence) ou JPEG (compatibilité).
+
+tool 6 — Redimensionnement par lot
+Description : Redimensionner N images vers des dimensions cibles (largeur max, hauteur max, fit cover/contain/inside). Génération de plusieurs tailles (ex. 320/640/1280 pour le responsive).
+
+tool 7 — Recadrage intelligent (smart crop)
+Description : Recadrer automatiquement une image vers un ratio (16:9, 1:1, 4:3) en gardant le sujet au centre. Basé sur sharp.strategy.attention (détection d'entropie).
+
+tool 8 — Extraction / suppression de métadonnées EXIF
+Description : Voir les EXIF (GPS, appareil, date) d'une image et les supprimer (vie privée). sharp.withMetadata() / sharp.strip().
+
+tool 9 — Génération de placeholder LQIP / blurhash
+Description : À partir d'une image, générer un placeholder ultra-léger (LQIP base64, blurhash, ou SVG flouté) à intégrer dans une page avant le chargement complet.
+
+tool 10 — Watermark / filigrane
+Description : Ajouter un logo ou un texte sur N images (position, opacité, taille). Traitement par lot, aperçu.
+
+tool 11 —  Éditeur de couleur / palette à partir d'image
+Description : Extraire les 5 couleurs dominantes d'une image (via sharp.stats() + clustering) et générer une palette exportable (CSS variables, Tailwind, JSON).
+
+tool 12 —  Retouche rapide (faisable avec sharp)
+Ajustements globaux sur l'image : luminosité, contraste, saturation, teinte, flou, netteté, niveaux de gris. Traitement par lot, pas d'édition au pixel. C'est exactement les 3 outils que je te proposais dans le message précédent (Teinte, Flou, Luminosité).
+
+tool 13  —  Transform recadrage manuel d'image
+
+UX — Dépôt multi-fichiers par glisser-déposer
+Description : Zone de dépôt pour plusieurs images avec gestion onDrop, onDragOver, onPaste (Ctrl+V). Validation côté client (extension + taille ≤ 25 Mo + type MIME image/*). Ajout à une file d'attente avec miniature, poids et format détecté. File vidable en un clic.
+
+Intérêt : L'UX de dépôt est la première impression de l'utilisateur. Un drag & drop fluide avec feedback immédiat évite l'abandon.
+
+UX — Comparaison avant / après avec slider
+Description : Slider horizontal qui superpose l'image originale et l'image traitée, avec affichage en temps réel du poids de chaque version et du taux d'économie. Indicateur SSIM (via sharp.stats()) pour quantifier la similarité visuelle. Fond damier pour les PNG transparents.
+
+Intérêt : La validation visuelle avant téléchargement est essentielle pour les designers et créateurs. C'est la garantie que la compression n'a pas dégradé l'image.
+
+
+
+01 — CONVERTIR
+
+1 outil
+
+Changer le format des images.
+
+01. Convertisseur universel
+
+JPEG, PNG, WebP, AVIF, TIFF, GIF et SVG en entrée selon les capacités du moteur. Conversion vers les formats de sortie pris en charge.
+
+
+02 — OPTIMISER
+
+4 outils
+
+Réduire le poids et adapter les dimensions.
+
+02. Optimiseur intelligent
+
+Optimisation automatique selon un poids cible, une qualité souhaitée ou un niveau de compression.
+
+03. Compresseur JPEG / PNG
+
+Compression sans changement de format, avec contrôle de qualité et de palette PNG.
+
+04. Redimensionnement par lot
+
+Dimensions fixes, largeur maximale, hauteur maximale, proportions et génération de plusieurs variantes.
+
+05. Recadrage intelligent
+
+Recadrage automatique selon un ratio avec détection du sujet et positionnement pertinent.
+
+
+03 — ÉDITER
+
+3 outils
+
+Modifier l'apparence et la composition.
+
+06. Éditeur de recadrage
+
+Recadrage manuel, rotation, retournement, ratios prédéfinis et cadrage libre.
+
+07. Suppression d'arrière-plan
+
+Détourage sur fond uni, pipette, tolérance, lissage des contours et gomme manuelle.
+
+08. Retouche et filigrane
+
+Réglages colorimétriques, luminosité, contraste, saturation, teinte, netteté, flou, niveaux de gris et ajout de watermark.
+
+
+04 — GÉNÉRER
+
+3 outils
+
+Créer des ressources graphiques et techniques.
+
+09. Générateur de favicons
+
+ICO multi-résolutions, PNG, Apple Touch Icon, Android Chrome et manifest.
+
+10. Générateur de placeholders
+
+LQIP, BlurHash, SVG flouté et Base64 pour les applications web.
+
+11. Extracteur de palettes
+
+Extraction des couleurs dominantes et export CSS, Tailwind et JSON.
+
+
+05 — ANALYSER
+
+Fonction intégrée
+
+Comprendre les propriétés et les informations d'une image.
+
+Analyse des images et métadonnées
+
+Dimensions, format, poids, résolution, transparence, EXIF, GPS, appareil, date, profils ICC et suppression des métadonnées.
+
+
+Cette organisation transforme vos 13 propositions en 11 outils clairement identifiés, sans supprimer les fonctionnalités initialement envisagées.
+
+
+2. Les fonctionnalités transversales
+Certaines fonctions ne doivent surtout pas être développées comme des outils indépendants. Elles doivent être disponibles dans plusieurs modules.
+
+A. Gestionnaire de fichiers et file d'attente
+
+
+Image Queue
+
+Le point d'entrée commun de PixelForge.
+- Glisser-déposer multiple.
+- Coller depuis le presse-papiers (Ctrl + V).
+- Miniatures et informations des fichiers.
+- Validation MIME, extension et taille (25 Mo).
+- Suppression individuelle ou globale.
+- Statut : en attente, en cours, terminé, erreur.
+
+
+B. Comparateur avant / après
+
+Image Comparison
+
+Un composant réutilisable dans le convertisseur, l'optimiseur et l'éditeur.
+- Slider de comparaison.
+- Affichage côte à côte.
+- Poids initial et final.
+- Dimensions initiales et finales.
+- Économie en Ko et en pourcentage.
+- Fond damier pour la transparence.
+
+
+C. Exportation et téléchargement
+
+Export Manager
+- Téléchargement individuel.
+- Téléchargement groupé ZIP.
+- Conservation des noms de fichiers.
+- Gestion des noms et suffixes.
+- Organisation des fichiers par format ou résolution.
+
+
+
+@
+│
+├── app/
+│   │  └── pixel/
+│   │       ├── layout.tsx                 # Layout commun de l'espace PixelForge            ok
+│   │       ├── page.tsx                   # Redirection ou page d'accueil PixelForge        ok
+│   │       │
+│   │       ├── dashboard/
+│   │       │   ├── page.tsx               # Tableau de bord et accès rapides aux outils     ok
+│   │       │   └── loading.tsx             # Chargement du tableau de bord
+│   │       │
+│   │       ├── convert/
+│   │       │   ├── page.tsx               # Interface de conversion des formats             ok
+│   │       │   └── loading.tsx             # Chargement de l'interface
+│   │       │
+│   │       ├── optimize/
+│   │       │   ├── page.tsx               # Interface générale d'optimisation
+│   │       │   ├── compress/
+│   │       │   │   └── page.tsx           # Interface de compression
+│   │       │   ├── resize/
+│   │       │   │   └── page.tsx           # Interface de redimensionnement
+│   │       │   └── smart-crop/
+│   │       │       └── page.tsx           # Interface de recadrage intelligent
+│   │       │
+│   │       ├── edit/
+│   │       │   ├── page.tsx               # Espace général d'édition
+│   │       │   ├── crop/
+│   │       │   │   └── page.tsx           # Éditeur de recadrage manuel
+│   │       │   ├── background/
+│   │       │   │   └── page.tsx           # Interface de suppression d'arrière-plan
+│   │       │   └── retouch/
+│   │       │       └── page.tsx           # Interface de retouche et filigrane
+│   │       │
+│   │       ├── generate/
+│   │       │   ├── page.tsx               # Accueil des outils de génération
+│   │       │   ├── favicon/
+│   │       │   │   └── page.tsx           # Générateur de favicons et fichiers ICO
+│   │       │   ├── placeholder/
+│   │       │   │   └── page.tsx           # Générateur de LQIP et BlurHash
+│   │       │   └── palette/
+│   │       │       └── page.tsx           # Extracteur de palettes de couleurs
+│   │       │
+│   │       └── analyze/
+│   │           ├── page.tsx               # Analyse des propriétés des images
+│   │           └── metadata/
+│   │               └── page.tsx           # Consultation et gestion des métadonnées
+│   │
+│   └── api/
+│       └── images/
+│           ├── convert/
+│           │   └── route.ts               # Endpoint POST de conversion
+│           ├── optimize/
+│           │   └── route.ts               # Endpoint POST d'optimisation
+│           ├── compress/
+│           │   └── route.ts               # Endpoint POST de compression
+│           ├── resize/
+│           │   └── route.ts               # Endpoint POST de redimensionnement
+│           ├── crop/
+│           │   └── route.ts               # Endpoint POST de recadrage
+│           ├── background/
+│           │   └── route.ts               # Endpoint POST de détourage
+│           ├── retouch/
+│           │   └── route.ts               # Endpoint POST de retouche
+│           ├── favicon/
+│           │   └── route.ts               # Endpoint POST de génération ICO
+│           ├── placeholder/
+│           │   └── route.ts               # Endpoint POST de génération de placeholders
+│           ├── palette/
+            │   └── route.ts               # Endpoint POST d'extraction de couleurs
+            ├── metadata/
+            │   └── route.ts               # Endpoint GET/POST des métadonnées
+            └── export/
+                └── route.ts               # Endpoint POST d'export ZIP
+
+
+
+/pixel
+├── features/
+│   ├── converter/
+│   │   ├── components/
+│   │   │   ├── converter-panel.tsx        # Formulaire et paramètres de conversion       placehoder
+│   │   │   ├── format-selector.tsx        # Sélection du format de sortie
+│   │   │   ├── quality-control.tsx        # Réglage de la qualité
+│   │   │   └── conversion-results.tsx     # Présentation des résultats
+│   │   ├── hooks/
+│   │   │   └── use-converter.ts           # Orchestration côté client de la conversion
+│   │   ├── schemas/
+│   │   │   └── converter.schema.ts        # Validation Zod des paramètres
+│   │   ├── types/
+│   │   │   └── converter.types.ts         # Types propres au convertisseur
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── optimizer/
+│   │   ├── components/
+│   │   │   ├── optimizer-panel.tsx        # Interface de l'optimiseur
+│   │   │   ├── optimization-presets.tsx   # Profils d'optimisation prédéfinis
+│   │   │   ├── target-size-control.tsx    # Définition du poids cible
+│   │   │   └── optimization-results.tsx   # Résultats et économies réalisées
+│   │   ├── hooks/
+│   │   │   └── use-optimizer.ts           # Orchestration de l'optimisation
+│   │   ├── schemas/
+│   │   │   └── optimizer.schema.ts        # Validation des options d'optimisation
+│   │   ├── types/
+│   │   │   └── optimizer.types.ts         # Types de l'optimiseur
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── compressor/
+│   │   ├── components/
+│   │   │   ├── compressor-panel.tsx       # Interface de compression                     placehoder
+│   │   │   ├── compression-settings.tsx   # Paramètres JPEG, PNG et WebP
+│   │   │   └── compression-results.tsx    # Résultats de compression
+│   │   ├── hooks/
+│   │   │   └── use-compressor.ts          # Gestion du traitement de compression
+│   │   ├── schemas/
+│   │   │   └── compressor.schema.ts      # Validation des paramètres
+│   │   ├── types/
+│   │   │   └── compressor.types.ts        # Types de compression
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── resize/
+│   │   ├── components/
+│   │   │   ├── resize-panel.tsx           # Interface de redimensionnement                  placehoder
+│   │   │   ├── dimensions-input.tsx       # Saisie largeur et hauteur
+│   │   │   ├── aspect-ratio-control.tsx   # Gestion du ratio
+│   │   │   └── resize-presets.tsx         # Tailles prédéfinies
+│   │   ├── hooks/
+│   │   │   └── use-resize.ts              # Gestion du redimensionnement
+│   │   ├── schemas/
+│   │   │   └── resize.schema.ts           # Validation des dimensions
+│   │   ├── types/
+│   │   │   └── resize.types.ts            # Types de redimensionnement
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── smart-crop/
+│   │   ├── components/
+│   │   │   ├── smart-crop-panel.tsx       # Interface de recadrage intelligent                    placehoder
+│   │   │   ├── crop-ratio-selector.tsx    # Sélection des ratios
+│   │   │   └── crop-preview.tsx           # Prévisualisation du recadrage
+│   │   ├── hooks/
+│   │   │   └── use-smart-crop.ts          # Gestion du recadrage automatique
+│   │   ├── schemas/
+│   │   │   └── smart-crop.schema.ts      # Validation des options de recadrage
+│   │   ├── types/
+│   │   │   └── smart-crop.types.ts       # Types du recadrage intelligent
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── crop-editor/
+│   │   ├── components/
+│   │   │   ├── crop-canvas.tsx            # Canvas interactif de recadrage
+│   │   │   ├── crop-toolbar.tsx           # Outils de manipulation du cadre
+│   │   │   ├── crop-controls.tsx          # Contrôles numériques et ratios
+│   │   │   └── crop-preview.tsx           # Aperçu du résultat
+│   │   ├── hooks/
+│   │   │   └── use-crop-editor.ts         # Gestion de l'éditeur
+│   │   ├── schemas/
+│   │   │   └── crop-editor.schema.ts      # Validation des coordonnées
+│   │   ├── types/
+│   │   │   └── crop-editor.types.ts       # Types de l'éditeur
+│   │   ├── store/
+│   │   │   └── crop-editor.store.ts       # État de l'éditeur et historique
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── background-removal/
+│   │   ├── components/
+│   │   │   ├── background-panel.tsx       # Interface de détourage
+│   │   │   ├── background-preview.tsx     # Comparaison avant/après
+│   │   │   └── background-settings.tsx    # Paramètres de suppression du fond
+│   │   ├── hooks/
+│   │   │   └── use-background-removal.ts  # Gestion du détourage
+│   │   ├── schemas/
+│   │   │   └── background.schema.ts       # Validation des options
+│   │   ├── types/
+│   │   │   └── background.types.ts        # Types du détourage
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── image-editor/
+│   │   ├── components/
+│   │   │   ├── editor-canvas.tsx          # Canvas principal Konva
+│   │   │   ├── editor-toolbar.tsx         # Barre d'outils
+│   │   │   ├── editor-sidebar.tsx         # Panneau de réglages
+│   │   │   ├── adjustment-controls.tsx    # Luminosité, contraste, saturation
+│   │   │   ├── watermark-editor.tsx       # Édition du filigrane
+│   │   │   └── editor-layers.tsx          # Gestion des calques
+│   │   ├── hooks/
+│   │   │   └── use-image-editor.ts        # Logique d'interaction de l'éditeur
+│   │   ├── schemas/
+│   │   │   └── image-editor.schema.ts    # Validation des réglages
+│   │   ├── types/
+│   │   │   └── image-editor.types.ts     # Types de l'éditeur
+│   │   ├── store/
+│   │   │   └── image-editor.store.ts     # État, calques et historique
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── favicon-generator/
+│   │   ├── components/
+│   │   │   ├── favicon-panel.tsx          # Interface de génération
+│   │   │   ├── favicon-preview.tsx        # Aperçu des différentes tailles
+│   │   │   ├── favicon-options.tsx        # Options de génération
+│   │   │   └── favicon-files.tsx          # Liste des fichiers générés
+│   │   ├── hooks/
+│   │   │   └── use-favicon-generator.ts   # Orchestration de génération
+│   │   ├── schemas/
+│   │   │   └── favicon.schema.ts          # Validation des options
+│   │   ├── types/
+│   │   │   └── favicon.types.ts           # Types des fichiers favicon
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── placeholder-generator/
+│   │   ├── components/
+│   │   │   ├── placeholder-panel.tsx      # Interface de génération
+│   │   │   ├── placeholder-preview.tsx    # Aperçu LQIP et BlurHash
+│   │   │   └── placeholder-output.tsx     # Code et données exportables
+│   │   ├── hooks/
+│   │   │   └── use-placeholder-generator.ts # Gestion de génération
+│   │   ├── schemas/
+│   │   │   └── placeholder.schema.ts     # Validation des options
+│   │   ├── types/
+│   │   │   └── placeholder.types.ts      # Types des placeholders
+│   │   └── index.ts                       # API publique du module
+│   │
+│   ├── color-palette/
+│   │   ├── components/
+│   │   │   ├── palette-panel.tsx          # Interface d'extraction
+│   │   │   ├── palette-preview.tsx        # Présentation des couleurs
+│   │   │   └── palette-export.tsx         # Export CSS, JSON et Tailwind
+│   │   ├── hooks/
+│   │   │   └── use-color-palette.ts       # Extraction et gestion de palette
+│   │   ├── schemas/
+│   │   │   └── palette.schema.ts          # Validation des paramètres
+│   │   ├── types/
+│   │   │   └── palette.types.ts           # Types des palettes
+│   │   └── index.ts                       # API publique du module
+│   │
+│   └── metadata/
+│       ├── components/
+│       │   ├── metadata-panel.tsx         # Interface des métadonnées
+│       │   ├── metadata-details.tsx       # Présentation EXIF, ICC et GPS
+│       │   │
+│       │   └── metadata-actions.tsx       # Conservation ou suppression
+│       ├── hooks/
+│       │   └── use-image-metadata.ts      # Lecture et gestion des métadonnées
+│       ├── schemas/
+│       │   └── metadata.schema.ts         # Validation des options
+│       ├── types/
+│       │   └── metadata.types.ts          # Types des métadonnées
+│       └── index.ts                       # API publique du module
+│
+├── components/
+│   ├── image-queue/
+│   │   ├── image-queue.tsx                # Conteneur principal de la file
+│   │   ├── queue-item.tsx                 # Élément individuel de la file
+│   │   ├── queue-toolbar.tsx              # Actions globales de la file
+│   │   ├── queue-progress.tsx             # Progression des traitements
+│   │   └── queue-empty.tsx                # État vide de la file
+│   │
+│   ├── image-upload/
+│   │   ├── image-uploader.tsx              # Zone principale d'import
+│   │   ├── dropzone.tsx                   # Glisser-déposer
+│   │   ├── file-picker.tsx                # Sélection via explorateur
+│   │   ├── clipboard-upload.tsx           # Import depuis le presse-papiers
+│   │   └── upload-preview.tsx             # Aperçu des fichiers importés
+│   │
+│   ├── image-comparison/
+│   │   ├── image-comparison.tsx           # Comparaison avant/après
+│   │   ├── comparison-slider.tsx          # Curseur de comparaison
+│   │   ├── comparison-stats.tsx           # Économies et différences
+│   │   └── transparency-grid.tsx          # Damier de transparence
+│   │
+│   ├── image-preview/
+│   │   ├── image-preview.tsx              # Prévisualisation générique
+│   │   ├── image-thumbnail.tsx            # Miniature
+│   │   ├── image-lightbox.tsx             # Affichage agrandi
+│   │   └── image-placeholder.tsx          # Aperçu pendant le chargement
+│   │
+│   ├── image-properties/
+│   │   ├── image-properties.tsx            # Conteneur des propriétés
+│   │   ├── image-dimensions.tsx           # Largeur, hauteur et ratio
+│   │   ├── image-file-info.tsx            # Nom, format et poids
+│   │   └── image-color-info.tsx           # Espace colorimétrique et alpha
+│   │
+│   ├── export-manager/
+│   │   ├── export-manager.tsx             # Gestionnaire global d'export
+│   │   ├── export-item.tsx                # Élément exportable
+│   │   ├── export-options.tsx             # Options de téléchargement
+│   │   ├── export-zip-button.tsx          # Export groupé ZIP
+│   │   └── export-progress.tsx            # Progression de l'export
+│   │
+│   └── ui/
+│       ├── processing-status.tsx          # Badge de statut de traitement
+│       ├── processing-progress.tsx        # Barre de progression
+│       ├── error-message.tsx              # Présentation des erreurs
+│       └── empty-state.tsx                # État vide générique
+│
+├── lib/
+│   ├── image-engine/
+│   │   ├── index.ts                       # Point d'entrée du moteur
+│   │   ├── image-engine.ts                # Façade principale du moteur
+│   │   ├── image-engine.types.ts          # Contrats internes du moteur
+│   │   │
+│   │   ├── sharp/
+│   │   │   ├── index.ts                   # Exports de l'adaptateur Sharp
+│   │   │   ├── sharp.adapter.ts            # Adaptation de Sharp au moteur
+│   │   │   ├── sharp.factory.ts            # Création des instances Sharp
+│   │   │   └── sharp.options.ts            # Configuration commune Sharp
+│   │   │
+│   │   ├── formats/
+│   │   │   ├── format-registry.ts          # Registre des formats supportés
+│   │   │   ├── format-detection.ts         # Détection du format réel
+│   │   │   ├── format-capabilities.ts      # Capacités par format
+│   │   │   └── format-mime.ts              # Correspondance MIME et extension
+│   │   │
+│   │   ├── transformations/
+│   │   │   ├── resize.ts                   # Opérations de redimensionnement
+│   │   │   ├── crop.ts                     # Opérations de recadrage
+│   │   │   ├── rotate.ts                   # Rotation et orientation
+│   │   │   ├── flip.ts                     # Retournement horizontal/vertical
+│   │   │   ├── filters.ts                  # Filtres et réglages visuels
+│   │   │   └── watermark.ts                # Application des filigranes
+│   │   │
+│   │   ├── metadata/
+│   │   │   ├── metadata-reader.ts           # Lecture des métadonnées
+│   │   │   ├── metadata-writer.ts           # Gestion de leur conservation
+│   │   │   └── metadata-stripper.ts         # Suppression des métadonnées
+│   │   │
+│   │   └── optimization/
+│   │       ├── compression.ts              # Compression des images
+│   │       ├── optimization.ts             # Stratégies d'optimisation
+│   │       ├── quality.ts                  # Calcul et réglage de qualité
+│   │       ├── target-size.ts              # Ajustement vers un poids cible
+│   │       └── image-analysis.ts            # Statistiques techniques de l'image
+│   │
+│   ├── validators/
+│   │   ├── file-validator.ts               # Validation des fichiers entrants
+│   │   ├── mime-validator.ts               # Vérification du type MIME réel
+│   │   ├── image-validator.ts              # Vérification de la validité des images
+│   │   ├── image-limits.ts                 # Limites de poids, pixels et dimensions
+│   │   └── svg-sanitizer.ts                # Nettoyage des SVG non fiables
+│   │
+│   └── archive/
+│       ├── archive-builder.ts              # Construction des archives ZIP
+│       ├── archive-entry.ts                # Définition des fichiers à archiver
+│       └── archive.types.ts                # Types des archives
+│
+├── types/
+│   ├── image.ts                            # Modèle commun d'une image
+│   ├── conversion.ts                       # Types de conversion
+│   ├── optimization.ts                     # Types d'optimisation
+│   ├── processing.ts                       # Statuts et résultats de traitement
+│   ├── queue.ts                            # Types de la file d'attente
+│   └── export.ts                           # Types d'export
+│
+└── stores/
+    ├── image-queue.store.ts                # État global de la file d'attente
+    ├── workspace.store.ts                  # État de l'espace de travail
+    └── settings.store.ts                   # Préférences locales de l'utilisateur
+
+
+app/pixel/components/PixelNav.tsx
+
+
+
+
+2. Rôle et responsabilités des principaux répertoires
+Répertoire	Responsabilité
+app/	Routes, layouts et endpoints HTTP Next.js.
+features/	Fonctionnalités métier indépendantes et leurs interfaces.
+components/	Composants réutilisables entre plusieurs fonctionnalités.
+lib/image-engine/	Traitement technique des images et intégration de Sharp.
+lib/validators/	Validation et sécurisation des fichiers entrants.
+lib/archive/	Création des archives ZIP.
+types/	Contrats TypeScript partagés.
+stores/	État global côté client avec Zustand.
+
+Règle de séparation importante : les composants React ne doivent pas importer directement Sharp. Sharp est une dépendance serveur. Les composants clients appellent les endpoints ou les fonctions applicatives prévues à cet effet.
+3. Organisation interne du moteur Image Engine
+Le moteur constitue le cœur technique de PixelForge.
+
+Je recommande de le concevoir comme une façade qui expose des opérations cohérentes, plutôt que de laisser chaque fonctionnalité appeler directement Sharp.
+
+lib/image-engine/
+│
+├── image-engine.ts
+│   # Façade : point d'entrée des opérations de traitement
+│
+├── image-engine.types.ts
+│   # Contrats communs : entrée, options et résultats
+│
+├── sharp/
+│   # Adaptateur technique pour le moteur Sharp
+│
+├── formats/
+│   # Détection, compatibilité et capacités des formats
+│
+├── transformations/
+│   # Transformations géométriques et visuelles
+│
+├── metadata/
+│   # Lecture, conservation et suppression des métadonnées
+│
+└── optimization/
+    # Compression, qualité et stratégies d'optimisation
+
+
+01 — Fondations	pixel/layout.tsx, pixel/page.tsx, navigation, thème
+02 — Contrats	types/, schémas Zod des images et traitements
+03 — Import	image-upload/, image-queue/, image-queue.store.ts
+04 — Moteur	image-engine.ts, sharp.adapter.ts, formats/
+05 — Sécurité	validators/, limites de fichiers et validation serveur
+06 — API	api/images/convert/route.ts et contrats de réponse
+07 — Conversion	features/converter/ et ses composants
+08 — Optimisation	features/compressor/, features/optimizer/
+09 — Transformation	features/resize/, features/smart-crop/
+10 — Résultats	image-comparison/, export-manager/, archive/
+11 — Édition	crop-editor/, image-editor/, background-removal/
+12 — Génération	favicon-generator/, placeholder-generator/, color-palette/
+13 — Analyse	metadata/, analyse technique et propriétés
+14 — Persistance	Historique des traitements et préférences Prisma
+
+
+///
+
+genesis/check-headers : Réciprocité des relations
+selement un bouton pour copier les deux fichiers et le message d'erreur
+
+/////
+
+
+////
+s'assurer que te tous les fichier passer en prompt on ete lu 
+
+////
+
+
+///// 
+s'assurere que tout les entete ont ete analyser
+/////
+
+///
+genesis/create-files : rapport ecriture muet met sauvgardé et bouton d'ouverture de la page pour voir les rapport (dix dernier ou tous et possibilité de nettoyage)
+///
+
+
+///////////////////////
+ Génération d'en-têtes à partir de l'existant + du script → autre outil
+Bien noté, on ne mélange pas. Ce sera un 5ᵉ outil plus tard (probablement un « HeaderFixer » qui s'appuie sur le rapport du HeaderChecker).
+
+Pour info, oui je serai capable de le faire de façon fiable :
+
+Champs purement dérivables du contenu (sans ambiguïté) :
+
+path → chemin du fichier
+
+type → déduit du path (page.tsx → page, route.ts → route, layout.tsx → layout, actions/* → action, lib/* → helper, components/* → component)
+
+generic → true si dans components/ui/ ou lib/utils.ts-like, sinon false
+
+exports → scanné par regex (export function, export const, export default, export type, export interface)
+
+imports → scanné par regex (import ... from "...")
+
+Champs sémantiques (nécessitent une décision) :
+
+tag, role, userStories, ecosystem, relatedFiles, useBy → ne peuvent pas être inventés sans risque. Il faudra soit :
+
+Les extraire d'un index existant (les en-têtes déjà écrits servent de corpus),
+
+Ou demander à l'utilisateur de les remplir,
+
+Ou les générer avec un LLM (hors scope du module Genesis actuel).
+
+status, pathChecked, metaDataChecked, scriptChecked → valeurs par défaut : planned, ✘false, ✘false, ✘false.
+
+👉 Le futur HeaderFixer sera semi-automatique : génération fiable des champs techniques, édition manuelle des champs sémantiques. C'est un outil à part entière, on le traite plus tard.
+///////////////////////////////////
+

@@ -1,15 +1,24 @@
 /*
 path :           app/auth/login/LoginForm.tsx
+tag :            ["auth", "login", "form", "ui"]
 projectId:       new-genesis
 type:            component
 generic:         false
 
-role:            Formulaire de connexion email + mot de passe. Utilise react-hook-form,
-                 zodResolver(loginSchema), PasswordInput et Field shadcn.
+role:            Formulaire de connexion email + mot de passe. Utilise
+                 react-hook-form, zodResolver(loginSchema), PasswordInput
+                 et Field shadcn. Affiche une Alert destructive en cas
+                 d'erreur (401/400, 429, autre) et un bouton submit avec
+                 état de chargement (Loader2). Au succès : toast, puis
+                 router.replace(callbackUrl) + router.refresh(). Aucun
+                 state métier local (formError, redirecting).
 
-flow:            Client Component → useForm → onSubmit → signIn.email() → si erreur :
-                 setFormError avec message adapté (401/400/429/autre) → si succès :
-                 toast + router.replace(callbackUrl) + router.refresh().
+flow:            Client Component → useForm (mode onBlur, reValidate
+                 onChange) → onSubmit → signIn.email() → si erreur :
+                 setFormError avec message adapté (401/400, 429, autre)
+                 → si succès : setRedirecting(true) + toast.success +
+                 router.replace(callbackUrl) + router.refresh(). En cas
+                 d'exception réseau : setFormError générique.
 
 ecosystem:       Auth = [
                    "@/app/api/auth/[...all]/route.ts",
