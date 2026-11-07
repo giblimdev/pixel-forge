@@ -1,0 +1,17 @@
+{
+  "id": "2026-11-07T16-59-18-908Z",
+  "createdAt": "2026-11-07T16:59:18.908Z",
+  "scriptCount": 1,
+  "createdCount": 1,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/components/feedback/empty-state.tsx"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

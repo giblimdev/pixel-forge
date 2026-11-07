@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-07T17-07-24-228Z",
+  "createdAt": "2026-11-07T17:07:24.228Z",
+  "scriptCount": 3,
+  "createdCount": 3,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/stores/image-queue.store.ts",
+      "app/pixel/components/image-upload/dropzone.tsx",
+      "app/pixel/components/image-upload/file-picker.tsx"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

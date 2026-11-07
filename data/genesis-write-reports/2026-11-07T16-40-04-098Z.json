@@ -1,0 +1,18 @@
+{
+  "id": "2026-11-07T16-40-04-098Z",
+  "createdAt": "2026-11-07T16:40:04.099Z",
+  "scriptCount": 2,
+  "createdCount": 2,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/validators/mime-validator.ts",
+      "app/pixel/lib/validators/image-validator.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

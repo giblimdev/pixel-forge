@@ -1,0 +1,18 @@
+{
+  "id": "2026-11-07T16-49-10-544Z",
+  "createdAt": "2026-11-07T16:49:10.544Z",
+  "scriptCount": 2,
+  "createdCount": 2,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/image-engine/sharp.adapter.ts",
+      "app/pixel/lib/image-engine/image-engine.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

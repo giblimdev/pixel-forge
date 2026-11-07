@@ -20,6 +20,9 @@ role:            Validation et typage des variables d'environnement au
                    exécuter les prepared statements, que le pooler
                    PgBouncer ne supporte pas.
 
+                 PixelForge : ajout de BLOB_READ_WRITE_TOKEN pour Vercel
+                 Blob (stockage temporaire des fichiers de sortie).
+
 flow:            Au premier import, envSchema.safeParse() valide
                  process.env → si échec : console.error des fieldErrors
                  + throw. Si succès : export de l'objet env typé. Toute
@@ -45,10 +48,10 @@ useBy:           ["@/lib/auth/auth.ts",
 
 userStories:     ["*en tant que développeur je veux valider les env vars au démarrage"]
 
-status:          planned
-pathChecked:     ✘false
-metaDataChecked: ✘false
-scriptChecked:   ✘false
+status:          done
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 import "server-only";
@@ -105,6 +108,12 @@ const envSchema = z.object({
   /* --- Application (client + serveur) --- */
   NEXT_PUBLIC_APP_URL: z.url("NEXT_PUBLIC_APP_URL doit être une URL valide."),
 
+  /* --- PixelForge — Vercel Blob (stockage temporaire) --- */
+  BLOB_READ_WRITE_TOKEN: z
+    .string()
+    .min(1, "BLOB_READ_WRITE_TOKEN manquante.")
+    .startsWith("vercel_blob_rw_", "BLOB_READ_WRITE_TOKEN doit commencer par « vercel_blob_rw_ »."),
+
   /* --- Environnement Node --- */
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -138,6 +147,8 @@ const parsed = envSchema.safeParse({
   EMAIL_FROM: process.env.EMAIL_FROM,
 
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+
+  BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
 
   NODE_ENV: process.env.NODE_ENV,
 });

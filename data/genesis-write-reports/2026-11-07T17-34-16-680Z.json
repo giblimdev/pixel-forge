@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-07T17-34-16-680Z",
+  "createdAt": "2026-11-07T17:34:16.680Z",
+  "scriptCount": 3,
+  "createdCount": 3,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/compressor/types/compressor.types.ts",
+      "app/pixel/features/compressor/schemas/compressor.schema.ts",
+      "app/pixel/features/compressor/hooks/use-compressor.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

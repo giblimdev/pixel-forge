@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-07T17-15-20-752Z",
+  "createdAt": "2026-11-07T17:15:20.752Z",
+  "scriptCount": 1,
+  "createdCount": 0,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/pixel/components/image-queue/image-queue.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/components/image-queue/image-queue.tsx"
+    ],
+    "rejected": []
+  }
+}

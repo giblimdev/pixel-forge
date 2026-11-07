@@ -32,6 +32,7 @@
     "@tiptap/pm": "^3.32.0",
     "@tiptap/react": "^3.32.0",
     "@tiptap/starter-kit": "^3.32.0",
+    "@vercel/blob": "^2.8.2",
     "archiver": "^8.0.0",
     "better-auth": "^1.7.10",
     "blurhash": "^2.0.5",

@@ -1,21 +1,34 @@
 /*
-path :           app/pixel/convert/page.tsx
-tag :            ["pixel", "pixel-forge", "convert", "page", "outil-01", "pixel-forge-charte"]
+path:            app/pixel/convert/page.tsx
+tag:             ["pixel", "pixel-forge", "convert", "page", "outil-01", "pixel-forge-charte"]
 projectId:       pixel
 type:            page
 generic:         false
 
-role:            Page d'entrée de l'outil 01 (Convertisseur universel).
-                 Affiche header + ConverterPanel + "Comment ça marche"
-                 + "Formats supportés".
+role:            Page d'entree de l'outil 01 (Convertisseur universel).
+                 Affiche header + section import/queue (Phase 5) +
+                 ConverterPanel (placeholder en attendant Phase 7) +
+                 "Comment ca marche" + "Formats supportes".
 
-                 ⚠️ IMPORTS : les features sont SOUS app/pixel/features/
-                 (Option A validée par l'utilisateur). Les imports
-                 référencent donc `@/app/pixel/features/converter/...`
-                 et non `@/features/converter/...`.
+                 DEPUIS PHASE 5 : la section import/queue est BRANCHEE
+                 avec les composants reels :
+                 - <ImageUploader />     : dropzone + picker + paste + preview
+                 - <ImageQueue />        : file d'attente globale (store Zustand)
 
-flow:            Server Component → header → <ConverterPanel /> →
-                 section étapes → section formats.
+                 Cela permet de tester immediatement dans le navigateur
+                 le pipeline d'import (glisser-deposer, Ctrl+V, parcourir)
+                 et la file d'attente, SANS attendre Phase 7 (converter
+                 vertical complet). Le placeholder <ConverterPanel /> reste
+                 affiche en dessous pour rappeler que l'outil n'est pas
+                 encore fonctionnel.
+
+                 Les features sont sous app/pixel/features/ (Option A).
+                 Les imports referencent donc
+                 `@/app/pixel/features/converter/...`.
+
+flow:            Server Component -> header -> section Import
+                 (<ImageUploader /> + <ImageQueue />) -> <ConverterPanel />
+                 (placeholder) -> section etapes -> section formats.
 
 ecosystem:       Pixel = [
                    "@/app/pixel/analyze/page.tsx",
@@ -30,28 +43,34 @@ ecosystem:       Pixel = [
                  ]
 
 relatedFiles:    ["@/app/pixel/features/converter/components/converter-panel.tsx",
-                  "@/app/pixel/features/converter/index.ts",
+                  "@/app/pixel/components/image-upload/image-uploader.tsx",
+                  "@/app/pixel/components/image-queue/image-queue.tsx",
                   "@/app/pixel/layout.tsx"]
 
 imports:         ["next", "lucide-react",
-                  "@/app/pixel/features/converter/components/converter-panel"]
+                  "@/app/pixel/features/converter/components/converter-panel",
+                  "@/app/pixel/components/image-upload/image-uploader",
+                  "@/app/pixel/components/image-queue/image-queue"]
 
 exports:         ["default PixelConvertPage", "metadata"]
 
 useBy:           []
 
-userStories:     ["*en tant qu'utilisateur je veux convertir une image dans un autre format"]
+userStories:     ["*en tant qu'utilisateur je veux convertir une image dans un autre format",
+                  "*en tant qu'utilisateur je veux deposer mes images dans une file avant traitement"]
 
 status:          wip
-pathChecked:     ✔true
-metaDataChecked: ✔true
-scriptChecked:   ✔true
+pathChecked:     true
+metaDataChecked: true
+scriptChecked:   true
 */
 
 import type { Metadata } from "next";
 import { ArrowRight, Image as ImageIcon } from "lucide-react";
 
 import { ConverterPanel } from "@/app/pixel/features/converter/components/converter-panel";
+import { ImageUploader } from "@/app/pixel/components/image-upload/image-uploader";
+import { ImageQueue } from "@/app/pixel/components/image-queue/image-queue";
 
 export const metadata: Metadata = {
   title: "Convertir",
@@ -64,19 +83,19 @@ const STEPS: readonly {
   readonly description: string;
 }[] = [
   {
-    title: "Déposez vos images",
+    title: "Deposez vos images",
     description:
-      "Glissez-déposez jusqu'à 200 images (25 Mo max chacune), ou collez depuis le presse-papier.",
+      "Glissez-deposez jusqu'a 20 images (25 Mo max chacune), collez depuis le presse-papier (Ctrl+V), ou utilisez le selecteur de fichiers.",
   },
   {
     title: "Choisissez le format",
     description:
-      "WebP, AVIF, PNG, JPEG ou TIFF. Réglez la qualité et le mode de compression.",
+      "WebP, AVIF, PNG, JPEG ou TIFF. Reglez la qualite et le mode de compression.",
   },
   {
-    title: "Téléchargez",
+    title: "Telechargez",
     description:
-      "Aperçu avant/après avec économie en Ko. Téléchargement individuel ou ZIP.",
+      "Apercu avant/apres avec economie en Ko. Telechargement individuel ou ZIP.",
   },
 ];
 
@@ -96,19 +115,33 @@ export default function PixelConvertPage() {
         </h2>
         <p className="max-w-2xl text-sm text-[var(--pf-muted)]">
           Convertissez vos images entre les formats les plus courants. WebP
-          réduit le poids de 25 à 35 % à qualité égale. AVIF fait encore
+          reduit le poids de 25 a 35 % a qualite egale. AVIF fait encore
           mieux sur les photos.
         </p>
       </header>
 
+      {/* ========== Phase 5 : import + file d'attente ========== */}
+      <section aria-labelledby="import-title" className="space-y-4">
+        <h3
+          id="import-title"
+          className="text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
+        >
+          Importer des images
+        </h3>
+        <ImageUploader />
+        <ImageQueue />
+      </section>
+
+      {/* ========== Phase 7 (a venir) : panneau de conversion ========== */}
       <ConverterPanel />
 
+      {/* ========== Comment ca marche ========== */}
       <section aria-labelledby="how-title">
         <h3
           id="how-title"
           className="mb-4 text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
         >
-          Comment ça marche
+          Comment ca marche
         </h3>
         <ol className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {STEPS.map((step, i) => (
@@ -130,17 +163,18 @@ export default function PixelConvertPage() {
         </ol>
       </section>
 
+      {/* ========== Formats supportes ========== */}
       <section aria-labelledby="formats-title">
         <h3
           id="formats-title"
           className="mb-4 text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
         >
-          Formats supportés
+          Formats supportes
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 p-4 backdrop-blur-xl">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--pf-muted)]">
-              Entrée
+              Entree
             </p>
             <div className="flex flex-wrap gap-1.5">
               {FORMATS_IN.map((f) => (

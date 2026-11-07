@@ -1,0 +1,17 @@
+{
+  "id": "2026-11-07T16-54-48-321Z",
+  "createdAt": "2026-11-07T16:54:48.321Z",
+  "scriptCount": 1,
+  "createdCount": 1,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/image-engine/format-capabilities.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

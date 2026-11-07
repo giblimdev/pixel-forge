@@ -1,0 +1,17 @@
+{
+  "id": "2026-11-07T17-09-36-446Z",
+  "createdAt": "2026-11-07T17:09:36.446Z",
+  "scriptCount": 1,
+  "createdCount": 1,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/components/image-queue/image-queue.tsx"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

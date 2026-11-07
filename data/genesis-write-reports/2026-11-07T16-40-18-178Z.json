@@ -1,0 +1,17 @@
+{
+  "id": "2026-11-07T16-40-18-178Z",
+  "createdAt": "2026-11-07T16:40:18.178Z",
+  "scriptCount": 1,
+  "createdCount": 1,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/validators/svg-sanitizer.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

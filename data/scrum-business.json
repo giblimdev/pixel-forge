@@ -143,13 +143,12 @@
     {
       "id": "us-0000-0000-0000-000000000001",
       "createdAt": "2026-11-05T21:00:00.000Z",
-      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "updatedAt": "2026-11-07T13:57:39.884Z",
       "order": 0,
       "title": "Convertir une image en WebP",
       "story": "En tant que développeur, je veux convertir une image JPEG ou PNG en WebP avec une qualité réglable afin de réduire le poids de mes assets web.",
       "acceptance": "Étant donné que je dépose une image JPEG valide (≤ 25 Mo), quand je choisis le preset Web (qualité 80, lossy) et clique Convertir, alors une image WebP est générée côté serveur via sharp, son poids est affiché en comparaison avec l'original, et un bouton Télécharger me permet de récupérer le fichier. Le format MIME réel est vérifié via file-type (pas seulement l'extension). Une erreur 413 est renvoyée si l'image dépasse 25 Mo.",
-      "estimate": "5",
-      "epicId": "epic-0000-0000-0000-000000000001"
+      "estimate": "5"
     },
     {
       "id": "us-0000-0000-0000-000000000002",
@@ -176,13 +175,12 @@
     {
       "id": "us-0000-0000-0000-000000000004",
       "createdAt": "2026-11-05T21:00:00.000Z",
-      "updatedAt": "2026-11-05T22:00:00.000Z",
+      "updatedAt": "2026-11-07T13:57:51.491Z",
       "order": 3,
       "title": "Détourer un fond uni en PNG transparent",
       "story": "En tant que designer, je veux supprimer un fond uni d'une image afin d'obtenir un PNG transparent propre, sans passer par un outil en ligne.",
       "acceptance": "Étant donné que je dépose une image avec un fond uni (blanc, noir ou vert), quand je sélectionne la couleur de fond à la pipette, règle la tolérance (0-100) et clique Détourer, alors sharp produit un PNG avec canal alpha, les contours sont lissés (anti-aliasing), et l'aperçu montre la transparence sur un damier. Le PNG est téléchargeable. Un avertissement est affiché si le fond n'est pas uni (variance trop élevée).",
-      "estimate": "8",
-      "epicId": "epic-0000-0000-0000-000000000001"
+      "estimate": "8"
     },
     {
       "id": "us-0000-0000-0000-000000000005",
@@ -387,6 +385,6 @@
   ],
   "meta": {
     "schemaVersion": 1,
-    "updatedAt": "2026-11-05T20:55:14.947Z"
+    "updatedAt": "2026-11-07T13:57:51.491Z"
   }
 }

@@ -134,7 +134,6 @@ Extraction des couleurs dominantes et export CSS, Tailwind et JSON.
 
 05 — ANALYSER
 
-Fonction intégrée
 
 Comprendre les propriétés et les informations d'une image.
 
@@ -143,7 +142,6 @@ Analyse des images et métadonnées
 Dimensions, format, poids, résolution, transparence, EXIF, GPS, appareil, date, profils ICC et suppression des métadonnées.
 
 
-Cette organisation transforme vos 13 propositions en 11 outils clairement identifiés, sans supprimer les fonctionnalités initialement envisagées.
 
 
 2. Les fonctionnalités transversales
@@ -606,60 +604,1462 @@ lib/image-engine/
 14 — Persistance	Historique des traitements et préférences Prisma
 
 
-/// 
-
-genesis/check-headers : Réciprocité des relations
-selement un bouton pour copier les deux fichiers et le message d'erreur
-
-///// 
 
 
 
-
-http://localhost:3000/genesis brancher checkheader
-
-////
-s'assurer que te tous les fichier passer en prompt on ete lu 
-
-////
-
-
-///// 
-s'assurere que tout les entete ont ete analyser
-/////
+ 
 
 
 
-///////////////////////
- Génération d'en-têtes à partir de l'existant + du script → autre outil
-Bien noté, on ne mélange pas. Ce sera un 5ᵉ outil plus tard (probablement un « HeaderFixer » qui s'appuie sur le rapport du HeaderChecker).
+PixelForge — Roadmap de développement complète et consolidée
+Version : 2.0 (fusion des deux documents précédents)
+Périmètre : application Next.js de conversion, optimisation, édition, génération et analyse d'images.
+Moteur principal : Sharp côté serveur.
+Principe directeur : Une interface par outil, des composants transversaux partagés, une validation centralisée et un moteur d'image unique côté serveur.
 
-Pour info, oui je serai capable de le faire de façon fiable :
+1. Présentation des outils PixelForge
+PixelForge regroupe 11 outils répartis en 5 familles, plus 1 outil transversal d'analyse. Chaque outil est autonome mais partage les briques communes (import, file, comparaison, export).
 
-Champs purement dérivables du contenu (sans ambiguïté) :
+Famille 01 — CONVERTIR (1 outil)
+Outil 01 — Convertisseur universel
+Changer le format d'une image. Entrées : JPEG, PNG, GIF, AVIF, TIFF, WebP, SVG (rasterisé). 
+Sorties selon capacités Sharp réelles : JPEG, PNG, WebP, AVIF, TIFF. 
+Contrôle qualité 1-100, modes lossy/lossless/near-lossless uniquement si le format les supporte. 
+Gestion EXIF/ICC. Redimensionnement facultatif (cover/contain/inside). Traitement par lot, aperçu avant/après, export ZIP.
+Intérêt : WebP réduit de 25-35 % à qualité visuelle égale — premier besoin des développeurs web.
 
-path → chemin du fichier
+Famille 02 — OPTIMISER (4 outils)
+Outil 02 — Optimiseur intelligent
+Compression et qualité adaptatives, quantification, strip des métadonnées inutiles, 
+redimensionnement proportionnel ou libre, recadrage intelligent selon un ratio. 
+Poids cible configurable (ex. 200 Ko) — c'est une cible, pas une garantie absolue. 
+Résultats : poids initial/final, dimensions initiales/finales, économie en Ko et %. 
+Comparaison visuelle avant/après. SSIM uniquement si une méthode fiable est intégrée et testée.
+npm install ssim.js 
 
-type → déduit du path (page.tsx → page, route.ts → route, layout.tsx → layout, actions/* → action, lib/* → helper, components/* → component)
+Outil 03 — Compresseur JPEG/PNG
+Réduire le poids sans changer de format. Réglage qualité JPEG, palette/quantification PNG, préservation transparence PNG. Affichage résultats et différences de poids.
 
-generic → true si dans components/ui/ ou lib/utils.ts-like, sinon false
+Outil 04 — Redimensionnement par lot
+Traiter N images : largeur/hauteur cibles, largeur ou hauteur maximale, respect du ratio ou dimensions libres, modes cover/contain/inside, génération de plusieurs variantes (320/640/1280).
 
-exports → scanné par regex (export function, export const, export default, export type, export interface)
+Outil 05 — Recadrage intelligent (smart crop)
+Recadrage automatique selon un ratio (16:9, 1:1, 4:3, personnalisé) 
+via stratégie Sharp attention ou entropy (heuristique d'entropie, PAS de reconnaissance sémantique). 
+Aperçu avant traitement, ratio modifiable.
 
-imports → scanné par regex (import ... from "...")
+Famille 03 — ÉDITER (3 outils)
+Outil 06 — Éditeur de recadrage manuel
+Recadrage libre et ratios prédéfinis, rotation 90/180/270, retournement H/V, saisie numérique des dimensions/coordonnées, 
+aperçu, historique local (cadrage uniquement, pas un système de calques).
 
-Champs sémantiques (nécessitent une décision) :
+Outil 07 — Suppression d'arrière-plan (détourage)
+Périmètre restreint : fonds unis. Pipette couleur, tolérance réglable, détection/remplacement par transparence, 
+antialiasing/lissage des contours, gomme manuelle pour corriger les résidus. Export PNG alpha. Ne PAS promettre un détourage IA de sujets complexes.
 
-tag, role, userStories, ecosystem, relatedFiles, useBy → ne peuvent pas être inventés sans risque. Il faudra soit :
+Outil 08 — Retouche rapide + filigrane
+Réglages globaux uniquement : luminosité, contraste, saturation, teinte, flou, netteté, niveaux de gris. Pas d'édition au pixel. Filigrane texte ou logo (position 9 ancrages, opacité, taille relative). Traitement par lot, aperçu avant export.
 
-Les extraire d'un index existant (les en-têtes déjà écrits servent de corpus),
+Famille 04 — GÉNÉRER (3 outils)
+Outil 09 — Générateur de favicons
+Source PNG/JPEG/SVG. Tailles ICO : 16/24/32/48/64/128/256 px. Sorties : favicon.ico (multi-résolutions), apple-touch-icon.png, android-chrome-192x192.png, android-chrome-512x512.png, manifest.webmanifest. Sharp prépare les PNG de chaque taille ; un encodeur ICO complémentaire (png-to-ico) assemble le conteneur. Aperçu multi-résolutions, contrôle transparence, export ZIP. Le manifeste est généré depuis options validées (pas de JSON arbitraire).
 
-Ou demander à l'utilisateur de les remplir,
+Outil 10 — Générateur de placeholders
+LQIP en Base64, BlurHash, SVG flouté. Aperçu et copie/export du code. Chaque type expose clairement son format de sortie et son intégration (background-image CSS, attribut blurhash, SVG inline).
 
-Ou les générer avec un LLM (hors scope du module Genesis actuel).
+Outil 11 — Extracteur de palettes
+Extraction des 5 couleurs dominantes via sharp.stats() + clustering. Présentation HEX/RGB/ratio. Export CSS variables, Tailwind, JSON.
 
-status, pathChecked, metaDataChecked, scriptChecked → valeurs par défaut : planned, ✘false, ✘false, ✘false.
+Famille 05 — ANALYSER (1 outil transversal)
+Outil 12 — Analyse & métadonnées
+Lecture dimensions, format, poids, résolution, transparence, espace colorimétrique. Lecture EXIF : GPS, appareil, date. Consultation profils ICC. Suppression des métadonnées (vie privée) avec choix explicite conservation/suppression lors des conversions.
 
-👉 Le futur HeaderFixer sera semi-automatique : génération fiable des champs techniques, édition manuelle des champs sémantiques. C'est un outil à part entière, on le traite plus tard.
-///////////////////////////////////
+Fonctionnalités transversales (obligatoires, non dupliquées)
+Image Queue : drag & drop multi, Ctrl+V, miniatures, validation MIME/extension/taille (25 Mo), statuts (pending/running/done/error), suppression individuelle/globale.
+
+Image Comparison : slider avant/après, poids/dimensions initiaux/finaux, économie Ko et %, damier transparence.
+
+Export Manager : téléchargement individuel, ZIP groupé, conservation des noms, suffixes explicites, gestion collisions, organisation par format/résolution.
+
+2. Règles d'architecture (non négociables)
+Sharp exclusivement côté serveur. Aucun composant client n'importe sharp, directement ou indirectement.
+
+Les composants client appellent les routes HTTP (/api/images/*) ou une couche applicative client clairement définie.
+
+Les formats proposés dans l'UI proviennent du registre des capacités du moteur. Ne pas afficher une conversion que le moteur ne sait pas produire.
+
+Validation répétée côté serveur. La validation navigateur est UX, jamais protection.
+
+Types TypeScript = contrats ; schémas Zod = validation runtime. Ne pas confondre.
+
+La file d'attente ne traite pas d'images — elle gère uniquement l'état.
+
+Les URL temporaires (URL.createObjectURL) sont libérées lors de la suppression/démontage.
+
+Les fichiers d'origine ne sont jamais écrasés. Chaque résultat est un nouvel artefact avec suffixe (-webp, -compressed, -640w, etc.).
+
+Les traitements retournent des erreurs structurées (code stable, message utilisateur, détails techniques non sensibles).
+
+Les limites (25 Mo, dimensions max, nombre de pixels, nombre de fichiers/batch) sont centralisées dans lib/validators/image-limits.ts.
+
+Routes API en runtime = "nodejs" (Sharp ne fonctionne pas sur Edge).
+
+export const maxDuration = 60 sur chaque page/route outil (Vercel timeout défaut à 10s).
+
+Limites fonctionnelles explicites (à NE PAS promettre)
+Retouche = ajustements globaux, pas de peinture pixel.
+
+Détourage = fonds unis uniquement, pas d'IA sémantique.
+
+Smart crop = heuristique entropy/attention, pas de détection d'objets.
+
+ICO = assemblage par encodeur complémentaire (png-to-ico), Sharp seul ne suffit pas.
+
+SSIM ≠ natif sharp.stats() — afficher uniquement si implémenté et testé, sinon retirer la métrique.
+
+GIF animé = première frame par défaut ; si non préservé, l'indiquer explicitement.
+
+SVG = entrée rasterisée uniquement ; sanitizer obligatoire (svg-sanitizer.ts).
+
+Poids cible = cible, pas garantie ; nombre d'itérations borné.
+
+3. Dépendances et configuration (à installer avant Phase 3)
+3.1 Packages npm
+bash
+# Production
+npm i sharp file-type png-to-ico archiver p-limit blurhash
+
+# Types
+npm i -D @types/sharp
+
+# Optionnel — uniquement si SSIM retenu
+# npm i ssim.js
+Note png-to-ico vs to-ico : to-ico (2017, obsolète, 24 vulnérabilités) remplacé par png-to-ico (maintenu, 0 CVE, 341k dl/semaine). API différente (Buffers PNG, pas chemins).
+
+3.2 next.config.ts
+ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: { bodySizeLimit: "25mb" },
+  },
+  serverExternalPackages: ["sharp", "png-to-ico", "archiver", "blurhash"],
+};
+
+export default nextConfig;
+3.3 Runtime et durée sur chaque route
+ts
+// app/api/images/*/route.ts
+export const runtime = "nodejs";
+export const maxDuration = 60;
+3.4 Mise à jour de app/pixel/dev/page.tsx
+Ajouter blurhash (et ssim.js si retenu) au groupe A. Retirer la mention to-ico, garder png-to-ico.
+
+4. Arborescence cible complète
+Les fichiers sont à créer uniquement s'ils ne sont pas déjà présents (voir tableau §6). Les page.tsx et placeholders existants sont adaptés, pas remplacés aveuglément.
+
+text
+app/
+├── pixel/
+│   ├── layout.tsx                               [existant ✓]
+│   ├── page.tsx                                 [existant ✓]
+│   ├── dashboard/page.tsx                       [existant ✓]
+│   ├── dashboard/loading.tsx                    [à créer]
+│   ├── convert/page.tsx                         [existant ✓ — modifier]
+│   ├── convert/loading.tsx                      [à créer]
+│   ├── optimize/page.tsx                        [existant ✓]
+│   ├── optimize/compress/page.tsx               [existant ✓ — modifier]
+│   ├── optimize/resize/page.tsx                 [existant ✓ — modifier]
+│   ├── optimize/smart-crop/page.tsx             [existant ✓ — modifier]
+│   ├── edit/page.tsx                            [existant ✓]
+│   ├── edit/crop/page.tsx                       [existant ✓ — modifier]
+│   ├── edit/background/page.tsx                 [existant ✓ — modifier]
+│   ├── edit/retouch/page.tsx                    [existant ✓ — modifier]
+│   ├── generate/page.tsx                        [existant ✓]
+│   ├── generate/favicon/page.tsx                [existant ✓ — modifier]
+│   ├── generate/placeholder/page.tsx            [existant ✓ — modifier]
+│   ├── generate/palette/page.tsx                [existant ✓ — modifier]
+│   ├── analyze/page.tsx                         [à créer ⚠️]
+│   ├── analyze/metadata/page.tsx                [à créer ⚠️]
+│   ├── dev/page.tsx                             [existant ✓ — modifier]
+│   └── components/PixelNav.tsx                  [existant ✓]
+│
+├── api/images/
+│   ├── convert/route.ts                         [à créer]
+│   ├── optimize/route.ts                        [à créer]
+│   ├── compress/route.ts                        [à créer]
+│   ├── resize/route.ts                          [à créer]
+│   ├── crop/route.ts                            [à créer — manuel + smart crop, mode explicite]
+│   ├── background/route.ts                      [à créer]
+│   ├── retouch/route.ts                         [à créer]
+│   ├── favicon/route.ts                         [à créer]
+│   ├── placeholder/route.ts                     [à créer]
+│   ├── palette/route.ts                         [à créer]
+│   ├── metadata/route.ts                        [à créer — GET + POST]
+│   └── export/route.ts                          [à créer]
+│
+app/pixel/features/
+│   ├── converter/
+│   │   ├── components/{converter-panel,format-selector,quality-control,conversion-results}.tsx
+│   │   │                                        [panel existant placeholder — remplacer]
+│   │   ├── hooks/use-converter.ts               [à créer]
+│   │   ├── schemas/converter.schema.ts          [à créer]
+│   │   ├── types/converter.types.ts             [à créer]
+│   │   └── index.ts                             [existant — mettre à jour]
+│   │
+│   ├── optimizer/                               [à créer entièrement]
+│   ├── compressor/                              [panel existant — remplacer]
+│   ├── resize/                                  [panel existant — remplacer]
+│   ├── smart-crop/                              [panel existant — remplacer]
+│   ├── crop-editor/                             [panel existant — remplacer]
+│   ├── background-removal/                      [panel existant — remplacer]
+│   ├── image-editor/                            [panel existant — remplacer]
+│   ├── favicon-generator/                       [panel existant — remplacer]
+│   ├── placeholder-generator/                   [panel existant — remplacer]
+│   ├── color-palette/                           [panel existant — remplacer]
+│   └── metadata/                                [à créer entièrement]
+│
+app/pixel/components/                            [à créer — répertoire nouveau]
+│   ├── image-upload/{image-uploader,dropzone,file-picker,clipboard-upload,upload-preview}.tsx
+│   ├── image-queue/{image-queue,queue-item,queue-toolbar,queue-progress,queue-empty}.tsx
+│   ├── image-comparison/{image-comparison,comparison-slider,comparison-stats,transparency-grid}.tsx
+│   ├── image-preview/{image-preview,image-thumbnail,image-lightbox,image-placeholder}.tsx
+│   ├── image-properties/{image-properties,image-dimensions,image-file-info,image-color-info}.tsx
+│   ├── export-manager/{export-manager,export-item,export-options,export-zip-button,export-progress}.tsx
+│   └── feedback/{processing-status,processing-progress,error-message,empty-state}.tsx
+│                                                  ↑ nom "feedback" (pas "ui" pour éviter collision @/components/ui)
+│
+app/pixel/lib/                                   [à créer — répertoire nouveau]
+│   ├── image-engine/
+│   │   ├── {index,image-engine,image-engine.types}.ts
+│   │   ├── sharp/{index,sharp.adapter,sharp.factory,sharp.options}.ts
+│   │   ├── formats/{format-registry,format-detection,format-capabilities,format-mime}.ts
+│   │   ├── transformations/{resize,crop,rotate,flip,filters,watermark}.ts
+│   │   ├── metadata/{metadata-reader,metadata-writer,metadata-stripper}.ts
+│   │   └── optimization/{compression,optimization,quality,target-size,image-analysis}.ts
+│   ├── validators/{file-validator,mime-validator,image-validator,image-limits,svg-sanitizer}.ts
+│   └── archive/{archive-builder,archive-entry,archive.types}.ts
+│
+app/pixel/types/                                 [à créer — répertoire nouveau]
+│   └── {image,conversion,optimization,processing,queue,export}.ts
+│
+app/pixel/stores/                                [à créer — répertoire nouveau]
+│   └── {image-queue,workspace,settings}.store.ts
+5. Roadmap par phases (ordre strict de dépendances)
+Phase 0 — Audit et fondations
+Objectif : identifier l'existant réel avant d'ajouter des couches.
+
+Fichiers à vérifier :
+
+app/pixel/layout.tsx, page.tsx, dashboard/page.tsx
+
+app/pixel/{convert,optimize,edit,generate}/page.tsx (hubs)
+
+app/pixel/components/PixelNav.tsx
+
+app/pixel/dev/page.tsx ← ne pas oublier (liste dépendances)
+
+Tous les features/*/{index.ts,*panel.tsx} (placeholders existants)
+
+Actions :
+
+Confirmer que tous les placeholders sont identifiés comme provisoires.
+
+Confirmer que les pages existantes ne seront pas écrasées.
+
+Mettre à jour app/pixel/dev/page.tsx avec les dépendances §3.
+
+Configurer next.config.ts §3.2.
+
+Critères :
+
+Toutes les routes de premier niveau s'affichent.
+
+PixelNav pointe vers les bonnes pages.
+
+analyze/* renvoient 404 (attendu, documenté).
+
+Phase 1 — Contrats TypeScript partagés
+Objectif : définir les objets échangés entre UI, hooks, routes, moteur.
+
+Fichier	Rôle
+app/pixel/types/image.ts	Image source : id, nom, MIME, ext, taille, dimensions, format détecté, transparence, métadonnées
+app/pixel/types/conversion.ts	Format source/cible, qualité, options resize, métadonnées, résultat
+app/pixel/types/optimization.ts	Poids cible, profils, qualité, dimensions, stats
+app/pixel/types/processing.ts	Statuts communs, erreurs structurées, ids traitement
+app/pixel/types/queue.ts	Éléments file, statut, progression, liens source↔résultat
+app/pixel/types/export.ts	Fichiers exportables, noms, suffixes, options ZIP
+app/pixel/lib/image-engine/image-engine.types.ts	Contrat interne moteur (indépendant Sharp)
+app/pixel/lib/archive/archive.types.ts	Entrées archive + résultats assemblage
+Critères :
+
+Aucun type métier dupliqué entre features.
+
+Erreurs : { code: string; message: string; details?: unknown }.
+
+Types UI ≠ types internes Sharp.
+
+Aucun type ne prétend qu'un format supporte une option inexistante.
+
+Phase 2 — Schémas Zod
+Objectif : valider les entrées utilisateur avant tout traitement.
+
+Fichier	Validation
+features/converter/schemas/converter.schema.ts	Format cible, qualité, mode, options
+features/optimizer/schemas/optimizer.schema.ts	Profils, poids cible, stratégie
+features/compressor/schemas/compressor.schema.ts	Format, qualité, palette PNG
+features/resize/schemas/resize.schema.ts	Largeur, hauteur, ratio, fit
+features/smart-crop/schemas/smart-crop.schema.ts	Ratio, stratégie (attention/entropy)
+features/crop-editor/schemas/crop-editor.schema.ts	Coordonnées, dimensions, transformations
+features/background-removal/schemas/background.schema.ts	Couleur, tolérance, lissage
+features/image-editor/schemas/image-editor.schema.ts	Réglages, filigrane
+features/favicon-generator/schemas/favicon.schema.ts	Tailles, options
+features/placeholder-generator/schemas/placeholder.schema.ts	Type, paramètres
+features/color-palette/schemas/palette.schema.ts	Options extraction/export
+features/metadata/schemas/metadata.schema.ts	Action lecture/conservation/suppression
+Critères :
+
+Schémas utilisables client ET serveur (aucune dépendance serveur).
+
+Bornes numériques explicites.
+
+Dimensions impossibles/excessives rejetées.
+
+Erreurs transformables en messages utilisateur.
+
+Phase 3 — Sécurité et validation des fichiers
+Objectif : construire la frontière de confiance serveur.
+
+Fichier	Rôle
+lib/validators/image-limits.ts	Centralise : 25 Mo, dimensions max, pixels max (anti decompression bomb), batch max
+lib/validators/file-validator.ts	Présence, taille, nom, extension
+lib/validators/mime-validator.ts	MIME déclaré + extension + signature réelle (file-type)
+lib/validators/image-validator.ts	Décodable, respecte les limites
+lib/validators/svg-sanitizer.ts	Neutralise SVG dangereux avant rasterisation
+lib/image-engine/sharp/sharp.factory.ts	Instances Sharp avec limites sûres
+lib/image-engine/sharp/sharp.options.ts	Options sécurité/traitement communes
+Critères :
+
+Le serveur ne fait jamais confiance au Content-Type navigateur.
+
+Images démesurées/malformées rejetées proprement.
+
+SVG non fiables nettoyés avant sharp.
+
+Limites communes à toutes les routes.
+
+Phase 4 — Image Engine et adaptateur Sharp
+Objectif : moteur central unique, indépendant de Sharp pour les consommateurs.
+
+Fichier	Rôle
+lib/image-engine/index.ts	Exports publics du moteur
+lib/image-engine/image-engine.ts	Façade : convert, compress, resize, crop, filter, watermark, analyze
+lib/image-engine/sharp/{index,sharp.adapter}.ts	Traduction abstrait → Sharp
+lib/image-engine/formats/{format-registry,format-detection,format-capabilities,format-mime}.ts	Formats + capacités réelles
+lib/image-engine/transformations/{resize,crop,rotate,flip,filters,watermark}.ts	Opérations
+lib/image-engine/metadata/{metadata-reader,metadata-writer,metadata-stripper}.ts	EXIF/ICC
+lib/image-engine/optimization/{compression,optimization,quality,target-size,image-analysis}.ts	Optimisation + stats
+Critères :
+
+Modules métier n'importent jamais Sharp directement.
+
+Routes ne contiennent aucune logique de transformation.
+
+Formats disponibles exposés par le registre.
+
+Moteur fonctionne avec Buffers → résultats typés.
+
+Erreurs Sharp converties en erreurs applicatives structurées.
+
+Phase 5 — Import, prévisualisation et file d'attente
+Objectif : point d'entrée commun de tous les outils.
+
+Fichier	Rôle
+components/image-upload/{image-uploader,dropzone,file-picker,clipboard-upload,upload-preview}.tsx	Import multi-fichiers
+components/image-preview/{image-preview,image-thumbnail,image-lightbox,image-placeholder}.tsx	Aperçu
+components/image-queue/{image-queue,queue-item,queue-toolbar,queue-progress,queue-empty}.tsx	File
+stores/image-queue.store.ts	État global Zustand
+Comportements obligatoires :
+
+Import drag & drop, explorateur, Ctrl+V.
+
+Validation immédiate : extension, MIME déclaré, taille ≤ 25 Mo.
+
+Miniature, nom, poids, format détecté.
+
+Statuts : pending / running / done / error.
+
+Suppression individuelle + vidage global.
+
+Anti-doublon sans bloquer deux fichiers distincts de même nom.
+
+Nettoyage URL.revokeObjectURL au retrait/démontage.
+
+Phase 6 — Conventions API + endpoint de référence
+Objectif : définir contrats HTTP avant les hooks.
+
+Fichiers Phase 6 :
+
+api/images/convert/route.ts (endpoint de référence)
+
+components/feedback/{processing-status,processing-progress,error-message,empty-state}.tsx
+
+Conventions :
+
+Multipart ou JSON documenté.
+
+Succès : { id, filename, mime, size, width, height, buffer|url }.
+
+Erreur : { error: { code, message, details? } } (codes : INVALID_INPUT, UNSUPPORTED_FORMAT, LIMIT_EXCEEDED, PROCESSING_ERROR).
+
+HTTP : 400 (validation), 415 (format), 413 (taille), 500 (moteur).
+
+Contrôle taille avant lecture complète.
+
+Limite nombre de fichiers/requête.
+
+Aucun chemin système interne dans la réponse.
+
+export const runtime = "nodejs" + maxDuration = 60.
+
+Phase 7 — Convertisseur universel (vertical complet)
+Objectif : premier outil de bout en bout.
+
+Fichier	Action
+api/images/convert/route.ts	Existant Phase 6 — compléter
+features/converter/types/converter.types.ts	Créer
+features/converter/components/{converter-panel,format-selector,quality-control,conversion-results}.tsx	Remplacer placeholders
+features/converter/hooks/use-converter.ts	Créer
+features/converter/index.ts	Mettre à jour exports
+app/pixel/convert/page.tsx	Modifier : assembler import + options + file + résultat + export
+Critères :
+
+Conversion unitaire + lot.
+
+Qualité selon format (filtrée par capacités).
+
+EXIF/ICC selon option.
+
+Resize facultatif.
+
+Dimensions + poids résultat affichés.
+
+Format non supporté → erreur explicite (pas de silence).
+
+Phase 8 — Comparaison avant/après et propriétés
+Fichier	Rôle
+components/image-comparison/{image-comparison,comparison-slider,comparison-stats,transparency-grid}.tsx	Slider + stats + damier
+components/image-properties/{image-properties,image-dimensions,image-file-info,image-color-info}.tsx	Propriétés
+Critères :
+
+Slider + côte à côte.
+
+Poids/dimensions initiaux/finaux.
+
+Économie calculée sur tailles réelles.
+
+Damier pour images transparentes.
+
+Aucun score SSIM fictif — n'afficher que si calcul intégré et testé.
+
+Phase 9 — Compression et optimisation
+APIs :
+
+api/images/compress/route.ts (compression sans changement de format)
+
+api/images/optimize/route.ts (optimisation + poids cible)
+
+Compresseur (features/compressor/) :
+
+types/, components/{compressor-panel,compression-settings,compression-results}, hooks/, index.ts
+
+Panel existant → remplacer
+
+app/pixel/optimize/compress/page.tsx → modifier
+
+Optimiseur (features/optimizer/) :
+
+types/, components/{optimizer-panel,optimization-presets,target-size-control,optimization-results}, hooks/, index.ts (tout à créer)
+
+app/pixel/optimize/page.tsx → modifier (brancher <OptimizerPanel />)
+
+Critères :
+
+Compresseur ne change jamais le format.
+
+Optimiseur adapte paramètres selon cible.
+
+Poids cible = cible, pas garantie.
+
+Itérations bornées (anti-DoS).
+
+Phase 10 — Redimensionnement et smart crop
+APIs :
+
+api/images/resize/route.ts
+
+api/images/crop/route.ts — mode explicite : { mode: "smart" | "manual", strategy?: "attention" | "entropy" }
+
+Resize (features/resize/) :
+
+types/, components/{resize-panel,dimensions-input,aspect-ratio-control,resize-presets}, hooks/, index.ts
+
+Panel existant → remplacer
+
+app/pixel/optimize/resize/page.tsx → modifier
+
+Smart crop (features/smart-crop/) :
+
+types/, components/{smart-crop-panel,crop-ratio-selector,crop-preview}, hooks/, index.ts
+
+Panel existant → remplacer
+
+app/pixel/optimize/smart-crop/page.tsx → modifier
+
+Critères :
+
+Resize unitaire + lot + variantes.
+
+Ratio respecté selon fit.
+
+Smart crop : stratégie attention/entropy explicite.
+
+Présenté comme heuristique prévisualisable.
+
+Phase 11 — Export Manager + ZIP
+Fichier	Rôle
+types/export.ts	Déjà Phase 1 — vérifier
+lib/archive/{archive.types,archive-entry,archive-builder}.ts	Builder ZIP
+api/images/export/route.ts	Endpoint ZIP
+components/export-manager/{export-manager,export-item,export-options,export-zip-button,export-progress}.tsx	UI export
+app/pixel/*/page.tsx	Modifier : intégrer dans pages multi-résultats
+Règles :
+
+Nom = {basename}-{suffix}.{ext}.
+
+Suffixes déterministes (-webp, -compressed, -640w, -favicon-16, -retouched).
+
+Anti-collision (suffixe -2, -3).
+
+Organisation facultative format/résolution.
+
+Original jamais écrasé.
+
+Valider nombre + poids total avant archive.
+
+Streaming si archive volumineuse (pas de full-buffer mémoire).
+
+Phase 12 — Recadrage manuel (Crop Editor)
+API : api/images/crop/route.ts — mode manual avec coordonnées + rotation + flip.
+
+Fichier	Rôle
+features/crop-editor/types/crop-editor.types.ts	Cadre, coordonnées, opérations
+features/crop-editor/schemas/crop-editor.schema.ts	Validation coordonnées
+features/crop-editor/components/{crop-canvas,crop-toolbar,crop-controls,crop-preview}.tsx	Remplacer placeholders
+features/crop-editor/hooks/use-crop-editor.ts	Sync état
+features/crop-editor/store/crop-editor.store.ts	État + historique local
+features/crop-editor/index.ts	Mettre à jour
+app/pixel/edit/crop/page.tsx	Modifier
+Critères :
+
+Cadre contraint à l'image source.
+
+Coordonnées UI → coordonnées image correctes.
+
+Rotation/flip cohérents avec recadrage.
+
+Annuler/rétablir limité à la session.
+
+Phase 13 — Détourage (fond uni)
+API : api/images/background/route.ts → PNG alpha.
+
+Fichier	Rôle
+features/background-removal/types/background.types.ts	Couleur, tolérance, contour
+features/background-removal/schemas/background.schema.ts	Validation
+features/background-removal/components/{background-panel,background-preview,background-settings}.tsx	Remplacer placeholder panel
+features/background-removal/hooks/use-background-removal.ts	Appel API
+features/background-removal/index.ts	Mettre à jour
+app/pixel/edit/background/page.tsx	Modifier
+Critères :
+
+Pipette → couleur de référence.
+
+Tolérance agissable de manière prévisible.
+
+Contours lissés sans sur-suppression.
+
+Gomme manuelle pour résidus.
+
+Sortie : PNG alpha uniquement.
+
+Phase 14 — Retouche globale + filigrane
+API : api/images/retouch/route.ts → réglages globaux + watermark.
+
+Fichier	Rôle
+features/image-editor/types/image-editor.types.ts	Réglages + watermark
+features/image-editor/schemas/image-editor.schema.ts	Plages validation
+features/image-editor/components/{editor-canvas,editor-toolbar,editor-sidebar,adjustment-controls,watermark-editor,editor-layers}.tsx	Remplacer placeholder panel
+features/image-editor/hooks/use-image-editor.ts	Orchestration
+features/image-editor/store/image-editor.store.ts	Session + historique
+features/image-editor/index.ts	Mettre à jour
+app/pixel/edit/retouch/page.tsx	Modifier
+Critères :
+
+Aperçu reflète les mêmes paramètres que l'export serveur.
+
+Filigrane texte ou image (9 positions, opacité, taille).
+
+Lot applique paramètres communs.
+
+Périmètre = retouche globale, pas de peinture pixel.
+
+Phase 15 — Favicons
+API : api/images/favicon/route.ts → PNG multi-tailles + encodeur ICO (png-to-ico) + manifest.
+
+Fichier	Rôle
+features/favicon-generator/types/favicon.types.ts	Fichiers + tailles
+features/favicon-generator/schemas/favicon.schema.ts	Validation tailles/options
+features/favicon-generator/components/{favicon-panel,favicon-preview,favicon-options,favicon-files}.tsx	Remplacer placeholder panel
+features/favicon-generator/hooks/use-favicon-generator.ts	Orchestration
+features/favicon-generator/index.ts	Mettre à jour
+app/pixel/generate/favicon/page.tsx	Modifier
+Critères :
+
+Fichier ICO contient réellement les résolutions sélectionnées.
+
+PNG Apple/Android aux dimensions exactes (180/192/512).
+
+manifest.webmanifest valide.
+
+Aperçu signale transparence/cadrage.
+
+ZIP avec noms conventionnels.
+
+Phase 16 — Placeholders
+API : api/images/placeholder/route.ts → LQIP / BlurHash / SVG flouté.
+
+Fichier	Rôle
+features/placeholder-generator/types/placeholder.types.ts	Types LQIP/BlurHash/SVG
+features/placeholder-generator/schemas/placeholder.schema.ts	Validation
+features/placeholder-generator/components/{placeholder-panel,placeholder-preview,placeholder-output}.tsx	Remplacer placeholder panel
+features/placeholder-generator/hooks/use-placeholder-generator.ts	Orchestration
+features/placeholder-generator/index.ts	Mettre à jour
+app/pixel/generate/placeholder/page.tsx	Modifier
+Critères :
+
+3 variantes distinctes et identifiées.
+
+Base64/BlurHash copiables.
+
+SVG généré valide et sûr.
+
+UI explique l'intégration de chaque sortie (CSS, attribut, inline).
+
+Package blurhash installé (§3.1).
+
+Phase 17 — Palettes
+API : api/images/palette/route.ts → 5 couleurs dominantes.
+
+Fichier	Rôle
+features/color-palette/types/palette.types.ts	Couleurs + exports
+features/color-palette/schemas/palette.schema.ts	Validation
+features/color-palette/components/{palette-panel,palette-preview,palette-export}.tsx	Remplacer placeholder panel
+features/color-palette/hooks/use-color-palette.ts	Orchestration
+features/color-palette/index.ts	Mettre à jour
+app/pixel/generate/palette/page.tsx	Modifier
+Critères :
+
+5 couleurs retournées (sauf image techniquement insuffisante).
+
+Tri/regroupement stable.
+
+Exports CSS variables / Tailwind / JSON valides et copiables.
+
+Couleurs affichées = résultat moteur réel.
+
+Phase 18 — Analyse & métadonnées
+API : api/images/metadata/route.ts — GET lecture, POST suppression.
+
+Fichier	Rôle
+features/metadata/types/metadata.types.ts	EXIF/GPS/appareil/date/ICC/propriétés
+features/metadata/schemas/metadata.schema.ts	Validation action
+features/metadata/components/{metadata-panel,metadata-details,metadata-actions}.tsx	Créer (feature entière)
+features/metadata/hooks/use-image-metadata.ts	Appel API
+features/metadata/index.ts	Créer
+app/pixel/analyze/page.tsx	Créer ⚠️ (n'existe pas)
+app/pixel/analyze/metadata/page.tsx	Créer ⚠️ (n'existe pas)
+Critères :
+
+Propriétés de base disponibles même sans EXIF.
+
+Champs absents = "indisponible", pas inventés.
+
+GPS traité comme donnée sensible (non exposé inutilement).
+
+Suppression vérifiée sur le fichier de sortie, pas seulement déclarée.
+
+Conservation ICC/EXIF cohérente avec options conversion.
+
+Phase 19 — Persistance Prisma (optionnel / différé)
+À trancher avant code :
+
+Modèle historique : type traitement, date, paramètres, statut, métadonnées résultat.
+
+Modèle préférences : formats défaut, qualité, options export, UI.
+
+Politique rétention : pas de buffers binaires en SQL.
+
+Stratégie stockage fichiers : temporaire / local / objet distant.
+
+Règles suppression + durée conservation.
+
+Protection données EXIF/GPS/noms.
+
+Fichiers : dépendent du schéma Prisma existant. Ne pas créer de second schéma concurrent — ajouter aux modèles existants + migrations.
+
+Critères :
+
+Traitement historisé sans binaire en SQL.
+
+Préférences rattachées au bon user (si auth).
+
+Données temporaires nettoyables.
+
+Absence de session/DB → pas de fuite.
+
+Phase 20 — Finition UX + validation globale
+Fichiers :
+
+app/pixel/dashboard/loading.tsx
+
+app/pixel/convert/loading.tsx
+
+À vérifier sur CHAQUE page :
+
+Chargement initial / aucun fichier / fichier invalide.
+
+Traitement en cours / réussi / échec partiel / échec complet.
+
+Export individuel / ZIP / annulation / suppression.
+
+Affichage mobile + clavier, sans sacrifier desktop.
+
+6. Matrice complète « fichier → action »
+Chemin	Action	Phase
+app/pixel/layout.tsx	✅ existe — vérifier	0
+app/pixel/page.tsx	✅ existe — vérifier	0
+app/pixel/dashboard/page.tsx	✅ existe — vérifier	0
+app/pixel/dashboard/loading.tsx	➕ créer	20
+app/pixel/convert/page.tsx	✏️ modifier (brancher ConverterPanel)	7
+app/pixel/convert/loading.tsx	➕ créer	20
+app/pixel/optimize/page.tsx	✏️ modifier (brancher OptimizerPanel)	9
+app/pixel/optimize/compress/page.tsx	✏️ modifier (brancher CompressorPanel)	9
+app/pixel/optimize/resize/page.tsx	✏️ modifier (brancher ResizePanel)	10
+app/pixel/optimize/smart-crop/page.tsx	✏️ modifier (brancher SmartCropPanel)	10
+app/pixel/edit/page.tsx	✅ existe — vérifier	0
+app/pixel/edit/crop/page.tsx	✏️ modifier (brancher CropEditorPanel)	12
+app/pixel/edit/background/page.tsx	✏️ modifier (brancher BackgroundPanel)	13
+app/pixel/edit/retouch/page.tsx	✏️ modifier (brancher ImageEditorPanel)	14
+app/pixel/generate/page.tsx	✅ existe — vérifier	0
+app/pixel/generate/favicon/page.tsx	✏️ modifier (brancher FaviconPanel)	15
+app/pixel/generate/placeholder/page.tsx	✏️ modifier (brancher PlaceholderPanel)	16
+app/pixel/generate/palette/page.tsx	✏️ modifier (brancher PalettePanel)	17
+app/pixel/analyze/page.tsx	➕ créer ⚠️	18
+app/pixel/analyze/metadata/page.tsx	➕ créer ⚠️	18
+app/pixel/dev/page.tsx	✏️ modifier (deps §3)	0
+app/pixel/components/PixelNav.tsx	✅ existe — vérifier	0
+app/api/images/{convert,optimize,compress,resize,crop,background,retouch,favicon,placeholder,palette,metadata,export}/route.ts	➕ créer (12)	6–11 + 18
+app/pixel/features/converter/*	✏️ panel existant + ➕ hooks/schemas/types	7
+app/pixel/features/optimizer/*	➕ créer entièrement	9
+app/pixel/features/compressor/*	✏️ panel existant + ➕	9
+app/pixel/features/resize/*	✏️ panel existant + ➕	10
+app/pixel/features/smart-crop/*	✏️ panel existant + ➕	10
+app/pixel/features/crop-editor/*	✏️ panel existant + ➕	12
+app/pixel/features/background-removal/*	✏️ panel existant + ➕	13
+app/pixel/features/image-editor/*	✏️ panel existant + ➕	14
+app/pixel/features/favicon-generator/*	✏️ panel existant + ➕	15
+app/pixel/features/placeholder-generator/*	✏️ panel existant + ➕	16
+app/pixel/features/color-palette/*	✏️ panel existant + ➕	17
+app/pixel/features/metadata/*	➕ créer entièrement	18
+app/pixel/components/image-upload/*	➕ créer (5)	5
+app/pixel/components/image-queue/*	➕ créer (5)	5
+app/pixel/components/image-comparison/*	➕ créer (4)	8
+app/pixel/components/image-preview/*	➕ créer (4)	5
+app/pixel/components/image-properties/*	➕ créer (4)	8
+app/pixel/components/export-manager/*	➕ créer (5)	11
+app/pixel/components/feedback/*	➕ créer (4)	6
+app/pixel/lib/image-engine/*	➕ créer (~28)	4
+app/pixel/lib/validators/*	➕ créer (5)	3
+app/pixel/lib/archive/*	➕ créer (3)	11
+app/pixel/types/*	➕ créer (6)	1
+app/pixel/stores/*	➕ créer (3)	5
+next.config.ts	✏️ modifier (serverExternalPackages, bodySizeLimit)	0
+package.json	✏️ modifier (deps §3.1)	0
+Total : ~200 fichiers
+
+✅ existants à vérifier : ~15
+
+✏️ à modifier (pages + panels placeholders) : ~30
+
+➕ à créer : ~155
+
+7. Dépendances entre phases
+text
+Phase 0  Audit + configuration (next.config.ts, package.json, dev/page.tsx)
+   ↓
+Phase 1  Types et contrats (zéro dépendance)
+   ↓
+Phase 2  Schémas Zod (dépend Phase 1)
+   ↓
+Phase 3  Sécurité + validation fichiers (dépend Phase 1)
+   ↓
+Phase 4  Image Engine + Sharp (dépend Phases 1-3)
+   ↓
+Phase 5  Import + Queue (dépend Phases 1-3, composants feedback partiels)
+   ↓
+Phase 6  Conventions API + endpoint convert (dépend Phases 3-4)
+   ↓
+Phase 7  Converter vertical (dépend Phases 4, 5, 6)
+   ↓
+Phase 8  Comparaison + propriétés (dépend Phases 5, 7)
+   ↓
+Phase 9  Compression + Optimisation (dépend Phases 4, 5, 6, 8)
+   ↓
+Phase 10 Resize + Smart crop (dépend Phase 9)
+   ↓
+Phase 11 Export Manager + ZIP (dépend Phases 5, 8, 9)
+   ↓
+Phase 12 Recadrage manuel (dépend Phases 4, 5, 6)
+   ↓
+Phase 13 Détourage (dépend Phase 12)
+   ↓
+Phase 14 Retouche + Watermark (dépend Phase 13)
+   ↓
+Phase 15 Favicons (dépend Phases 4, 6 — indépendant des outils 06-08)
+   ↓
+Phase 16 Placeholders (dépend Phases 4, 6, 11)
+   ↓
+Phase 17 Palette (dépend Phases 4, 6)
+   ↓
+Phase 18 Analyse + Métadonnées (dépend Phases 4, 6, 11)
+   ↓
+Phase 19 Persistance Prisma (optionnel, différé)
+   ↓
+Phase 20 Finition UX + validation globale
+Règle critique : un hook client n'est jamais finalisé avant que le contrat de son endpoint soit défini et que l'endpoint existe. Les composants visuels peuvent être préparés plus tôt avec états statiques, mais leur branchement fonctionnel attend les contrats et endpoints.
+
+8. Matrice des API
+Route	Méthode	Responsabilité	Phase
+/api/images/convert	POST	Conversion de format	6 / 7
+/api/images/optimize	POST	Optimisation + poids cible	9
+/api/images/compress	POST	Compression sans changement de format	9
+/api/images/resize	POST	Redimensionnement + variantes	10
+/api/images/crop	POST	Smart crop + recadrage manuel (mode explicite)	10 / 12
+/api/images/background	POST	Suppression fond uni + alpha	13
+/api/images/retouch	POST	Réglages globaux + filigrane	14
+/api/images/favicon	POST	PNG multi-tailles + ICO + manifest	15
+/api/images/placeholder	POST	LQIP / BlurHash / SVG flouté	16
+/api/images/palette	POST	Extraction couleurs dominantes	17
+/api/images/metadata	GET + POST	Lecture + suppression métadonnées	18
+/api/images/export	POST	Création archive ZIP	11
+Règle : routes minces = parsing + validation + contrôle limites + appel moteur + sérialisation + gestion erreurs. Aucune logique de transformation dans route.ts.
+
+9. Composants transversaux — matrice de réutilisation
+Composant	Responsabilité	Réutilisé par
+ImageUploader	Recevoir des fichiers	Tous les outils
+ImageQueue	Afficher/gérer la file	Tous les outils par lot
+ImagePreview	Afficher une image	Tous les outils
+ImageProperties	Afficher propriétés	Analyse, conversion, optimisation
+ImageComparison	Comparer source/résultat	Conversion, optimisation, édition
+ExportManager	Télécharger un/plusieurs résultats	Tous les outils produisant des fichiers
+ProcessingStatus	Afficher l'état	Tous
+ErrorMessage	Erreur exploitable	Tous
+10. Stratégie de tests
+Tests ajoutés au fur et à mesure, jamais reportés à la fin.
+
+10.1 Validateurs
+Fichier conforme / vide.
+
+Extension incohérente avec contenu.
+
+MIME falsifié.
+
+Fichier > 25 Mo.
+
+Image aux dimensions/pixels excessifs.
+
+Image corrompue.
+
+SVG contenant éléments dangereux.
+
+10.2 Moteur
+Conversion JPEG, PNG, WebP.
+
+Préservation transparence.
+
+Resize cover/contain/inside.
+
+Rotation + orientation EXIF.
+
+Compression JPEG/PNG.
+
+Suppression/conservation métadonnées.
+
+Filigrane texte/logo.
+
+Format non supporté → erreur applicative.
+
+Erreur Sharp → erreur applicative structurée.
+
+10.3 Fonctionnel par outil
+Un fichier + lot.
+
+Options valides + invalides.
+
+Résultat téléchargeable correctement nommé.
+
+Échec d'un élément sans perdre les autres du lot.
+
+Comparaison poids/dimensions.
+
+ZIP contient exactement les résultats demandés.
+
+10.4 Qualité technique
+TypeScript strict.
+
+Aucun any injustifié.
+
+Aucun faux résultat ni donnée simulée en prod.
+
+Aucun import Sharp côté client.
+
+Aucune duplication règles validation.
+
+Aucune promesse fonctionnelle non supportée par le moteur.
+
+Gestion erreurs + nettoyage ressources temporaires.
+
+Vérification limites mémoire + durée traitements.
+
+11. Points de vigilance à trancher AVANT implémentation
+#	Sujet	Décision à prendre
+1	Formats exacts	Lister les formats réellement activés dans Sharp installé
+2	ICO	Choisir et intégrer png-to-ico (déjà retenu) + valider assemblage
+3	GIF	Traiter 1ʳᵉ frame ou animation complète — indiquer explicitement
+4	SVG	Définir limites taille, sanitisation, comportement rasterisation
+5	SSIM	Bibliothèque dédiée ou retirer la métrique tant que non implémentée
+6	Détourage	Algorithme tolérance couleur, antialiasing, gomme
+7	Batch	Nombre max fichiers simultanés, stratégie concurrence (p-limit)
+8	Stockage	Mémoire / temporaire / objet distant
+9	Persistance	Ce qui est historisé + durée conservation avant Prisma
+10	Canvas	Une seule stratégie (Konva ou natif) — pas les deux
+11	BlurHash	Package blurhash installé (§3.1) — valider intégration
+12	Noms de fichiers	Convention {basename}-{suffix}.{ext} — suffixes documentés
+12. Définition de « terminé » pour une fonctionnalité
+Une fonctionnalité n'est pas terminée parce que sa page s'affiche. Elle l'est quand :
+
+✅ Son schéma valide les paramètres.
+
+✅ Son endpoint valide les fichiers côté serveur.
+
+✅ Son endpoint appelle le moteur central.
+
+✅ Son hook client utilise le contrat réel.
+
+✅ Son interface gère chargement, succès, erreur, lot.
+
+✅ Le résultat est prévisualisable.
+
+✅ Les propriétés/économies pertinentes sont affichées.
+
+✅ Le téléchargement individuel fonctionne.
+
+✅ L'export ZIP fonctionne (si pertinent).
+
+✅ Tests couvrent cas nominaux + erreurs.
+
+✅ Aucune dépendance serveur importée côté client.
+
+✅ Limites et capacités annoncées = comportement réel.
+
+13. Résumé exécutif
+Indicateur	Valeur
+Outils	11 + 1 analyse transversal = 12 fonctionnalités
+Familles	5 (Convertir, Optimiser, Éditer, Générer, Analyser)
+Phases	21 (Phase 0 → Phase 20)
+Fichiers concernés	~200
+— existants à vérifier	~15
+— à modifier	~30 (pages + panels placeholders)
+— à créer	~155
+Routes API	12
+Composants transversaux	7 répertoires (~31 composants)
+Modules moteur	lib/image-engine/ (~28 fichiers)
+Dépendances ajoutées	sharp, file-type, png-to-ico, archiver, p-limit, blurhash (+ ssim.js optionnel)
+Config Next.js	bodySizeLimit: "25mb" + serverExternalPackages
+Durée estimée	~15-20 semaines (1 dev senior, temps plein)
+Ce document est la référence de production PixelForge. 
+Toute déviation doit être documentée et validée. 
+Les illusions fonctionnelles (SSIM natif, ICO natif, détourage IA, smart crop sémantique) sont explicitement exclues pour éviter les déceptions en production.
+
+ 
+Décision 1 — Plateforme de déploiement
+Question
+L'application tourne-t-elle sur Vercel, VPS ou Docker ?
+
+Décision retenue
+✅ Vercel (serverless)
+
+Justification
+Stack Next.js 16 + App Router déjà alignée sur Vercel.
+
+Pas de maintenance d'infrastructure.
+
+Déploiement continu natif via Git.
+
+Conséquences architecturales
+Timeout max : 60 secondes par requête (configurable jusqu'à 300 s en Pro). export const maxDuration = 60 obligatoire sur chaque route outil.
+
+Pas de FS persistant : aucun fichier ne peut survivre entre deux requêtes sur le disque local.
+
+Stockage temporaire : nécessite une solution externe (Vercel Blob, S3, R2) pour l'option C du Blocage 2.
+
+Cold start Sharp : premier appel peut prendre 1-3 s (libvips à charger). À anticiper dans les skeletons UI.
+
+Traitement par lot limité : 200 images × 25 Mo dépasse les 60 s → nécessite un traitement asynchrone ou un batch réduit.
+
+Phases concernées
+Toutes les phases API (6 à 11, 18).
+
+Phase 11 (Export Manager) : stratégie de streaming ZIP à revoir pour Vercel.
+
+Limites à intégrer dans lib/validators/image-limits.ts
+ts
+export const LIMITS = {
+  MAX_FILE_SIZE: 25 * 1024 * 1024,      // 25 Mo / fichier
+  MAX_BATCH_SIZE: 20,                    // 20 fichiers / requête (Vercel)
+  MAX_WIDTH: 8000,                       // px
+  MAX_HEIGHT: 8000,                      // px
+  MAX_PIXELS: 100_000_000,               // 100 MP (anti decompression bomb)
+  MAX_ZIP_SIZE: 500 * 1024 * 1024,       // 500 Mo ZIP
+  MAX_CONCURRENT_PROCESSING: 4,          // p-limit(4) max
+} as const;
+Décision 2 — Stratégie de retour des fichiers traités
+Question
+Comment le navigateur reçoit-il un fichier traité ?
+
+Décision retenue
+✅ Approche hybride B + C :
+
+Option B (Blob response) pour traitement unitaire (1 fichier).
+
+Option C (Lien temporaire) pour traitement par lot > 5 fichiers.
+
+Justification
+Option B = la plus efficace pour 1 fichier (pas de base64 +33 %, pas de stockage).
+
+Option C = indispensable pour lot (un seul JSON de réponse avec N URLs, pas N requêtes binaires).
+
+Le seuil de 5 évite la complexité Blob pour les petits lots (2-5 fichiers).
+
+Conséquences architecturales
+Routes API — signature :
+
+text
+POST /api/images/convert
+  Body: multipart/form-data (files[], options)
+  
+  Si files.length === 1:
+    Response 200: Content-Type: image/webp
+                  Content-Disposition: attachment; filename="photo.webp"
+                  Body: <binary buffer>
+  
+  Si files.length > 5:
+    Response 200: {
+      results: [
+        { id, filename, mime, size, width, height, url: "/api/temp/{id}" },
+        ...
+      ],
+      expiresAt: "2026-11-07T13:00:00Z"
+    }
+Route temporaire (nouvelle) :
+
+text
+GET /api/temp/[id]/route.ts
+  Response 200: Content-Type: <mime>
+                Content-Disposition: attachment; filename="<filename>"
+                Body: <binary buffer>
+  Response 404: expiré ou inconnu
+Stockage temporaire : Vercel Blob (à configurer) ou S3/R2 si préféré.
+
+Variable d'env : BLOB_READ_WRITE_TOKEN (Vercel Blob) ou équivalent.
+
+Chemin : {processId}/{filename}.
+
+TTL : 1 heure (voir Décision 7).
+
+Hooks client :
+
+use-converter.ts gère les deux cas :
+
+1 fichier → fetch + response.blob() + URL.createObjectURL().
+
+5 fichiers → parse JSON + affichage des URLs dans ExportManager.
+
+2-5 fichiers : traité comme lot (option C) pour simplifier la logique — un seul format de réponse.
+
+Règle unifiée simplifiée
+Nombre de fichiers	Retour
+1	Blob response (option B)
+2 à 20	JSON avec URLs temporaires (option C)
+Révision par rapport à la question initiale : le seuil passe de 5 à 2 pour éviter de maintenir deux formats de réponse côté hook. Un seul fichier = Blob, plusieurs = URLs.
+
+Phases concernées
+Phase 6 : contrat documenté dans l'endpoint de référence.
+
+Phases 7-11, 18 : toutes les routes.
+
+Phase 5 : ExportManager doit gérer URLs.
+
+Phase 11 : ZIP assembly depuis URLs temporaires.
+
+Phase 20 : états UI distinguent "buffer prêt" vs "URL prête".
+
+Décision 3 — Persistance Prisma (historique des traitements)
+Question
+L'historique des traitements est-il obligatoire ou optionnel ?
+
+Décision retenue
+✅ Optionnel — Phase 19 conservée en fin de roadmap.
+
+Justification
+PixelForge reste fonctionnel sans historique (outil de traitement one-shot).
+
+L'historique est un confort, pas une fonctionnalité métier critique.
+
+Éviter d'ajouter Prisma dès le départ simplifie : pas de blocage sur le schéma, pas de migrations avant que les outils soient stables.
+
+Les interfaces stub permettent d'ajouter Prisma sans refactorer les hooks.
+
+Conséquences architecturales
+Interfaces stub dès Phase 1 :
+
+ts
+// app/pixel/types/processing.ts
+export interface ProcessingHistoryEntry {
+  readonly id: string;
+  readonly type: ProcessingType;
+  readonly createdAt: string;
+  readonly params: Record<string, unknown>;
+  readonly status: "success" | "partial" | "error";
+  readonly metadata?: Record<string, unknown>;
+}
+
+export interface HistoryAdapter {
+  readonly save: (entry: ProcessingHistoryEntry) => Promise<void>;
+  readonly list: (limit: number) => Promise<readonly ProcessingHistoryEntry[]>;
+}
+
+// No-op implémentation en attendant Prisma
+export const noopHistoryAdapter: HistoryAdapter = {
+  save: async () => {},
+  list: async () => [],
+};
+Hooks client : use-converter.ts et consorts acceptent un HistoryAdapter optionnel (défaut = noopHistoryAdapter). En Phase 19, on injecte prismaHistoryAdapter.
+
+Aucun impact sur Phases 0-18. Phase 19 peut être ajoutée a posteriori sans toucher aux outils.
+
+Phases concernées
+Phase 1 : définir HistoryAdapter + noopHistoryAdapter.
+
+Phase 19 : implémenter prismaHistoryAdapter + schéma Prisma.
+
+Décision 4 — Bibliothèque canvas pour l'éditeur de recadrage (outil 06)
+Question
+Quelle bibliothèque pour le recadrage manuel interactif ?
+
+Décision retenue
+✅ react-easy-crop (~30 Ko)
+
+Justification
+Le périmètre outil 06 est recadrage manuel + rotation + flip, pas de peinture pixel.
+
+react-easy-crop couvre exactement ça : drag, zoom, ratio, rotation.
+
+Poids raisonnable (~30 Ko vs ~180 Ko pour Konva).
+
+API React moderne (hooks, controlled).
+
+Accessibilité clavier intégrée.
+
+Ce que react-easy-crop ne fait PAS (assumé)
+Pas de calques multiples.
+
+Pas de peinture.
+
+Pas d'annotations.
+
+Pas de texte.
+
+Ces fonctionnalités ne sont pas dans le périmètre de PixelForge. Si un jour elles le deviennent, on migrera vers Konva.
+
+Conséquences architecturales
+Installation :
+
+bash
+npm i react-easy-crop
+Fichier : features/crop-editor/components/crop-canvas.tsx utilise Cropper de react-easy-crop.
+
+Types : features/crop-editor/types/crop-editor.types.ts définit { crop: { x, y }, zoom, rotation, aspect, croppedAreaPixels }.
+
+Conversion coordonnées : croppedAreaPixels de react-easy-crop fournit directement les coordonnées image source — pas de calcul manuel.
+
+Phases concernées
+Phase 0 : ajouter react-easy-crop aux dépendances.
+
+Phase 12 : implémentation.
+
+Décision 5 — Métrique SSIM
+Question
+SSIM est-elle dans le périmètre ?
+
+Décision retenue
+✅ Non — SSIM retiré de partout.
+
+Justification
+sharp.stats() ne fournit pas SSIM nativement (il donne entropie, moyenne, écart-type, dominance).
+
+SSIM nécessite une implémentation dédiée (ssim.js ~15 Ko) ou une dépendance serveur (image-ssim).
+
+Aucune valeur ajoutée suffisante pour justifier la complexité en v1.
+
+Les métriques déjà disponibles (sharp.stats()) suffisent pour l'UI.
+
+Ce qu'on affiche à la place
+Poids initial / final (Ko et %).
+
+Dimensions initiales / finales.
+
+Entropie (sharp.stats().entropy) — indicateur de richesse visuelle.
+
+Écart-type (sharpness approximatif).
+
+Comparaison visuelle slider (l'œil humain est le meilleur juge).
+
+Actions de nettoyage
+Retirer la mention de SSIM dans :
+
+app/pixel/dev/page.tsx (ligne "US6 · SSIM")
+
+app/pixel/page.tsx (section Personas)
+
+Tout futur composant image-comparison
+
+Types image.ts / optimization.ts
+
+Schémas Zod
+
+Alternative si besoin futur
+Ajouter un bouton "Analyse avancée" en v2 qui appelle ssim.js côté client (pas serveur). Hors périmètre v1.
+
+Phases concernées
+Phase 0 : retirer SSIM de dev/page.tsx.
+
+Phase 8 : comparison-stats.tsx affiche poids + dimensions + entropie, pas SSIM.
+
+Phase 9 : schémas sans champ ssim.
+
+Décision 6 — Algorithme de tolérance couleur (détourage, outil 07)
+Question
+Quelle formule mathématique pour la tolérance de détourage ?
+
+Décision retenue
+✅ Distance RGB euclidienne normalisée (v1 simple).
+
+Formule
+text
+distance(pixel, target) = sqrt((r-r₀)² + (g-g₀)² + (b-b₀)²)
+
+Si distance < tolerance * max_distance → pixel = transparent
+Où :
+
+max_distance = sqrt(255² + 255² + 255²) ≈ 441 (diagonale RGB).
+
+tolerance ∈ [0, 1] (UI 0-100 %).
+
+pixel et target = [r, g, b] en 0-255.
+
+Justification
+Simple : 3 lignes de code, aucune dépendance.
+
+Prévisible : l'utilisateur comprend facilement "plus de tolérance = plus transparent".
+
+Suffisant pour les fonds unis (blanc, noir, vert chroma-key).
+
+Documentable : formule explicite dans la doc utilisateur.
+
+Limites assumées
+Pas perceptuel : un fond blanc et un sujet blanc auront la même distance (l'utilisateur baisse la tolérance).
+
+Pas adapté aux dégradés complexes : hors périmètre (détourage IA).
+
+Canal alpha ignoré : on traite des images opaques uniquement.
+
+Upgrade v2 (hors périmètre)
+Distance Lab (deltaE 2000) : meilleure perception, mais +30 lignes de conversion RGB→Lab.
+
+Décision : si les retours utilisateurs le demandent, upgrade Phase 13.2 (itération séparée).
+
+Conséquences architecturales
+api/images/background/route.ts :
+
+ts
+function isTargetColor(r, g, b, target, tolerance): boolean {
+  const dr = r - target.r;
+  const dg = g - target.g;
+  const db = b - target.b;
+  const distance = Math.sqrt(dr*dr + dg*dg + db*db);
+  return distance < tolerance * 441;
+}
+lib/image-engine/transformations/filters.ts : fonction removeUniformBackground(buffer, target, tolerance).
+
+UI background-settings.tsx :
+
+Pipette → sélectionne couleur sur l'image.
+
+Slider tolérance 0-100 %.
+
+Aperçu damier en temps réel.
+
+Phases concernées
+Phase 13 : implémentation complète.
+
+Phase 4 : filters.ts inclut déjà la fonction.
+
+Décision 7 — Nettoyage des fichiers temporaires
+Question
+Si option C du Blocage 2 (URLs temporaires) : qui nettoie et quand ?
+
+Décision retenue
+✅ Lazy cleanup : purge à chaque nouvelle requête des fichiers > 1 heure.
+
+Justification
+Pas de cron job à maintenir (simplicité Vercel).
+
+Pas de TTL S3/R2 à configurer (moins de dépendances infra).
+
+Auto-nettoyant : si l'usage est régulier, les vieux fichiers disparaissent d'eux-mêmes.
+
+Compatible Vercel : chaque requête API est stateless, mais peut déclencher un cleanup opportuniste.
+
+Mécanisme
+Trigger : à chaque appel d'une route API image (/api/images/*), avant traitement :
+
+ts
+await cleanupExpiredFiles();  // best-effort, non bloquant
+Fonction :
+
+ts
+// app/pixel/lib/storage/temp-cleanup.ts
+const TTL_MS = 60 * 60 * 1000; // 1 heure
+
+export async function cleanupExpiredFiles(): Promise<void> {
+  try {
+    const blobs = await list({ prefix: "temp/" });
+    const now = Date.now();
+    for (const blob of blobs) {
+      if (now - new Date(blob.uploadedAt).getTime() > TTL_MS) {
+        await del(blob.url);
+      }
+    }
+  } catch {
+    // best-effort : si le cleanup échoue, on ne bloque pas le traitement
+  }
+}
+Non bloquant : si Vercel Blob API échoue, on continue le traitement normal. Le fichier restera 1 h de plus, sans impact utilisateur.
+
+Aussi déclenché : lors de la suppression manuelle d'un résultat (UI ExportManager) → del(url) immédiat.
+
+Quotas Vercel Blob
+Hobby : 1 Go stockage, 100 Go bande passante (suffisant pour un usage perso/POC).
+
+Pro : 100 Go stockage.
+
+À surveiller : si usage intensif, ajouter un cron Vercel quotidien en complément.
+
+Conséquences architecturales
+Installation :
+
+bash
+npm i @vercel/blob
+Variables d'environnement :
+
+text
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxx
+Fichier nouveau : app/pixel/lib/storage/temp-cleanup.ts.
+
+Route nouvelle : app/api/temp/[id]/route.ts (voir Décision 2).
+
+Intégration : toutes les routes /api/images/* appellent cleanupExpiredFiles() en début de handler (fire-and-forget).
+
+Phases concernées
+Phase 3 : ajouter temp-cleanup.ts aux lib.
+
+Phase 6 : brancher cleanupExpiredFiles() dans l'endpoint de référence.
+
+Phases 7-11 : répéter dans chaque route.
+
+Phase 11 : del(url) après ZIP téléchargé (nettoyage immédiat).
+
+Tableau récapitulatif des décisions
+#	Sujet	Décision	Phase impactée
+1	Plateforme	Vercel serverless	Toutes API
+2	Retour fichiers	Hybride B+C (1=Blob, 2+=URLs)	Phases 5, 6, 7-11
+3	Persistance Prisma	Optionnelle (stub)	Phase 1, 19
+4	Canvas recadrage	react-easy-crop	Phase 12
+5	SSIM	Non retenu (retiré partout)	Phases 0, 8, 9
+6	Détourage	Distance RGB euclidienne	Phase 13
+7	Cleanup temporaires	Lazy cleanup > 1 h	Phases 3, 6-11
+Dépendances npm consolidées
+bash
+# Production
+npm i sharp file-type png-to-ico archiver p-limit blurhash react-easy-crop @vercel/blob
+
+# Types
+npm i -D @types/sharp
+Retiré : ssim.js (non retenu), to-ico (remplacé par png-to-ico), @imgly/background-removal (déjà orphelin, à désinstaller).
+
+Variables d'environnement requises
+env
+# Déjà existant (voir lib/env.ts)
+DATABASE_URL=
+DATABASE_URL_UNPOOLED=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+NEXT_PUBLIC_APP_URL=
+
+# Nouveau — Vercel Blob
+BLOB_READ_WRITE_TOKEN=
+Action Phase 0 : ajouter BLOB_READ_WRITE_TOKEN à lib/env.ts (validation Zod).
+
+next.config.ts final
+ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: { bodySizeLimit: "25mb" },
+  },
+  serverExternalPackages: [
+    "sharp",
+    "png-to-ico",
+    "archiver",
+    "blurhash",
+    "react-easy-crop",  // pas bundlé côté serveur (client-only)
+  ],
+};
+
+export default nextConfig;
+
+
 

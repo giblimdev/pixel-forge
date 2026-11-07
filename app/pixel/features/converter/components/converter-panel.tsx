@@ -1,83 +1,140 @@
 /*
-path :           app/pixel/features/converter/components/converter-panel.tsx
-tag :            ["pixel", "pixel-forge", "converter", "component", "placeholder", "panel"]
-projectId:       pixel
+path:            app/pixel/features/converter/components/converter-panel.tsx
+tag:             ["pixel", "feature", "converter", "component", "panel"]
+projectId:       <Pixel-fotgen>
 type:            component
 generic:         false
 
-role:            ⚠️ PLACEHOLDER — Panneau de conversion (outil 01).
-                 Ce composant est un SQUELETTE temporaire destiné à
-                 permettre le build de app/pixel/convert/page.tsx sans
-                 erreur. Il sera REMPLACÉ par l'implémentation réelle
-                 (formulaire + Server Action + aperçu) dans une
-                 itération suivante.
+role:            Orchestrateur de l'outil 01. Remplace le placeholder
+                 precedent. Compose :
+                 - FormatSelector (format de sortie)
+                 - QualityControl (qualite + mode)
+                 - Bouton "Convertir" (desactive si pendingCount === 0
+                   ou stage === "running")
+                 - ConversionResults (si outcome !== null)
+                 Lit le hook useConverter qui pilote tout le pipeline
+                 (validation, fetch, store, resultats).
 
-                 Contrat futur prévu :
-                 - Server Component wrapper (aucun état local).
-                 - Monté dans app/pixel/convert/page.tsx.
-                 - Déclenchera POST /api/images/convert.
-                 - Affichera ImageQueue + FormatSelector + QualityControl
-                   + ConversionResults.
-
-                 ⚠️ AUCUNE PROP pour l'instant : le placeholder est
-                 monté sans props. Si une prop devient nécessaire
-                 (ex. flow, platformRole), elle sera ajoutée dans
-                 l'implémentation réelle.
-
-flow:            Server Component → rend une carte bordée "à implémenter"
-                 avec le nom du composant et un rappel de son rôle.
+flow:            useConverter() -> rend un formulaire avec les
+                 controles. A chaque changement de champ, appelle
+                 setOptions (merge partiel). Au clic Convertir,
+                 submit(). Si outcome, affiche <ConversionResults />.
 
 ecosystem:       Converter = [
+                   "@/app/pixel/features/converter/types/converter.types.ts",
+                   "@/app/pixel/features/converter/schemas/converter.schema.ts",
+                   "@/app/pixel/features/converter/hooks/use-converter.ts",
+                   "@/app/pixel/features/converter/components/format-selector.tsx",
+                   "@/app/pixel/features/converter/components/quality-control.tsx",
+                   "@/app/pixel/features/converter/components/conversion-results.tsx",
                    "@/app/pixel/features/converter/components/converter-panel.tsx",
                    "@/app/pixel/features/converter/index.ts",
                  ]
-
-relatedFiles:    ["@/app/pixel/convert/page.tsx",
-                  "@/app/pixel/features/converter/index.ts"]
-
-imports:         ["lucide-react"]
-
+relatedFiles:    ["@/app/pixel/features/converter/hooks/use-converter.ts",
+                  "@/app/pixel/features/converter/types/converter.types.ts",
+                  "@/components/ui/button.tsx"]
+imports:         ["lucide-react",
+                  "@/app/pixel/features/converter/hooks/use-converter",
+                  "@/app/pixel/features/converter/types/converter.types",
+                  "@/app/pixel/features/converter/components/format-selector",
+                  "@/app/pixel/features/converter/components/quality-control",
+                  "@/app/pixel/features/converter/components/conversion-results",
+                  "@/components/ui/button"]
 exports:         ["ConverterPanel", "ConverterPanelProps"]
-
 useBy:           ["@/app/pixel/convert/page.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux convertir une image dans un autre format"]
-
+userStories:     ["*en tant qu'utilisateur je veux convertir toute ma file d'images"]
 status:          wip
-pathChecked:     ✔true
-metaDataChecked: ✔true
-scriptChecked:   ✔true
+pathChecked:     true
+metaDataChecked: true
+scriptChecked:   true
 */
 
-import { Image as ImageIcon } from "lucide-react";
+"use client";
+// "use client" justifie : useConverter + interactions.
+
+import { ArrowRight, Loader2 } from "lucide-react";
+
+import { useConverter } from "@/app/pixel/features/converter/hooks/use-converter";
+import type { ConversionOptions } from "@/app/pixel/types/conversion";
+import { FormatSelector } from "@/app/pixel/features/converter/components/format-selector";
+import { QualityControl } from "@/app/pixel/features/converter/components/quality-control";
+import { ConversionResults } from "@/app/pixel/features/converter/components/conversion-results";
+import { Button } from "@/components/ui/button";
 
 export interface ConverterPanelProps {
-  // Aucune prop pour l'instant — placeholder.
-  // Les props réelles seront ajoutées lors de l'implémentation.
+  readonly className?: string;
 }
 
-export function ConverterPanel(_props: ConverterPanelProps) {
+export function ConverterPanel({ className }: ConverterPanelProps) {
+  const { options, setOptions, stage, outcome, pendingCount, submit } =
+    useConverter();
+
+  const running = stage === "running";
+
+  function patch(partial: Partial<ConversionOptions>) {
+    setOptions({ ...options, ...partial });
+  }
+
   return (
     <section
-      aria-label="Panneau de conversion (placeholder)"
-      className="rounded-2xl border-2 border-dashed border-[var(--pf-primary)]/40 bg-[var(--pf-primary)]/5 p-8 backdrop-blur-xl"
+      aria-labelledby="converter-panel-title"
+      className={`space-y-4 rounded-2xl border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 p-5 backdrop-blur-xl ${className ?? ""}`}
     >
-      <div className="flex flex-col items-center gap-3 text-center">
-        <span className="grid size-12 place-items-center rounded-xl bg-[var(--pf-primary)]/15 text-[var(--pf-primary)]">
-          <ImageIcon className="size-6" aria-hidden />
-        </span>
-        <h3 className="text-lg font-bold tracking-tight text-[var(--pf-foreground)]">
-          Panneau de conversion
+      <header className="space-y-1">
+        <h3
+          id="converter-panel-title"
+          className="text-base font-bold tracking-tight text-[var(--pf-foreground)]"
+        >
+          Options de conversion
         </h3>
-        <p className="max-w-md text-sm leading-relaxed text-[var(--pf-muted)]">
-          ⚠️ <strong>Placeholder</strong> — Ce composant sera remplacé par
-          l&apos;interface réelle : dépôt d&apos;images, sélection du format,
-          réglage de la qualité, aperçu avant/après et téléchargement.
+        <p className="text-xs text-[var(--pf-muted)]">
+          {pendingCount === 0
+            ? "Ajoutez des images a la file ci-dessus pour commencer."
+            : `${pendingCount} image${pendingCount > 1 ? "s" : ""} prete${pendingCount > 1 ? "s" : ""} a convertir.`}
         </p>
-        <code className="rounded bg-[var(--pf-background)]/60 px-2 py-1 font-mono text-[11px] text-[var(--pf-muted)]">
-          app/pixel/features/converter/components/converter-panel.tsx
-        </code>
+      </header>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <FormatSelector
+          value={options.format}
+          onChange={(format) => patch({ format })}
+          disabled={running}
+        />
+        <QualityControl
+          format={options.format}
+          quality={options.quality}
+          mode={options.mode}
+          onChange={(next) => patch(next)}
+          disabled={running}
+        />
       </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--pf-border)]/60 pt-3">
+        <p className="text-xs text-[var(--pf-muted)]">
+          Les options seront appliquees a toutes les images de la file.
+        </p>
+        <Button
+          type="button"
+          onClick={() => void submit()}
+          disabled={pendingCount === 0 || running}
+          className="gap-1.5 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] text-white"
+        >
+          {running ? (
+            <>
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+              Conversion en cours...
+            </>
+          ) : (
+            <>
+              Convertir {pendingCount > 0 ? `(${pendingCount})` : ""}
+              <ArrowRight className="size-3.5" aria-hidden />
+            </>
+          )}
+        </Button>
+      </div>
+
+      {outcome && <ConversionResults outcome={outcome} />}
     </section>
   );
 }

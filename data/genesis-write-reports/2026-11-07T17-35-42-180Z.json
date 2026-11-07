@@ -1,0 +1,25 @@
+{
+  "id": "2026-11-07T17-35-42-180Z",
+  "createdAt": "2026-11-07T17:35:42.180Z",
+  "scriptCount": 4,
+  "createdCount": 0,
+  "overwrittenCount": 4,
+  "backedUpCount": 4,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/pixel/features/compressor/components/compressor-panel.tsx",
+      "app/pixel/features/compressor/index.ts",
+      "app/pixel/optimize/page.tsx",
+      "app/pixel/optimize/compress/page.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/features/compressor/components/compressor-panel.tsx",
+      "app/pixel/features/compressor/index.ts",
+      "app/pixel/optimize/page.tsx",
+      "app/pixel/optimize/compress/page.tsx"
+    ],
+    "rejected": []
+  }
+}

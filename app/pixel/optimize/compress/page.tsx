@@ -1,77 +1,68 @@
 /*
-path :           app/pixel/optimize/compress/page.tsx
-tag :            ["pixel", "pixel-forge", "optimize", "compress", "page", "outil-03", "pixel-forge-charte"]
-projectId:       new-genesis
+path:            app/pixel/optimize/compress/page.tsx
+tag:             ["pixel", "pixel-forge", "optimize", "compress", "page", "outil-03", "pixel-forge-charte"]
+projectId:       <Pixel-fotgen>
 type:            page
 generic:         false
 
-role:            Page de l'outil 03 (Compresseur JPEG / PNG).
-                 Affiche header + CompressorPanel + "Quand l'utiliser"
-                 + "Paramètres disponibles".
+role:            Page de l'outil 03 (Compresseur JPEG/PNG). Affiche
+                 header + import/queue + <CompressorPanel /> + section
+                 d'aide "Parametres".
 
-                 ⚠️ IMPORTS : features sous app/pixel/features/ (Option A).
-
-flow:            Server Component → header → <CompressorPanel /> →
-                 sections d'aide.
+flow:            Server Component -> header -> import/queue ->
+                 <CompressorPanel /> -> section parametres.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/page.tsx",
-                   "@/app/pixel/components/PixelNav.tsx",
-                   "@/app/pixel/convert/page.tsx",
-                   "@/app/pixel/dashboard/page.tsx",
-                   "@/app/pixel/edit/page.tsx",
-                   "@/app/pixel/generate/page.tsx",
-                   "@/app/pixel/layout.tsx",
+                   "@/app/pixel/optimize/compress/page.tsx",
                    "@/app/pixel/optimize/page.tsx",
-                   "@/app/pixel/page.tsx",
+                   "@/app/pixel/components/image-upload/image-uploader.tsx",
+                   "@/app/pixel/components/image-queue/image-queue.tsx",
                  ]
-
 relatedFiles:    ["@/app/pixel/features/compressor/components/compressor-panel.tsx",
-                  "@/app/pixel/features/compressor/index.ts",
-                  "@/app/pixel/optimize/page.tsx"]
-
+                  "@/app/pixel/components/image-upload/image-uploader.tsx",
+                  "@/app/pixel/components/image-queue/image-queue.tsx"]
 imports:         ["next", "lucide-react",
-                  "@/app/pixel/features/compressor/components/compressor-panel"]
-
+                  "@/app/pixel/features/compressor/components/compressor-panel",
+                  "@/app/pixel/components/image-upload/image-uploader",
+                  "@/app/pixel/components/image-queue/image-queue"]
 exports:         ["default PixelCompressPage", "metadata"]
-
 useBy:           []
 
 userStories:     ["*en tant qu'utilisateur je veux compresser une image sans changer de format"]
-
 status:          wip
-pathChecked:     ✔true
-metaDataChecked: ✔true
-scriptChecked:   ✔true
+pathChecked:     true
+metaDataChecked: true
+scriptChecked:   true
 */
 
 import type { Metadata } from "next";
 import { Shield, Sparkles } from "lucide-react";
 
 import { CompressorPanel } from "@/app/pixel/features/compressor/components/compressor-panel";
+import { ImageUploader } from "@/app/pixel/components/image-upload/image-uploader";
+import { ImageQueue } from "@/app/pixel/components/image-queue/image-queue";
 
 export const metadata: Metadata = {
   title: "Compresser",
-  description:
-    "Compresser une image JPEG ou PNG sans changer de format.",
+  description: "Compresser une image JPEG ou PNG sans changer de format.",
 };
 
 const PARAMS: readonly { readonly label: string; readonly detail: string }[] = [
   {
-    label: "Qualité",
-    detail: "Niveau 1-100. Plus haut = meilleure qualité, poids plus lourd.",
+    label: "Qualite",
+    detail: "Niveau 1-100. Plus haut = meilleure qualite, poids plus lourd.",
   },
   {
     label: "Palette PNG",
-    detail: "Réduire à 256, 128 ou 64 couleurs (PNG-8) pour alléger les illustrations.",
+    detail: "Reduire a 256 couleurs (PNG-8) pour alleger les illustrations.",
   },
   {
-    label: "Progressive JPEG",
-    detail: "Chargement progressif (rendu par passes) — réduit la perception de latence.",
+    label: "Strip metadata",
+    detail: "Supprimer EXIF, ICC, commentaires (gain de quelques Ko).",
   },
   {
-    label: "Strip métadonnées",
-    detail: "Supprimer EXIF, ICC, commentaires. Réduit le poids de quelques Ko.",
+    label: "Format conserve",
+    detail: "JPEG reste JPEG, PNG reste PNG. Aucune conversion.",
   },
 ];
 
@@ -81,17 +72,28 @@ export default function PixelCompressPage() {
       <header className="space-y-2">
         <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-secondary)]">
           <Shield className="size-3.5" aria-hidden />
-          Outil 03 · Compresser
+          Outil 03 - Compresser
         </p>
         <h2 className="text-2xl font-bold tracking-tight text-[var(--pf-foreground)]">
           Compresseur JPEG / PNG
         </h2>
         <p className="max-w-2xl text-sm text-[var(--pf-muted)]">
-          Réduisez le poids d&apos;un PNG ou JPEG sans changer de format.
+          Reduisez le poids d&apos;un PNG ou JPEG sans changer de format.
           Utile pour les assets qui doivent rester en PNG (transparence) ou
-          JPEG (compatibilité navigateur).
+          JPEG (compatibilite navigateur).
         </p>
       </header>
+
+      <section aria-labelledby="import-title" className="space-y-4">
+        <h3
+          id="import-title"
+          className="text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
+        >
+          Importer des images
+        </h3>
+        <ImageUploader />
+        <ImageQueue />
+      </section>
 
       <CompressorPanel />
 
@@ -101,7 +103,7 @@ export default function PixelCompressPage() {
           className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
         >
           <Sparkles className="size-5 text-[var(--pf-secondary)]" aria-hidden />
-          Paramètres disponibles
+          Parametres disponibles
         </h3>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {PARAMS.map((param) => (

@@ -1,0 +1,22 @@
+{
+  "id": "2026-11-07T17-32-59-816Z",
+  "createdAt": "2026-11-07T17:32:59.816Z",
+  "scriptCount": 6,
+  "createdCount": 6,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/api/images/optimize/route.ts",
+      "app/api/images/compress/route.ts",
+      "app/pixel/features/optimizer/types/optimizer.types.ts",
+      "app/pixel/features/optimizer/schemas/optimizer.schema.ts",
+      "app/pixel/features/optimizer/hooks/use-optimizer.ts",
+      "app/pixel/features/optimizer/components/optimization-presets.tsx"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

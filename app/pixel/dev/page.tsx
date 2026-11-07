@@ -1,84 +1,79 @@
 /*
 path :           app/pixel/dev/page.tsx
-tag :            ["dev", "dependencies", "packages", "installation", "pixel-forge", "guide", "audit"]
+tag :            ["dev", "dependencies", "packages", "installation",
+                  "pixel-forge", "guide", "audit", "blob", "react-easy-crop"]
 projectId:       new-genesis
 type:            page
 generic:         false
 
 role:            Page de référence des bibliothèques à installer pour
-                 PixelForge. Liste exhaustive et groupée :
+                 PixelForge — version consolidée 2.0 (alignée sur les
+                 décisions techniques validées du 2026-11-07).
+
+                 Groupes :
                  - Groupe A — Pipeline de traitement (sharp, file-type,
                    png-to-ico, archiver, p-limit) : INDISPENSABLES.
                  - Groupe B — Validation (zod) : déjà présent.
-                 - Groupe C — UI (Base UI, dnd-kit, lucide, sonner, RHF,
-                   motion) : déjà présent.
-                 - Groupe D — Configuration Next.js (bodySizeLimit,
+                 - Groupe C — UI (Base UI, dnd-kit, lucide, sonner,
+                   react-hook-form, motion) : déjà présent.
+                 - Groupe D — Édition interactive : react-easy-crop
+                   (outil 06, recadrage manuel).
+                 - Groupe E — Stockage temporaire : @vercel/blob
+                   (obligatoire sur Vercel serverless).
+                 - Groupe F — Placeholder (blurhash) : outil 10.
+                 - Groupe G — Configuration Next.js (bodySizeLimit,
                    serverExternalPackages, maxDuration).
 
-                 ⚠️ VITEST SUPPRIMÉ : la section Tests (dev uniquement)
-                 a été retirée. Décision produit : PixelForge est livré
-                 sans suite de tests unitaires dans cette itération.
-                 Le plan d'installation passe de 4 à 3 étapes.
+                 ⚠️ CHANGEMENT v2 : SSIM RETIRÉ. sharp.stats() ne
+                 fournit pas SSIM nativement. Aucune métrique SSIM dans
+                 l'UI. La comparaison avant/après affiche poids,
+                 dimensions et entropie (sharp.stats().entropy).
+
+                 ⚠️ CHANGEMENT v2 : react-easy-crop AJOUTÉ (Groupe D)
+                 pour l'outil 06 (recadrage manuel). Konva n'est PAS
+                 retenu (périmètre = recadrage, pas peinture).
+
+                 ⚠️ CHANGEMENT v2 : @vercel/blob AJOUTÉ (Groupe E)
+                 pour le stockage temporaire des fichiers de sortie
+                 (lot > 1 fichier). Variable d'env :
+                 BLOB_READ_WRITE_TOKEN.
+
+                 ⚠️ CHANGEMENT v2 : blurhash AJOUTÉ (Groupe F) pour
+                 l'outil 10 (placeholders).
 
                  ⚠️ to-ico → png-to-ico : to-ico (2017, obsolète) a été
                  remplacé par png-to-ico (maintenu, 0 vulnérabilité
-                 connue, 341k téléchargements/semaine). L'API est
-                 légèrement différente (prend des Buffers PNG, pas des
-                 chemins), mais le résultat est identique.
-                 Voir la note de remplacement dans la carte du package.
-
-                 Pour chaque package : nom, version, poids, feature(s)
-                 débloquée(s), task parent (backlog scrum-business.json).
-                 Un tableau croisé "Features × Dépendances" permet de
-                 voir en un coup d'œil quelles US sont bloquées par
-                 quels packages. Un plan d'installation ordonné en 3
-                 étapes donne les commandes npm i prêtes à copier.
+                 connue). L'API est légèrement différente (prend des
+                 Buffers PNG, pas des chemins) mais le résultat est
+                 identique.
 
                  ⚠️ PAGE PUBLIQUE, comme /genesis/cmd. Aucune session
                  requise, aucun accès DB. Server Component pur.
-                 Pour la rendre privée plus tard : ajouter une garde
-                 requirePlatformRole(["dev", "superAdmin"]) dans un
-                 composant async wrappé sous Suspense (pattern
-                 app/super-admin/user-manager/page.tsx).
 
                  ⚠️ SUPPRIMABLE EN PROD : cette page n'est référencée
-                 par aucune nav par défaut. Si PixelForge entre en
-                 production et que tu veux la retirer, supprime le
-                 fichier app/dev/page.tsx et le dossier app/dev/.
-                 Aucune autre dépendance du projet n'y fait référence.
-
-                 ⚠️ NOTE FINALE — PACKAGES ORPHELINS : la page liste
-                 discrètement en fin de contenu les packages présents
-                 dans package.json mais non utilisés par PixelForge
-                 ni par aucun autre module du projet (ex.
-                 @imgly/background-removal). Sert d'audit léger sans
-                 encombrer l'essentiel.
-
-                 ⚠️ CHARTE PIXELFORGE : tokens pf-*, font-mono pour
-                 les versions et commandes, bandes dégradées par
-                 groupe, glassmorphism sur les cartes, glow subtils.
-                 Boutons Copier via <CodeBlockCopyButton />.
+                 par aucune nav par défaut.
 
 flow:            Server Component sync → wrapper min-h-svh →
-                 Hero (badge, titre gradient, tagline, 2 compteurs)
+                 Hero (badge, titre gradient, tagline, compteurs)
                  → section "Installation rapide" (CodeBlock avec
                  séquence npm i complète)
-                 → 4 sections "Groupe A..D" (cartes + tableaux)
+                 → sections "Groupe A..G" (cartes + tableaux)
                  → section "Features × Dépendances" (tableau croisé)
                  → section "Configuration Next.js" (CodeBlock)
-                 → section "Plan d'installation" (3 étapes numérotées)
+                 → section "Plan d'installation" (4 étapes numérotées)
                  → note finale packages orphelins.
                  Aucun état, aucun effet, aucun fetch.
 
 ecosystem:       Dev = [
-                   "@/app/dev/page.tsx",
+                   "@/app/pixel/dev/page.tsx",
                  ]
 
 relatedFiles:    ["@/components/ui/card.tsx",
                   "@/components/ui/button.tsx",
                   "@/components/ui/code-block.tsx",
                   "@/app/pixel/page.tsx",
-                  "@/app/genesis/cmd/page.tsx"]
+                  "@/app/genesis/cmd/page.tsx",
+                  "@/next.config.ts"]
 
 imports:         ["next", "next/link", "lucide-react",
                   "@/components/ui/button",
@@ -138,9 +133,9 @@ import {
 /* ------------------------------------------------------------------ */
 
 export const metadata: Metadata = {
-  title: "Dépendances PixelForge — Guide d'installation",
+  title: "Dépendances PixelForge — Guide d'installation (v2)",
   description:
-    "Liste exhaustive des bibliothèques à installer pour PixelForge, groupées par criticité, avec features débloquées et plan d'installation ordonné.",
+    "Liste exhaustive des bibliothèques à installer pour PixelForge v2 : pipeline, validation, UI, édition interactive, stockage temporaire, placeholders et configuration Next.js.",
 };
 
 /* ------------------------------------------------------------------ */
@@ -201,12 +196,20 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         weight: "~30 Mo (binaire libvips)",
         status: "to-install",
         features: [
-          "US1 · Convertir en WebP",
-          "US2 · Optimiser un lot",
-          "US4 · Détourer un fond uni",
-          "US6 · SSIM (slider avant/après)",
+          "Outil 01 · Convertir",
+          "Outil 02 · Optimiser",
+          "Outil 03 · Compresser",
+          "Outil 04 · Resize",
+          "Outil 05 · Smart crop",
+          "Outil 06 · Recadrer",
+          "Outil 07 · Détourer",
+          "Outil 08 · Retoucher",
+          "Outil 09 · Favicons",
+          "Outil 10 · Placeholders (LQIP/SVG)",
+          "Outil 11 · Palette (stats)",
+          "Outil 12 · Métadonnées",
         ],
-        tasks: ["T1", "T6", "T7", "T11"],
+        tasks: ["T1", "T6", "T7", "T11", "T13"],
       },
       {
         name: "file-type",
@@ -214,9 +217,9 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         weight: "~80 Ko (pure JS)",
         status: "to-install",
         features: [
-          "US1 · Sécurité MIME",
-          "US3 · Validation ICO",
-          "US4 · Validation détourage",
+          "Sécurité MIME (tous les outils)",
+          "Validation ICO",
+          "Validation détourage",
         ],
         tasks: ["T4"],
       },
@@ -225,7 +228,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         version: "^3.0.2",
         weight: "~50 Ko (pure JS)",
         status: "to-install",
-        features: ["US3 · Générer un .ico"],
+        features: ["Outil 09 · Générer un .ico"],
         tasks: ["T5"],
         note: "Remplace to-ico (2017, obsolète, 24 vulnérabilités dont 5 critiques). png-to-ico : 0 vulnérabilité connue, 341k téléchargements/semaine, API moderne (prend des Buffers PNG).",
       },
@@ -234,7 +237,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         version: "^7.0.1",
         weight: "~90 Ko",
         status: "to-install",
-        features: ["US2 · Téléchargement ZIP"],
+        features: ["Export ZIP (tous les outils batch)"],
         tasks: ["T8"],
       },
       {
@@ -242,7 +245,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         version: "^6.2.0",
         weight: "~3 Ko",
         status: "to-install",
-        features: ["US2 · Concurrence 4 workers"],
+        features: ["Concurrence 4 workers max"],
         tasks: ["T9"],
       },
     ],
@@ -259,7 +262,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         version: "^4.6.7",
         weight: "déjà installé",
         status: "installed",
-        features: ["US1 à US6 · Validation des options et schémas"],
+        features: ["Validation des options et schémas (tous les outils)"],
         tasks: ["T3"],
       },
     ],
@@ -285,7 +288,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         version: "^6.3.1",
         weight: "déjà installé",
         status: "installed",
-        features: ["US5 · Drag & drop multi-fichiers"],
+        features: ["Drag & drop multi-fichiers"],
         tasks: ["T10"],
       },
       {
@@ -309,7 +312,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         version: "^7.90.0",
         weight: "déjà installé",
         status: "installed",
-        features: ["Formulaire des options (PresetSelector)"],
+        features: ["Formulaires d'options"],
         tasks: ["—"],
       },
       {
@@ -322,6 +325,66 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
       },
     ],
   },
+  {
+    id: "edit-interactive",
+    title: "D · Édition interactive",
+    description:
+      "Nouveau en v2. Bibliothèque canvas pour l'éditeur de recadrage manuel (outil 06).",
+    icon: Palette,
+    accent: "var(--pf-warning)",
+    packages: [
+      {
+        name: "react-easy-crop",
+        version: "^5.5.0",
+        weight: "~30 Ko",
+        status: "to-install",
+        features: ["Outil 06 · Recadrer manuellement"],
+        tasks: ["T14"],
+        note: "Choisi à la place de Konva (~180 Ko) : le périmètre est le recadrage (pas la peinture pixel). Fournit drag, zoom, rotation, ratios prédéfinis et accessibilité clavier.",
+      },
+    ],
+  },
+  {
+    id: "storage-temp",
+    title: "E · Stockage temporaire",
+    description:
+      "Nouveau en v2. Obligatoire sur Vercel serverless pour les traitements par lot (> 1 fichier) : les fichiers de sortie sont stockés temporairement et servis via URL.",
+    icon: Download,
+    accent: "var(--pf-success)",
+    packages: [
+      {
+        name: "@vercel/blob",
+        version: "^2.0.0",
+        weight: "~40 Ko",
+        status: "to-install",
+        features: [
+          "Traitement par lot > 1 fichier",
+          "Retour URL temporaire (TTL 1h)",
+          "Nettoyage lazy à chaque requête",
+        ],
+        tasks: ["T15"],
+        note: "Requiert la variable d'env BLOB_READ_WRITE_TOKEN (voir lib/env.ts). Quotas Hobby : 1 Go stockage / 100 Go bande passante.",
+      },
+    ],
+  },
+  {
+    id: "placeholder",
+    title: "F · Placeholder (blurhash)",
+    description:
+      "Nouveau en v2. Génération de placeholders BlurHash (outil 10).",
+    icon: Palette,
+    accent: "var(--pf-secondary)",
+    packages: [
+      {
+        name: "blurhash",
+        version: "^2.0.5",
+        weight: "~8 Ko",
+        status: "to-install",
+        features: ["Outil 10 · BlurHash"],
+        tasks: ["T16"],
+      },
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -330,8 +393,8 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
 
 const FEATURE_ROWS: readonly FeatureRow[] = [
   {
-    usId: "US1",
-    title: "Convertir en WebP",
+    usId: "Outil 01",
+    title: "Convertir un format",
     packages: [
       { name: "sharp", installed: false },
       { name: "file-type", installed: false },
@@ -339,7 +402,7 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     ],
   },
   {
-    usId: "US2",
+    usId: "Outil 02",
     title: "Optimiser un lot avec seuil",
     packages: [
       { name: "sharp", installed: false },
@@ -349,45 +412,97 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     ],
   },
   {
-    usId: "US3",
-    title: "Générer un .ico multi-résolutions",
+    usId: "Outil 03",
+    title: "Compresser JPEG/PNG",
+    packages: [
+      { name: "sharp", installed: false },
+      { name: "file-type", installed: false },
+      { name: "zod", installed: true },
+    ],
+  },
+  {
+    usId: "Outil 04",
+    title: "Redimensionner un lot",
+    packages: [
+      { name: "sharp", installed: false },
+      { name: "p-limit", installed: false },
+      { name: "zod", installed: true },
+    ],
+  },
+  {
+    usId: "Outil 05",
+    title: "Smart crop (attention/entropy)",
+    packages: [
+      { name: "sharp", installed: false },
+      { name: "zod", installed: true },
+    ],
+  },
+  {
+    usId: "Outil 06",
+    title: "Recadrer manuellement",
+    packages: [
+      { name: "sharp", installed: false },
+      { name: "react-easy-crop", installed: false },
+      { name: "zod", installed: true },
+    ],
+  },
+  {
+    usId: "Outil 07",
+    title: "Détourer un fond uni",
+    packages: [
+      { name: "sharp", installed: false },
+      { name: "file-type", installed: false },
+      { name: "zod", installed: true },
+    ],
+  },
+  {
+    usId: "Outil 08",
+    title: "Retoucher + filigrane",
+    packages: [
+      { name: "sharp", installed: false },
+      { name: "zod", installed: true },
+    ],
+  },
+  {
+    usId: "Outil 09",
+    title: "Générer des favicons",
     packages: [
       { name: "sharp", installed: false },
       { name: "png-to-ico", installed: false },
+      { name: "archiver", installed: false },
       { name: "file-type", installed: false },
       { name: "zod", installed: true },
     ],
   },
   {
-    usId: "US4",
-    title: "Détourer un fond uni en PNG",
+    usId: "Outil 10",
+    title: "Générer des placeholders",
     packages: [
       { name: "sharp", installed: false },
-      { name: "file-type", installed: false },
+      { name: "blurhash", installed: false },
       { name: "zod", installed: true },
     ],
   },
   {
-    usId: "US5",
-    title: "Déposer plusieurs images (DnD)",
+    usId: "Outil 11",
+    title: "Extraire des palettes",
     packages: [
-      { name: "@dnd-kit/core", installed: true },
-      { name: "@dnd-kit/sortable", installed: true },
-      { name: "sonner", installed: true },
+      { name: "sharp", installed: false },
+      { name: "zod", installed: true },
     ],
   },
   {
-    usId: "US6",
-    title: "Comparer avant / après (slider)",
+    usId: "Outil 12",
+    title: "Analyser les métadonnées",
     packages: [
       { name: "sharp", installed: false },
-      { name: "@base-ui/react", installed: true },
+      { name: "zod", installed: true },
     ],
   },
 ];
 
 /* ------------------------------------------------------------------ */
-/*  Config — Plan d'installation (3 étapes, plus de vitest)            */
+/*  Config — Plan d'installation (4 étapes)                            */
 /* ------------------------------------------------------------------ */
 
 const INSTALL_STEPS: readonly InstallStep[] = [
@@ -396,21 +511,28 @@ const INSTALL_STEPS: readonly InstallStep[] = [
     title: "Noyau de traitement",
     command: "npm i sharp file-type && npm i -D @types/sharp",
     description:
-      "Le strict minimum pour que US1 et US4 fonctionnent. sharp embarque libvips (~30 Mo).",
+      "Le strict minimum pour que les outils 01, 03, 05, 07, 08, 11, 12 fonctionnent. sharp embarque libvips (~30 Mo).",
   },
   {
     step: "2",
-    title: "Traitement par lot",
-    command: "npm i archiver p-limit",
+    title: "Traitement par lot + ICO",
+    command: "npm i archiver p-limit png-to-ico",
     description:
-      "Débloque US2 (optimisation par lot + ZIP). p-limit limite à 4 workers simultanés.",
+      "Débloque les outils 02, 04, 09 (batch + ZIP + ICO). p-limit borne à 4 workers.",
   },
   {
     step: "3",
-    title: "Génération ICO",
-    command: "npm i png-to-ico",
+    title: "Édition interactive + placeholders",
+    command: "npm i react-easy-crop blurhash",
     description:
-      "Débloque US3 (favicons multi-résolutions). png-to-ico assemble les PNG redimensionnés par sharp.",
+      "Débloque l'outil 06 (recadrage manuel via react-easy-crop) et l'outil 10 (BlurHash).",
+  },
+  {
+    step: "4",
+    title: "Stockage temporaire (Vercel)",
+    command: "npm i @vercel/blob",
+    description:
+      "Obligatoire sur Vercel serverless pour les traitements batch > 1 fichier. Configurer BLOB_READ_WRITE_TOKEN dans .env.local et Vercel.",
   },
 ];
 
@@ -419,7 +541,7 @@ const INSTALL_STEPS: readonly InstallStep[] = [
 /* ------------------------------------------------------------------ */
 
 const FULL_INSTALL_COMMAND = `# Installation complète (production + types)
-npm i sharp file-type png-to-ico archiver p-limit
+npm i sharp file-type png-to-ico archiver p-limit react-easy-crop blurhash @vercel/blob
 npm i -D @types/sharp`;
 
 const NEXT_CONFIG_SNIPPET = `import type { NextConfig } from "next";
@@ -434,9 +556,14 @@ const nextConfig: NextConfig = {
   },
 
   // Empêche Turbopack de bundler les modules natifs. sharp charge
-  // libvips (binaire) à l'exécution, png-to-ico et archiver utilisent
+  // libvips (binaire) à l'exécution ; png-to-ico et archiver utilisent
   // des modules Node.js purs qui ne doivent pas être bundlés non plus.
-  serverExternalPackages: ["sharp", "png-to-ico", "archiver"],
+  serverExternalPackages: [
+    "sharp",
+    "png-to-ico",
+    "archiver",
+    "blurhash",
+  ],
 };
 
 export default nextConfig;`;
@@ -590,7 +717,7 @@ export default function DevPage() {
         <div className="relative mx-auto max-w-4xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 px-3 py-1 text-xs font-medium text-[var(--pf-muted)] backdrop-blur-xl">
             <Cog className="size-3.5 text-[var(--pf-primary)]" aria-hidden />
-            Atelier de développement · Dépendances
+            Atelier de développement · Dépendances v2
           </span>
 
           <h1 className="mt-5 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-info)] bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl">
@@ -604,8 +731,8 @@ export default function DevPage() {
 
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--pf-muted)] sm:text-lg">
             Liste exhaustive des packages à installer pour faire fonctionner les
-            6 user stories de PixelForge. Chaque package est rattaché à sa
-            feature et à sa task du backlog.
+            12 outils de PixelForge. Chaque package est rattaché à son outil
+            et à sa task du backlog.
           </p>
 
           {/* Compteurs */}
@@ -680,7 +807,7 @@ export default function DevPage() {
               Détail par groupe
             </h2>
             <p className="mt-2 text-sm text-[var(--pf-muted)]">
-              3 groupes, du plus critique au moins critique.
+              6 groupes, du plus critique au plus spécifique.
             </p>
           </header>
 
@@ -697,10 +824,10 @@ export default function DevPage() {
         <div className="mx-auto max-w-6xl">
           <header className="mb-8 text-center">
             <h2 className="text-2xl font-bold tracking-tight text-[var(--pf-foreground)] sm:text-3xl">
-              Features × Dépendances
+              Outils × Dépendances
             </h2>
             <p className="mt-2 text-sm text-[var(--pf-muted)]">
-              Pour chaque user story, les packages requis et leur statut.
+              Pour chaque outil, les packages requis et leur statut.
             </p>
           </header>
 
@@ -710,10 +837,10 @@ export default function DevPage() {
                 <thead className="border-b border-[var(--pf-border)]/60 bg-[var(--pf-surface-hover)]/40">
                   <tr>
                     <th className="px-4 py-3 font-semibold text-[var(--pf-foreground)]">
-                      US
+                      Outil
                     </th>
                     <th className="px-4 py-3 font-semibold text-[var(--pf-foreground)]">
-                      Feature
+                      Fonction
                     </th>
                     <th className="px-4 py-3 font-semibold text-[var(--pf-foreground)]">
                       Dépendances
@@ -823,8 +950,8 @@ export default function DevPage() {
               Plan d&apos;installation ordonné
             </h2>
             <p className="mt-2 text-sm text-[var(--pf-muted)]">
-              3 étapes, du noyau aux features avancées. Chaque étape débloque un
-              sous-ensemble de features.
+              4 étapes, du noyau aux features avancées. Chaque étape débloque un
+              sous-ensemble d&apos;outils.
             </p>
           </header>
 
@@ -885,7 +1012,7 @@ export default function DevPage() {
               </code>{" "}
               mais ne sont utilisés par aucun module du projet (ni PixelForge,
               ni Genesis, ni Scrum). Ils peuvent être retirés pour réduire la
-              surface d'attaque et le poids du{" "}
+              surface d&apos;attaque et le poids du{" "}
               <code className="rounded bg-[var(--pf-surface-hover)] px-1.5 py-0.5 font-mono text-xs">
                 node_modules
               </code>
@@ -924,7 +1051,7 @@ export default function DevPage() {
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[var(--pf-muted)]">
             Une fois les packages installés et next.config.ts mis à jour, tu
-            peux démarrer la task T1 (sharp) puis T3 (validations Zod).
+            peux démarrer la Phase 0 (audit) puis la Phase 1 (types).
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link

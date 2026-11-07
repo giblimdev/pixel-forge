@@ -1,0 +1,23 @@
+{
+  "id": "2026-11-07T17-33-47-482Z",
+  "createdAt": "2026-11-07T17:33:47.482Z",
+  "scriptCount": 4,
+  "createdCount": 3,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/optimizer/components/target-size-control.tsx",
+      "app/pixel/features/optimizer/components/optimizer-panel.tsx",
+      "app/pixel/features/optimizer/index.ts"
+    ],
+    "overwritten": [
+      "app/pixel/features/optimizer/components/target-size-control.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/features/optimizer/components/target-size-control.tsx"
+    ],
+    "rejected": []
+  }
+}

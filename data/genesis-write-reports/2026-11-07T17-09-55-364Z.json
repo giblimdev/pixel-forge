@@ -1,0 +1,18 @@
+{
+  "id": "2026-11-07T17-09-55-364Z",
+  "createdAt": "2026-11-07T17:09:55.364Z",
+  "scriptCount": 2,
+  "createdCount": 2,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/components/image-preview/image-preview.tsx",
+      "app/pixel/components/image-preview/image-thumbnail.tsx"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

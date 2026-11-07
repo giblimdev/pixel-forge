@@ -1,0 +1,24 @@
+{
+  "id": "2026-11-07T16-48-12-754Z",
+  "createdAt": "2026-11-07T16:48:12.755Z",
+  "scriptCount": 5,
+  "createdCount": 4,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/image-engine/format-mime.ts",
+      "app/pixel/lib/image-engine/format-registry.ts",
+      "app/pixel/lib/image-engine/sharp.options.ts",
+      "app/pixel/lib/image-engine/sharp.factory.ts"
+    ],
+    "overwritten": [
+      "app/pixel/lib/image-engine/format-registry.ts"
+    ],
+    "backedUp": [
+      "app/pixel/lib/image-engine/format-registry.ts"
+    ],
+    "rejected": []
+  }
+}

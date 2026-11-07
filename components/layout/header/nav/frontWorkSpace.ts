@@ -172,7 +172,7 @@ export const mainNavData: readonly NavItem[] = [
   {
     id: "nav-scrum",
     label: "Srum Concept",
-    href: "",
+    href: "/scrum",
     description: "Conception du projet",
     displayOrder: 70,
     visible: true,

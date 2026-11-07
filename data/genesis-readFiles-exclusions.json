@@ -11,6 +11,8 @@
     "build",
     "dist",
     "node_modules",
+    "data",
+    "components/ui",
     "generated",
     "prisma",
     "public",
