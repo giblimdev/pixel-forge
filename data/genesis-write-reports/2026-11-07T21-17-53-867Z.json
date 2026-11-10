@@ -1,0 +1,28 @@
+{
+  "id": "2026-11-07T21-17-53-867Z",
+  "createdAt": "2026-11-07T21:17:53.867Z",
+  "scriptCount": 8,
+  "createdCount": 6,
+  "overwrittenCount": 2,
+  "backedUpCount": 2,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/color-palette/types/palette.types.ts",
+      "app/pixel/features/color-palette/schemas/palette.schema.ts",
+      "app/pixel/features/color-palette/hooks/use-color-palette.ts",
+      "app/api/images/palette/route.ts",
+      "app/pixel/features/color-palette/components/palette-preview.tsx",
+      "app/pixel/features/color-palette/components/palette-export.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/features/color-palette/components/palette-panel.tsx",
+      "app/pixel/features/color-palette/index.ts"
+    ],
+    "backedUp": [
+      "app/pixel/features/color-palette/components/palette-panel.tsx",
+      "app/pixel/features/color-palette/index.ts"
+    ],
+    "rejected": []
+  }
+}

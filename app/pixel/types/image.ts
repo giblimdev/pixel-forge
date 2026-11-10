@@ -1,77 +1,92 @@
 /*
-path:            app/pixel/types/image.ts
-tag:             ["pixel", "pixel-forge", "types", "image", "contract"]
-projectId:       new-genesis
-type:            helper
+path :           app/pixel/types/image.ts
+tag :            ["pixelforge", "types", "image", "contracts", "foundation"]
+projectId:       <Pixel-fotgen>
+type :           helper
 generic:         true
 
-role:            Modele commun d'une image dans PixelForge. Decrit une
-                 image SOURCE (entrante) ou une image RESULTAT (sortante)
-                 avec toutes les proprietes techniques dont l'UI et les
-                 routes API ont besoin. Aucune dependance runtime, aucun
-                 effet. Importable client ET serveur.
+role:            Contrat racine du modèle Image pour PixelForge. Distingue
+                 SourceImage (fichier uploadé côté client) et ResultImage
+                 (fichier produit côté serveur). Les propriétés sont
+                 alignées sur le code existant (routes API, hooks,
+                 composants) : filename, sizeBytes, dimensions, hasAlpha,
+                 mime, url, buffer. url et expiresAt sont nullables pour
+                 couvrir le fallback « buffer en mémoire si Vercel Blob
+                 n'est pas configuré ». buffer est ArrayBuffer ou
+                 Uint8Array<ArrayBuffer> | null : les routes API
+                 construisent un ArrayBuffer (résultat de buffer.slice),
+                 les hooks client passent null quand seul l'URL est
+                 disponible. hasAlpha est boolean | null : null tant que
+                 createImageBitmap n'a pas fini la lecture. mime accepte
+                 string | ImageMimeType : le navigateur fournit parfois
+                 un MIME non canonique (ex. image/jpg). sourceId est
+                 optionnel : les routes API qui ne connaissent pas l'id
+                 source l'omettent, les hooks client le fournissent quand
+                 ils ont un SourceImage sous la main.
 
-                 SourceImage  : image uploadee par l'utilisateur, avant
-                                traitement. Contient le File/Blob natif,
-                                l'URL blob pour l'affichage, et les
-                                metadonnees extraites (MIME, taille,
-                                dimensions).
-                 ResultImage  : image produite par le moteur. Contient
-                                soit un Buffer (Vercel : blob response),
-                                soit une URL (Vercel : stockage temporaire
-                                @vercel/blob).
-                 ImageDimensions : { width, height } reutilisable.
-                 ImageFormat     : union des formats supportes.
+flow:            Consommé en lecture par toutes les couches PixelForge.
+                 Les routes API construisent des ResultImage depuis les
+                 buffers sharp ; les hooks client construisent des
+                 SourceImage depuis les File navigateur.
 
-flow:            Module TypeScript pur -> export des types.
-
-ecosystem:       Types = [
-                   "@/app/pixel/types/image.ts",
-                   "@/app/pixel/types/conversion.ts",
-                   "@/app/pixel/types/optimization.ts",
-                   "@/app/pixel/types/processing.ts",
-                   "@/app/pixel/types/queue.ts",
-                   "@/app/pixel/types/export.ts",
+ecosystem:       PIXELFORGE_CONTRACTS
+relatedFiles:    [
+                   "app/pixel/types/processing.ts",
+                   "app/pixel/types/queue.ts",
+                   "app/pixel/features/crop-editor/types/crop-editor.types.ts",
                  ]
-relatedFiles:    ["@/app/pixel/lib/validators/image-limits.ts",
-                  "@/app/pixel/types/processing.ts"]
 imports:         []
-exports:         ["ImageFormat",
-                  "ImageDimensions",
-                  "SourceImage",
-                  "ResultImage",
-                  "ImageMimeType"]
-useBy:           ["@/app/pixel/lib/validators/file-validator.ts",
-                  "@/app/pixel/lib/validators/mime-validator.ts",
-                  "@/app/pixel/lib/validators/image-validator.ts",
-                  "@/app/pixel/types/conversion.ts",
-                  "@/app/pixel/types/optimization.ts",
-                  "@/app/pixel/types/queue.ts",
-                  "@/app/pixel/types/export.ts",
-                  "@/app/pixel/stores/image-queue.store.ts",
-                  "@/app/pixel/components/image-upload/image-uploader.tsx"]
+exports:         [
+                   "ImageFormat",
+                   "ImageMimeType",
+                   "ImageFit",
+                   "ImageCapabilities",
+                   "ImageDimensions",
+                   "ImageTransparency",
+                   "SourceImage",
+                   "ResultImage",
+                   "IMAGE_FORMATS",
+                   "IMAGE_MIME_BY_FORMAT",
+                   "IMAGE_EXTENSION_BY_FORMAT",
+                   "IMAGE_CAPABILITIES",
+                   "isImageFormat",
+                   "isImageMime",
+                   "getFormatFromMime",
+                   "getExtensionForFormat",
+                   "getMimeForFormat",
+                 ]
+useBy:           [
+                   "app/api/images/convert/route.ts",
+                   "app/api/images/optimize/route.ts",
+                   "app/api/images/compress/route.ts",
+                   "app/api/images/resize/route.ts",
+                   "app/api/images/crop/route.ts",
+                   "app/api/images/background/route.ts",
+                   "app/api/images/retouch/route.ts",
+                   "app/pixel/components/image-comparison/image-comparison.tsx",
+                   "app/pixel/components/image-properties/image-properties.tsx",
+                   "app/pixel/components/image-queue/queue-item.tsx",
+                   "app/pixel/components/image-upload/image-uploader.tsx",
+                   "app/pixel/features/converter/hooks/use-converter.ts",
+                   "app/pixel/features/optimizer/hooks/use-optimizer.ts",
+                   "app/pixel/features/compressor/hooks/use-compressor.ts",
+                   "app/pixel/features/resize/hooks/use-resize.ts",
+                   "app/pixel/features/smart-crop/hooks/use-smart-crop.ts",
+                   "app/pixel/features/background-removal/hooks/use-background-removal.ts",
+                   "app/pixel/features/image-editor/hooks/use-image-editor.ts",
+                   "app/pixel/features/crop-editor/hooks/use-crop-editor.ts",
+                   "app/pixel/features/favicon-generator/hooks/use-favicon-generator.ts",
+                   "app/pixel/features/export-manager/hooks/use-export-manager.ts",
+                   "app/pixel/stores/image-queue.store.ts",
+                 ]
 
-userStories:     ["*en tant que developpeur je veux un modele commun d'image PixelForge"]
-status:          done
-pathChecked:     ✔/✘true
-metaDataChecked: ✔/✘true
-scriptChecked:   ✔/✘true
+userStories:     ["*en tant que développeur je veux un contrat Image aligné sur le code existant"]
+status:          wip
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
-// ---------------------------------------------------------------------------
-// Formats
-// ---------------------------------------------------------------------------
-
-/**
- * Formats pris en charge par PixelForge.
- * - Entree : jpeg, png, webp, avif, tiff, gif, svg (rasterise).
- * - Sortie : jpeg, png, webp, avif, tiff (selon capacites Sharp reelles).
- *
- * `gif` en sortie est exclu : Sharp ne preserve pas l'animation par
- * defaut. Si un jour le support est ajoute, retirer cette exclusion.
- * `svg` en sortie est exclu : c'est un format d'entree rasterise
- * uniquement, pas de sortie equivalente a WebP/PNG.
- */
 export type ImageFormat =
   | "jpeg"
   | "png"
@@ -81,10 +96,6 @@ export type ImageFormat =
   | "gif"
   | "svg";
 
-/**
- * MIME types associes aux formats. Utilise par les validateurs cote
- * client (input accept) ET cote serveur (verification magic bytes).
- */
 export type ImageMimeType =
   | "image/jpeg"
   | "image/png"
@@ -94,83 +105,208 @@ export type ImageMimeType =
   | "image/gif"
   | "image/svg+xml";
 
-// ---------------------------------------------------------------------------
-// Dimensions
-// ---------------------------------------------------------------------------
+export type ImageFit = "cover" | "contain" | "inside" | "outside" | "fill";
 
-export interface ImageDimensions {
+export type ImageDimensions = {
   readonly width: number;
   readonly height: number;
-}
+};
 
-// ---------------------------------------------------------------------------
-// Source (entrante)
-// ---------------------------------------------------------------------------
+export type ImageTransparency = {
+  readonly hasAlpha: boolean;
+  readonly isOpaque: boolean;
+};
+
+export type ImageCapabilities = {
+  readonly canRead: boolean;
+  readonly canWrite: boolean;
+  readonly supportsAlpha: boolean;
+  readonly supportsQuality: boolean;
+  readonly supportsLossless: boolean;
+  readonly supportsNearLossless: boolean;
+  readonly supportsMetadata: boolean;
+  readonly supportsAnimation: boolean;
+};
 
 /**
- * Image uploadee par l'utilisateur, avant tout traitement.
- *
- * Le `file` est le `File` natif du navigateur (ou `Blob` cote serveur
- * apres un `request.formData()`). Les champs `format`, `dimensions`,
- * `hasAlpha` peuvent etre `null` tant que la detection n'a pas eu lieu.
- *
- * ⚠️ `url` est une URL blob (creee via `URL.createObjectURL(file)`) :
- * - elle sert uniquement a l'AFFICHAGE (miniature) ;
- * - elle DOIT etre revoquee via `URL.revokeObjectURL` quand l'image
- *   est retiree de la file (fait dans image-queue.store.ts remove/clear) ;
- * - elle N'EST PAS envoyee au serveur : le serveur recoit `file` (le
- *   File natif) via multipart/form-data.
+ * Image source : fichier uploadé par l'utilisateur, avant tout traitement.
+ * `file` et `url` sont des références navigateur, jamais sérialisées.
+ * `format`, `dimensions`, `hasAlpha` sont nullables tant que
+ * createImageBitmap n'a pas terminé la lecture des métadonnées.
+ * `mime` accepte `string` en plus de `ImageMimeType` : le navigateur
+ * peut fournir un MIME non canonique (ex. `image/jpg`) ou vide.
  */
-export interface SourceImage {
-  /** Identifiant unique pour la duree de vie de la session. */
+export type SourceImage = {
   readonly id: string;
-  /** Nom de fichier d'origine (peut contenir des caracteres speciaux). */
   readonly filename: string;
-  /** Contenu binaire de l'image. */
-  readonly file: File | Blob;
-  /** URL blob pour l'affichage (URL.createObjectURL). */
-  readonly url: string;
-  /** MIME declare par le navigateur (falsifiable, a reverifier serveur). */
-  readonly mime: string;
-  /** Taille du fichier en octets. */
   readonly sizeBytes: number;
-  /** Format detecte (null tant que non detecte). */
+  readonly declaredMime: string;
+  readonly mime: ImageMimeType | string;
   readonly format: ImageFormat | null;
-  /** Dimensions detectees (null tant que non detectees). */
   readonly dimensions: ImageDimensions | null;
-  /** L'image a-t-elle un canal alpha ? null tant que non detecte. */
   readonly hasAlpha: boolean | null;
-}
-
-// ---------------------------------------------------------------------------
-// Resultat (sortant)
-// ---------------------------------------------------------------------------
+  readonly file: File;
+  readonly url: string;
+  readonly addedAt: string;
+};
 
 /**
- * Image produite par le moteur.
- *
- * Deux modes de transport (voir Decision technique 2 - hybride B+C) :
- * - `buffer` : Blob response direct (traitement unitaire, 1 fichier).
- * - `url`    : URL temporaire @vercel/blob (traitement par lot, 2+).
- * Un seul des deux est defini, jamais les deux.
+ * Image résultat : fichier produit par le serveur.
+ * `sourceId` est optionnel : les routes API qui ne connaissent pas
+ * l'id source l'omettent ; les hooks client le fournissent quand ils
+ * ont un SourceImage sous la main.
+ * `url` et `expiresAt` sont nullables : si Vercel Blob n'est pas
+ * configuré, la route peut retourner un buffer en mémoire (champ
+ * `buffer`) sans URL.
+ * `buffer` accepte ArrayBuffer (routes API via buffer.slice) et
+ * Uint8Array<ArrayBuffer> (compatible BlobPart pour new Blob([...]))
+ * ainsi que null (hooks client quand seul l'URL est disponible).
  */
-export interface ResultImage {
-  /** Identifiant unique du resultat. */
+export type ResultImage = {
   readonly id: string;
-  /** Nom de fichier suggere pour le telechargement (avec suffixe). */
+  readonly sourceId?: string;
   readonly filename: string;
-  /** Format effectif du resultat. */
-  readonly format: ImageFormat;
-  /** MIME effectif. */
   readonly mime: ImageMimeType;
-  /** Taille finale en octets. */
+  readonly format: ImageFormat;
   readonly sizeBytes: number;
-  /** Dimensions finales. */
   readonly dimensions: ImageDimensions;
-  /** URL temporaire (@vercel/blob) - presente si traitement par lot. */
   readonly url: string | null;
-  /** Buffer binaire - present si traitement unitaire. */
-  readonly buffer: ArrayBuffer | null;
-  /** Date d'expiration de l'URL (ISO 8601) - null si buffer. */
   readonly expiresAt: string | null;
+  readonly buffer?: ArrayBuffer | Uint8Array<ArrayBuffer> | null;
+};
+
+export const IMAGE_FORMATS: readonly ImageFormat[] = [
+  "avif",
+  "gif",
+  "jpeg",
+  "png",
+  "svg",
+  "tiff",
+  "webp",
+] as const;
+
+export const IMAGE_MIME_BY_FORMAT: Readonly<
+  Record<ImageFormat, ImageMimeType>
+> = {
+  avif: "image/avif",
+  gif: "image/gif",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  svg: "image/svg+xml",
+  tiff: "image/tiff",
+  webp: "image/webp",
+} as const;
+
+export const IMAGE_EXTENSION_BY_FORMAT: Readonly<Record<ImageFormat, string>> = {
+  avif: "avif",
+  gif: "gif",
+  jpeg: "jpg",
+  png: "png",
+  svg: "svg",
+  tiff: "tiff",
+  webp: "webp",
+} as const;
+
+export const IMAGE_CAPABILITIES: Readonly<
+  Record<ImageFormat, ImageCapabilities>
+> = {
+  avif: {
+    canRead: true,
+    canWrite: true,
+    supportsAlpha: true,
+    supportsQuality: true,
+    supportsLossless: true,
+    supportsNearLossless: false,
+    supportsMetadata: true,
+    supportsAnimation: false,
+  },
+  gif: {
+    canRead: true,
+    canWrite: false,
+    supportsAlpha: true,
+    supportsQuality: false,
+    supportsLossless: false,
+    supportsNearLossless: false,
+    supportsMetadata: false,
+    supportsAnimation: true,
+  },
+  jpeg: {
+    canRead: true,
+    canWrite: true,
+    supportsAlpha: false,
+    supportsQuality: true,
+    supportsLossless: false,
+    supportsNearLossless: false,
+    supportsMetadata: true,
+    supportsAnimation: false,
+  },
+  png: {
+    canRead: true,
+    canWrite: true,
+    supportsAlpha: true,
+    supportsQuality: false,
+    supportsLossless: true,
+    supportsNearLossless: false,
+    supportsMetadata: true,
+    supportsAnimation: false,
+  },
+  svg: {
+    canRead: true,
+    canWrite: false,
+    supportsAlpha: true,
+    supportsQuality: false,
+    supportsLossless: false,
+    supportsNearLossless: false,
+    supportsMetadata: false,
+    supportsAnimation: false,
+  },
+  tiff: {
+    canRead: true,
+    canWrite: true,
+    supportsAlpha: true,
+    supportsQuality: true,
+    supportsLossless: true,
+    supportsNearLossless: false,
+    supportsMetadata: true,
+    supportsAnimation: false,
+  },
+  webp: {
+    canRead: true,
+    canWrite: true,
+    supportsAlpha: true,
+    supportsQuality: true,
+    supportsLossless: true,
+    supportsNearLossless: true,
+    supportsMetadata: true,
+    supportsAnimation: true,
+  },
+} as const;
+
+export function isImageFormat(value: unknown): value is ImageFormat {
+  return (
+    typeof value === "string" &&
+    (IMAGE_FORMATS as readonly string[]).includes(value)
+  );
+}
+
+export function isImageMime(value: unknown): value is ImageMimeType {
+  if (typeof value !== "string") return false;
+  return (Object.values(IMAGE_MIME_BY_FORMAT) as readonly string[]).includes(
+    value,
+  );
+}
+
+export function getFormatFromMime(mime: string): ImageFormat | null {
+  for (const format of IMAGE_FORMATS) {
+    if (IMAGE_MIME_BY_FORMAT[format] === mime) return format;
+  }
+  return null;
+}
+
+export function getExtensionForFormat(format: ImageFormat): string {
+  return IMAGE_EXTENSION_BY_FORMAT[format];
+}
+
+export function getMimeForFormat(format: ImageFormat): ImageMimeType {
+  return IMAGE_MIME_BY_FORMAT[format];
 }

@@ -1,0 +1,22 @@
+{
+  "id": "2026-11-09T17-15-22-283Z",
+  "createdAt": "2026-11-09T17:15:22.283Z",
+  "scriptCount": 3,
+  "createdCount": 2,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/converter/hooks/use-conversion-preview.ts",
+      "app/pixel/features/converter/components/conversion-preview.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/features/converter/components/converter-panel.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/features/converter/components/converter-panel.tsx"
+    ],
+    "rejected": []
+  }
+}

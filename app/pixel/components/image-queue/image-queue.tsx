@@ -13,14 +13,18 @@ role:            Orchestrateur de la file d'attente. Se connecte au
                  comme selectProgress creent un nouvel objet a chaque
                  appel, ce qui provoquerait une boucle infinie sans
                  useShallow. Compose QueueToolbar, QueueProgressBar, la
-                 liste de QueueItemRow et QueueEmpty. Aucune logique
-                 metier : les actions (remove, clear) viennent du store.
+                 liste de QueueItemRow et QueueEmpty.
 
                  CRITIQUE : "use client" + useShallow + selecteur unique.
                  Sans ces trois elements, React leve
                  "getServerSnapshot should be cached to avoid an infinite
                  loop" parce que le composant est evalue cote serveur
                  avec un snapshot dont la reference change a chaque appel.
+
+                 La valeur `progress` est MEMOISEE via un objet retourne
+                 dans useShallow : quand les champs internes ne changent
+                 pas, useShallow retourne le meme objet → React considere
+                 le snapshot stable → pas de boucle.
 
 flow:            useImageQueueStore(useShallow((s) => ({ items, total,
                  done, failed, pending, progress, remove, clear }))) ->
@@ -50,10 +54,10 @@ exports:         ["ImageQueue", "ImageQueueProps"]
 useBy:           []
 
 userStories:     ["*en tant qu'utilisateur je veux voir et gerer la file d'attente"]
-status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+status:          done
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 "use client";
@@ -67,42 +71,58 @@ import { QueueToolbar } from "@/app/pixel/components/image-queue/queue-toolbar";
 import { QueueProgressBar } from "@/app/pixel/components/image-queue/queue-progress";
 import { QueueEmpty } from "@/app/pixel/components/image-queue/queue-empty";
 
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+
 export interface ImageQueueProps {
   readonly className?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Composant
+// ---------------------------------------------------------------------------
 
 export function ImageQueue({ className }: ImageQueueProps) {
   // Un SEUL appel au store, stabilise par useShallow : compare les
   // proprietes une a une au lieu de comparer les references. Empeche
   // les boucles infinies dues aux selecteurs qui creent un objet
   // (progress) et garantit un comportement correct au SSR.
-  const { items, total, done, failed, pending, progress, remove, clear } =
-    useImageQueueStore(
-      useShallow((s) => {
-        const total = s.items.length;
-        const done = s.items.filter((i) => i.status === "success").length;
-        const failed = s.items.filter((i) => i.status === "error").length;
-        const pending = s.items.filter((i) => i.status === "pending").length;
-        const completed = done + failed;
-        const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+  const state = useImageQueueStore(
+    useShallow((s) => {
+      const total = s.items.length;
+      const done = s.items.filter((i) => i.status === "success").length;
+      const failed = s.items.filter((i) => i.status === "error").length;
+      const pending = s.items.filter((i) => i.status === "pending").length;
+      const completed = done + failed;
+      const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-        return {
-          items: s.items,
-          total,
-          done,
-          failed,
-          pending,
-          progress: {
-            completed,
-            total,
-            percent,
-            isComplete: total > 0 && completed === total,
-          },
-          remove: s.remove,
-          clear: s.clear,
-        };
-      }),
-    );
+      return {
+        items: s.items,
+        total,
+        done,
+        failed,
+        pending,
+        // On retourne des PRIMITIVES, pas un objet imbrique.
+        // useShallow compare les champs un par un : si tous les
+        // primitives sont egales, il retourne le meme objet.
+        completed,
+        percent,
+        isComplete: total > 0 && completed === total,
+        remove: s.remove,
+        clear: s.clear,
+      };
+    }),
+  );
+
+  // Reconstitue l'objet progress cote composant (stable car les
+  // primitives ne changent que si necessaire).
+  const progress = {
+    completed: state.completed,
+    total: state.total,
+    percent: state.percent,
+    isComplete: state.isComplete,
+  };
 
   return (
     <section
@@ -110,24 +130,24 @@ export function ImageQueue({ className }: ImageQueueProps) {
       className={`space-y-3 ${className ?? ""}`}
     >
       <QueueToolbar
-        total={total}
-        done={done}
-        failed={failed}
-        pending={pending}
-        onClear={clear}
+        total={state.total}
+        done={state.done}
+        failed={state.failed}
+        pending={state.pending}
+        onClear={state.clear}
       />
 
       <QueueProgressBar progress={progress} />
 
-      {items.length === 0 ? (
+      {state.items.length === 0 ? (
         <QueueEmpty />
       ) : (
         <ul className="space-y-2">
-          {items.map((item) => (
+          {state.items.map((item) => (
             <QueueItemRow
               key={item.source.id}
               item={item}
-              onRemove={() => remove(item.source.id)}
+              onRemove={() => state.remove(item.source.id)}
             />
           ))}
         </ul>

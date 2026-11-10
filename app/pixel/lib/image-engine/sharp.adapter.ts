@@ -8,9 +8,21 @@ generic:         false
 role:            Seul fichier du moteur (avec sharp.factory.ts) autorise a
                  parler a Sharp. Traduit les operations abstraites
                  (convert, resize, crop, rotate, flip, grayscale,
-                 analyze) en appels Sharp concrets. Ne leve jamais :
-                 toute erreur Sharp est convertie en ProcessingError
-                 structure (Phase 1). Importable UNIQUEMENT cote serveur.
+                 removeBackground, retouch, analyze) en appels Sharp
+                 concrets. Ne leve jamais : toute erreur Sharp est
+                 convertie en ProcessingError structure (Phase 1).
+                 Importable UNIQUEMENT cote serveur.
+
+                 Phase 13 : ajout de removeBackgroundSharp (chroma-key
+                 sur fond uni via sharp.raw() + removeUniformBackground).
+                 Phase 14 : ajout de retouchSharp (modulate, linear, blur,
+                 sharpen, grayscale + watermark SVG composite).
+                 Phase 18 : enrichissement de analyzeSharp — l'EXIF brut
+                 est converti en objet structure (make/model/date/
+                 orientation/software/gps) pour l'UI. Un GPS present
+                 renvoie { latitude: 0, longitude: 0 } (marqueur) car
+                 sharp ne decode pas les coordonnees ; l'UI affiche
+                 "Present (voir image source)" et propose la suppression.
 
 flow:            Chaque operation :
                  1. const s = createSharp(buffer) ;
@@ -33,6 +45,8 @@ ecosystem:       ImageEngine = [
 relatedFiles:    ["@/app/pixel/lib/image-engine/sharp.factory.ts",
                   "@/app/pixel/lib/image-engine/format-capabilities.ts",
                   "@/app/pixel/lib/image-engine/format-mime.ts",
+                  "@/app/pixel/lib/image-engine/chroma-key.ts",
+                  "@/app/pixel/lib/image-engine/retouch.ts",
                   "@/app/pixel/lib/image-engine/image-engine.types.ts",
                   "@/app/pixel/types/conversion.ts",
                   "@/app/pixel/types/image.ts",
@@ -41,20 +55,28 @@ imports:         ["server-only", "sharp",
                   "@/app/pixel/lib/image-engine/format-capabilities",
                   "@/app/pixel/lib/image-engine/format-mime",
                   "@/app/pixel/lib/image-engine/sharp.factory",
+                  "@/app/pixel/lib/image-engine/chroma-key",
+                  "@/app/pixel/lib/image-engine/retouch",
                   "@/app/pixel/lib/image-engine/image-engine.types",
                   "@/app/pixel/types/conversion",
                   "@/app/pixel/types/image",
                   "@/app/pixel/types/processing"]
 exports:         ["convertSharp", "resizeSharp", "cropSharp",
                   "rotateSharp", "flipSharp", "grayscaleSharp",
-                  "analyzeSharp"]
+                  "removeBackgroundSharp", "retouchSharp", "analyzeSharp",
+                  "StructuredExif",
+                  "ResizeSharpOptions", "CropSharpOptions",
+                  "RotateSharpOptions", "FlipSharpOptions",
+                  "GrayscaleSharpOptions", "RemoveBackgroundSharpOptions",
+                  "RetouchSharpOptions"]
 useBy:           ["@/app/pixel/lib/image-engine/image-engine.ts"]
 
-userStories:     ["*en tant que developpeur je veux un adaptateur Sharp qui n'expose que des contrats abstraits"]
+userStories:     ["*en tant que developpeur je veux un adaptateur Sharp qui n'expose que des contrats abstraits",
+                  "*en tant qu'utilisateur je veux voir les metadonnees EXIF structurees"]
 status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 import "server-only";
@@ -64,6 +86,13 @@ import type { Sharp, Metadata } from "sharp";
 import { FORMAT_CAPABILITIES } from "@/app/pixel/lib/image-engine/format-capabilities";
 import { FORMAT_TO_EXTENSION } from "@/app/pixel/lib/image-engine/format-mime";
 import { createSharp } from "@/app/pixel/lib/image-engine/sharp.factory";
+import { removeUniformBackground } from "@/app/pixel/lib/image-engine/chroma-key";
+import {
+  buildRetouchOperations,
+  buildWatermarkSvg,
+  type RetouchAdjustments,
+  type WatermarkConfig,
+} from "@/app/pixel/lib/image-engine/retouch";
 import type {
   EngineMetadata,
   EngineOutput,
@@ -98,7 +127,11 @@ function errorOf(
   return details === undefined ? { code, message } : { code, message, details };
 }
 
-function fail(code: ProcessingErrorCode, message: string, details?: unknown): Err {
+function fail(
+  code: ProcessingErrorCode,
+  message: string,
+  details?: unknown,
+): Err {
   return { ok: false, error: errorOf(code, message, details) };
 }
 
@@ -119,15 +152,15 @@ function engineMetadataOf(
     dimensions: dimensionsOf(metadata),
     sizeBytes,
     hasAlpha: metadata.hasAlpha === true,
-    entropy: 0, // rempli par analyzeSharp, laisse a 0 ailleurs
-    stdev: [0, 0, 0], // rempli par analyzeSharp
+    entropy: 0,
+    stdev: [0, 0, 0],
     exif: null,
     hasIcc: metadata.icc !== undefined,
   };
 }
 
 // ---------------------------------------------------------------------------
-// Application des options de sortie (format, qualite, mode, exif, icc)
+// Application des options de sortie
 // ---------------------------------------------------------------------------
 
 function applyOutputOptions(
@@ -163,7 +196,6 @@ function applyOutputOptions(
     );
   }
 
-  // Chaine les options de sortie selon le format.
   switch (format) {
     case "jpeg":
       s.jpeg({
@@ -203,7 +235,6 @@ function applyOutputOptions(
       );
   }
 
-  // Gestion EXIF / ICC.
   if (keepExif || keepIcc) {
     s.withMetadata();
   } else {
@@ -224,7 +255,6 @@ export async function convertSharp(
   try {
     let s = createSharp(buffer);
 
-    // Resize facultatif.
     if (options.resize !== null) {
       s = s.resize({
         width: options.resize.width,
@@ -528,8 +558,241 @@ export async function grayscaleSharp(
 }
 
 // ---------------------------------------------------------------------------
-// ANALYZE
+// REMOVE BACKGROUND (chroma-key sur fond uni)
 // ---------------------------------------------------------------------------
+
+export interface RemoveBackgroundSharpOptions {
+  readonly target: {
+    readonly r: number;
+    readonly g: number;
+    readonly b: number;
+  };
+  readonly tolerance: number;
+  readonly feathering: boolean;
+}
+
+export async function removeBackgroundSharp(
+  buffer: Buffer,
+  options: RemoveBackgroundSharpOptions,
+): Promise<Result<EngineOutput>> {
+  try {
+    const base = createSharp(buffer);
+    const meta = await base.metadata();
+    const width = meta.width ?? 0;
+    const height = meta.height ?? 0;
+
+    if (width === 0 || height === 0) {
+      return fail("INVALID_INPUT", "Dimensions de l'image inconnues.");
+    }
+
+    const rawResult = await base
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const rgba = rawResult.data;
+
+    const modified = removeUniformBackground(
+      rgba,
+      width,
+      height,
+      options.target,
+      options.tolerance,
+    );
+
+    let s = createSharp(modified, {
+      raw: { width, height, channels: 4 },
+    }).png({ compressionLevel: 9 });
+
+    if (options.feathering) {
+      const alpha = await s.extractChannel(3).blur(1).toBuffer();
+      const rgb = await createSharp(modified, {
+        raw: { width, height, channels: 4 },
+      })
+        .removeAlpha()
+        .png()
+        .toBuffer();
+      s = createSharp(rgb).composite([{ input: alpha, blend: "dest-in" }]);
+    }
+
+    const out = await s.toBuffer();
+    const outMeta = await createSharp(out).metadata();
+
+    return {
+      ok: true,
+      data: {
+        buffer: out,
+        metadata: {
+          ...engineMetadataOf(outMeta, out.length),
+          format: "png",
+        },
+        format: "png",
+      },
+    };
+  } catch (err) {
+    return fail(
+      "PROCESSING_ERROR",
+      `Retrait du fond echoue : ${err instanceof Error ? err.message : "erreur inconnue"}.`,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RETOUCH (retouche globale + watermark)
+// ---------------------------------------------------------------------------
+
+export interface RetouchSharpOptions {
+  readonly adjustments: RetouchAdjustments;
+  readonly watermark: WatermarkConfig | null;
+  readonly format: ImageFormat;
+  readonly quality: number;
+}
+
+export async function retouchSharp(
+  buffer: Buffer,
+  options: RetouchSharpOptions,
+): Promise<Result<EngineOutput>> {
+  try {
+    const base = createSharp(buffer);
+    const meta = await base.metadata();
+    const width = meta.width ?? 0;
+    const height = meta.height ?? 0;
+
+    // 1. Operations de retouche (modulate, linear, blur, sharpen, grayscale).
+    let s: Sharp = base;
+    const ops = buildRetouchOperations(options.adjustments);
+
+    for (const op of ops) {
+      switch (op.kind) {
+        case "modulate":
+          s = s.modulate({
+            brightness: op.brightness,
+            saturation: op.saturation,
+            hue: op.hue,
+          });
+          break;
+        case "linear":
+          s = s.linear(op.a, op.b);
+          break;
+        case "blur":
+          s = s.blur(op.sigma);
+          break;
+        case "sharpen":
+          s = s.sharpen({ sigma: op.sigma });
+          break;
+        case "grayscale":
+          s = s.grayscale();
+          break;
+      }
+    }
+
+    // 2. Watermark (composite SVG).
+    if (options.watermark) {
+      const svg = buildWatermarkSvg(options.watermark, width, height);
+      if (svg !== null) {
+        s = s.composite([{ input: Buffer.from(svg), top: 0, left: 0 }]);
+      }
+    }
+
+    // 3. Options de sortie.
+    const applied = applyOutputOptions(
+      s,
+      options.format,
+      options.quality,
+      null,
+      false,
+      true,
+    );
+    if (!applied.ok) return applied;
+
+    const out = await applied.data.toBuffer();
+    const outMeta = await createSharp(out).metadata();
+
+    return {
+      ok: true,
+      data: {
+        buffer: out,
+        metadata: {
+          ...engineMetadataOf(outMeta, out.length),
+          format: options.format,
+        },
+        format: options.format,
+      },
+    };
+  } catch (err) {
+    return fail(
+      "PROCESSING_ERROR",
+      `Retouche Sharp echouee : ${err instanceof Error ? err.message : "erreur inconnue"}.`,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ANALYZE (enrichi Phase 18 : EXIF structuré)
+// ---------------------------------------------------------------------------
+
+/**
+ * Champs EXIF exposés à l'UI. On ne renvoie PAS le buffer EXIF brut
+ * (illisible côté client) mais un objet structuré. Les champs absents
+ * restent null — l'UI affichera "Indisponible".
+ */
+export interface StructuredExif {
+  readonly make: string | null;
+  readonly model: string | null;
+  readonly dateTime: string | null;
+  readonly orientation: number | null;
+  readonly software: string | null;
+  readonly gps:
+    | {
+        readonly latitude: number;
+        readonly longitude: number;
+      }
+    | null;
+}
+
+/**
+ * Lit une valeur EXIF par clé. Sharp ne fournit pas de parser EXIF
+ * natif — on reste pragmatique : on cherche la clé dans le buffer
+ * EXIF brut (encodé en latin1) et on extrait ~100 chars après.
+ * Approximatif mais suffisant pour indiquer la présence des tags.
+ */
+function readExifValue(
+  exif: Buffer | undefined,
+  key: string,
+): string | null {
+  if (!exif || exif.length === 0) return null;
+  try {
+    const ascii = exif.toString("latin1");
+    const idx = ascii.indexOf(key);
+    if (idx === -1) return null;
+    const raw = ascii
+      .slice(idx + key.length, idx + key.length + 100)
+      .replace(/[^\x20-\x7E]+/g, " ")
+      .trim();
+    return raw.length > 0 ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Détecte la présence de GPS dans le buffer EXIF. Sharp ne décode pas
+ * les coordonnées — on retourne un marqueur (0, 0) que l'UI remplace
+ * par "Présent (voir image source)" et propose la suppression.
+ */
+function readGps(
+  exif: Buffer | undefined,
+): { latitude: number; longitude: number } | null {
+  if (!exif || exif.length === 0) return null;
+  try {
+    const ascii = exif.toString("latin1");
+    if (!ascii.includes("GPSLatitude") || !ascii.includes("GPSLongitude")) {
+      return null;
+    }
+    return { latitude: 0, longitude: 0 };
+  } catch {
+    return null;
+  }
+}
 
 export async function analyzeSharp(
   buffer: Buffer,
@@ -539,6 +802,18 @@ export async function analyzeSharp(
     const meta = await s.metadata();
     const stats = await s.stats();
 
+    // On expose un objet EXIF structuré dans `exif` (au lieu du raw
+    // base64). Le type EngineMetadata.exif accepte Record<string, unknown>
+    // donc un objet structuré est valide.
+    const structuredExif: StructuredExif = {
+      make: readExifValue(meta.exif, "Make"),
+      model: readExifValue(meta.exif, "Model"),
+      dateTime: readExifValue(meta.exif, "DateTime"),
+      orientation: meta.orientation ?? null,
+      software: readExifValue(meta.exif, "Software"),
+      gps: readGps(meta.exif),
+    };
+
     return {
       ok: true,
       data: {
@@ -547,8 +822,12 @@ export async function analyzeSharp(
         sizeBytes: buffer.length,
         hasAlpha: meta.hasAlpha === true,
         entropy: stats.entropy,
-        stdev: [stats.channels[0]?.stdev ?? 0, stats.channels[1]?.stdev ?? 0, stats.channels[2]?.stdev ?? 0],
-        exif: meta.exif ? { raw: meta.exif.toString("base64") } : null,
+        stdev: [
+          stats.channels[0]?.stdev ?? 0,
+          stats.channels[1]?.stdev ?? 0,
+          stats.channels[2]?.stdev ?? 0,
+        ],
+        exif: structuredExif as unknown as Record<string, unknown>,
         hasIcc: meta.icc !== undefined,
       },
     };

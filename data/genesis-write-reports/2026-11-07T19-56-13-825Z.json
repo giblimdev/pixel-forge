@@ -1,0 +1,25 @@
+{
+  "id": "2026-11-07T19-56-13-825Z",
+  "createdAt": "2026-11-07T19:56:13.825Z",
+  "scriptCount": 4,
+  "createdCount": 0,
+  "overwrittenCount": 4,
+  "backedUpCount": 4,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/api/images/crop/route.ts",
+      "app/api/images/optimize/route.ts",
+      "app/api/images/resize/route.ts",
+      "app/api/images/retouch/route.ts"
+    ],
+    "backedUp": [
+      "app/api/images/crop/route.ts",
+      "app/api/images/optimize/route.ts",
+      "app/api/images/resize/route.ts",
+      "app/api/images/retouch/route.ts"
+    ],
+    "rejected": []
+  }
+}

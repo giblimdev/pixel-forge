@@ -52,6 +52,23 @@ role:            Page d'entrée PixelForge — expérience immersive.
                    (#F4F4F8) sur fond sombre, ratio > 7:1.
                  - Focus visible sur tous les liens/boutons.
 
+                 ⚠️ LIENS CORRIGÉS (v2) :
+                 Les 4 cartes outils pointaient vers /pixel/tools/* qui
+                 n'existent PAS (routes planifiées à l'époque, jamais
+                 livrées sous ce chemin). Les hrefs ont été réalignés
+                 sur les routes RÉELLEMENT livrées sous app/pixel/* :
+                   - WebP       → /pixel/convert          (outil 01)
+                   - Optimize   → /pixel/optimize         (outil 02)
+                   - ICO        → /pixel/generate/favicon (outil 09)
+                   - PNG alpha  → /pixel/edit/background  (outil 07)
+                 Idem pour les 2 CTA du hero et du bloc final :
+                   - /genesis      → /pixel/dev  (dépendances)
+                   - /genesis/help → /pixel      (landing + guide)
+                 Les libellés des boutons ont été ajustés pour refléter
+                 les nouvelles cibles (plus de mention "Genesis" sur
+                 cette page pour éviter la confusion avec la landing
+                 app/pixel/page.tsx qui reste la référence).
+
 flow:            Server Component sync → wrapper relatif avec
                  gradient vertical violet→métal → 3 orbes fixed
                  animés → <div relative z-10> avec Hero → outils →
@@ -148,12 +165,13 @@ interface PixelPersona {
 
 /* ------------------------------------------------------------------ */
 /*  Config — 4 outils                                                  */
+/*  ⚠️ hrefs réalignés sur les routes livrées sous app/pixel/*         */
 /* ------------------------------------------------------------------ */
 
 const TOOLS: readonly PixelTool[] = [
   {
-    slug: "webp",
-    href: "/pixel/tools/webp",
+    slug: "convert",
+    href: "/pixel/convert",
     title: "Conversion en WebP",
     tagline: "Rapide, léger, universel",
     description:
@@ -163,7 +181,7 @@ const TOOLS: readonly PixelTool[] = [
   },
   {
     slug: "optimize",
-    href: "/pixel/tools/optimize",
+    href: "/pixel/optimize",
     title: "Optimisation du poids",
     tagline: "Mesurable, pas une boîte noire",
     description:
@@ -172,8 +190,8 @@ const TOOLS: readonly PixelTool[] = [
     accent: "var(--pf-secondary)",
   },
   {
-    slug: "ico",
-    href: "/pixel/tools/ico",
+    slug: "favicon",
+    href: "/pixel/generate/favicon",
     title: "Génération .ico",
     tagline: "Favicons et icônes d'app",
     description:
@@ -182,8 +200,8 @@ const TOOLS: readonly PixelTool[] = [
     accent: "var(--pf-info)",
   },
   {
-    slug: "png",
-    href: "/pixel/tools/png",
+    slug: "background",
+    href: "/pixel/edit/background",
     title: "PNG transparents",
     tagline: "Détourage propre, anti-aliasing",
     description:
@@ -483,8 +501,7 @@ const DEV_ROADMAP: readonly DevGroup[] = [
   {
     id: "infra",
     title: "Infrastructure",
-    description:
-      "Configuration transverse : next.config, nav, dépendances.",
+    description: "Configuration transverse : next.config, nav, dépendances.",
     icon: Terminal,
     accent: "var(--pf-primary)",
     files: [
@@ -514,8 +531,7 @@ const DEV_ROADMAP: readonly DevGroup[] = [
   {
     id: "tests",
     title: "Tests",
-    description:
-      "Tests unitaires vitest sur le pipeline serveur.",
+    description: "Tests unitaires vitest sur le pipeline serveur.",
     icon: ListChecks,
     accent: "var(--pf-secondary)",
     files: [
@@ -603,15 +619,16 @@ function ToolCard({ tool }: { readonly tool: PixelTool }) {
       </p>
       <footer className="mt-4 flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--pf-surface-hover)]/60 px-2 py-0.5 text-[11px] font-medium text-[var(--pf-muted)] backdrop-blur">
-          À venir
+          Disponible
         </span>
-        <span
-          className="inline-flex items-center gap-1.5 text-sm font-medium transition-transform group-hover:translate-x-1"
+        <Link
+          href={tool.href}
+          className="inline-flex items-center gap-1.5 text-sm font-medium transition-transform group-hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--pf-primary)]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           style={{ color: `var(--accent)` }}
         >
           Ouvrir
           <ArrowRight className="size-4" aria-hidden />
-        </span>
+        </Link>
       </footer>
     </article>
   );
@@ -892,11 +909,11 @@ export default function PixelPage() {
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
               <Link
-                href="/genesis"
+                href="/pixel/dev"
                 className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
               >
                 <BookOpen className="size-4" aria-hidden />
-                Atelier Genesis DEV
+                Dépendances PixelForge
               </Link>
             </div>
           </div>
@@ -950,8 +967,8 @@ export default function PixelPage() {
               Prêt à forger vos images ?
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[var(--pf-muted)]">
-              Aucun compte requis pour les outils de base. Sélectionnez un
-              outil ci-dessus, déposez vos images, récupérez-les optimisées.
+              Aucun compte requis pour les outils de base. Sélectionnez un outil
+              ci-dessus, déposez vos images, récupérez-les optimisées.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               <Link
@@ -962,10 +979,10 @@ export default function PixelPage() {
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
               <Link
-                href="/genesis/help"
+                href="/pixel"
                 className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
               >
-                Mode d&apos;emploi Genesis
+                Guide utilisateur PixelForge
               </Link>
             </div>
           </div>

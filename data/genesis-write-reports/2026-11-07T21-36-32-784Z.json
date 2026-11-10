@@ -1,0 +1,38 @@
+{
+  "id": "2026-11-07T21-36-32-784Z",
+  "createdAt": "2026-11-07T21:36:32.784Z",
+  "scriptCount": 12,
+  "createdCount": 4,
+  "overwrittenCount": 8,
+  "backedUpCount": 8,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/history/local-history.ts",
+      "app/pixel/components/history/history-empty.tsx",
+      "app/pixel/components/history/history-toolbar.tsx",
+      "app/pixel/components/history/history-list.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/dashboard/page.tsx",
+      "app/pixel/features/optimizer/hooks/use-optimizer.ts",
+      "app/pixel/features/converter/hooks/use-converter.ts",
+      "app/pixel/features/compressor/hooks/use-compressor.ts",
+      "app/pixel/features/resize/hooks/use-resize.ts",
+      "app/pixel/features/resize/hooks/use-resize.ts",
+      "app/pixel/features/smart-crop/hooks/use-smart-crop.ts",
+      "app/pixel/features/crop-editor/hooks/use-crop-editor.ts"
+    ],
+    "backedUp": [
+      "app/pixel/dashboard/page.tsx",
+      "app/pixel/features/optimizer/hooks/use-optimizer.ts",
+      "app/pixel/features/converter/hooks/use-converter.ts",
+      "app/pixel/features/compressor/hooks/use-compressor.ts",
+      "app/pixel/features/resize/hooks/use-resize.ts",
+      "app/pixel/features/resize/hooks/use-resize.ts",
+      "app/pixel/features/smart-crop/hooks/use-smart-crop.ts",
+      "app/pixel/features/crop-editor/hooks/use-crop-editor.ts"
+    ],
+    "rejected": []
+  }
+}

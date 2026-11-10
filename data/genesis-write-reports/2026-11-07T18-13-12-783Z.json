@@ -1,0 +1,20 @@
+{
+  "id": "2026-11-07T18-13-12-783Z",
+  "createdAt": "2026-11-07T18:13:12.783Z",
+  "scriptCount": 4,
+  "createdCount": 4,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/export-manager/components/export-options.tsx",
+      "app/pixel/features/export-manager/components/export-item.tsx",
+      "app/pixel/features/export-manager/components/export-progress.tsx",
+      "app/pixel/features/export-manager/components/export-manager.tsx"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

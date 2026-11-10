@@ -5,62 +5,126 @@ projectId:       <Pixel-fotgen>
 type:            component
 generic:         false
 
-role:            Orchestrateur de l'outil 01. Remplace le placeholder
-                 precedent. Compose :
+role:            Orchestrateur de l'outil 01. Compose :
                  - FormatSelector (format de sortie)
                  - QualityControl (qualite + mode)
-                 - Bouton "Convertir" (desactive si pendingCount === 0
-                   ou stage === "running")
+                 - ConversionPreview (apercu live avant/apres)
+                 - Bouton "Convertir"
                  - ConversionResults (si outcome !== null)
-                 Lit le hook useConverter qui pilote tout le pipeline
-                 (validation, fetch, store, resultats).
 
-flow:            useConverter() -> rend un formulaire avec les
-                 controles. A chaque changement de champ, appelle
-                 setOptions (merge partiel). Au clic Convertir,
-                 submit(). Si outcome, affiche <ConversionResults />.
+                 ⚠️ CORRECTIF v2 (coherence format/mode) :
+                 Quand l'utilisateur change le format cible, le mode
+                 courant peut devenir invalide (ex: PNG ne supporte
+                 QUE lossless, pas lossy). coerceModeForFormat() ajuste
+                 automatiquement le mode :
+                   - si le mode courant est supporte -> inchange
+                   - sinon -> premier mode supporte par le format
+                   - si le format ne supporte aucun mode -> null
+                 Applique UNIQUEMENT quand `format` change (pas quand
+                 `mode` change, sinon on ecraserait le choix explicite
+                 de l'utilisateur dans QualityControl).
+
+                 ⚠️ CORRECTIF v3 (readonly) :
+                 ConversionOptions est readonly (bonne pratique). On
+                 ne peut donc PAS faire `next.mode = ...`. patch()
+                 RECONSTRUIT l'objet avec setOptions({ ...options,
+                 ...partial, mode: coerceModeForFormat(...) }) au lieu
+                 de muter une propriete. Aucun cast, aucun `as any`.
+
+flow:            useConverter() -> rend FormatSelector + QualityControl
+                 + ConversionPreview + bouton + ConversionResults.
+                 patch() reconstruit l'objet si format change.
 
 ecosystem:       Converter = [
-                   "@/app/pixel/features/converter/types/converter.types.ts",
-                   "@/app/pixel/features/converter/schemas/converter.schema.ts",
-                   "@/app/pixel/features/converter/hooks/use-converter.ts",
-                   "@/app/pixel/features/converter/components/format-selector.tsx",
-                   "@/app/pixel/features/converter/components/quality-control.tsx",
+                   "@/app/pixel/features/converter/components/conversion-preview.tsx",
                    "@/app/pixel/features/converter/components/conversion-results.tsx",
                    "@/app/pixel/features/converter/components/converter-panel.tsx",
+                   "@/app/pixel/features/converter/components/format-selector.tsx",
+                   "@/app/pixel/features/converter/components/quality-control.tsx",
+                   "@/app/pixel/features/converter/hooks/use-conversion-preview.ts",
+                   "@/app/pixel/features/converter/hooks/use-converter.ts",
                    "@/app/pixel/features/converter/index.ts",
+                   "@/app/pixel/features/converter/schemas/converter.schema.ts",
+                   "@/app/pixel/features/converter/types/converter.types.ts",
+                   "@/app/pixel/lib/history/local-history.ts",
                  ]
-relatedFiles:    ["@/app/pixel/features/converter/hooks/use-converter.ts",
-                  "@/app/pixel/features/converter/types/converter.types.ts",
+relatedFiles:    ["@/app/pixel/lib/image-engine/format-capabilities.ts",
+                  "@/app/pixel/features/converter/hooks/use-converter.ts",
+                  "@/app/pixel/features/converter/components/conversion-preview.tsx",
+                  "@/app/pixel/types/conversion.ts",
+                  "@/app/pixel/types/image.ts",
                   "@/components/ui/button.tsx"]
 imports:         ["lucide-react",
                   "@/app/pixel/features/converter/hooks/use-converter",
-                  "@/app/pixel/features/converter/types/converter.types",
                   "@/app/pixel/features/converter/components/format-selector",
                   "@/app/pixel/features/converter/components/quality-control",
+                  "@/app/pixel/features/converter/components/conversion-preview",
                   "@/app/pixel/features/converter/components/conversion-results",
+                  "@/app/pixel/lib/image-engine/format-capabilities",
+                  "@/app/pixel/types/conversion",
+                  "@/app/pixel/types/image",
                   "@/components/ui/button"]
 exports:         ["ConverterPanel", "ConverterPanelProps"]
 useBy:           ["@/app/pixel/convert/page.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux convertir toute ma file d'images"]
+userStories:     ["*en tant qu'utilisateur je veux convertir toute ma file",
+                  "*en tant qu'utilisateur je veux voir le resultat avant de convertir",
+                  "*en tant qu'utilisateur je veux que le mode se corrige quand je change de format"]
+
 status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 "use client";
-// "use client" justifie : useConverter + interactions.
+// "use client" justifie : useConverter + useConversionPreview + interactions.
 
 import { ArrowRight, Loader2 } from "lucide-react";
 
 import { useConverter } from "@/app/pixel/features/converter/hooks/use-converter";
-import type { ConversionOptions } from "@/app/pixel/types/conversion";
+import type {
+  ConversionMode,
+  ConversionOptions,
+} from "@/app/pixel/types/conversion";
+import type { ImageFormat } from "@/app/pixel/types/image";
 import { FormatSelector } from "@/app/pixel/features/converter/components/format-selector";
 import { QualityControl } from "@/app/pixel/features/converter/components/quality-control";
+import { ConversionPreview } from "@/app/pixel/features/converter/components/conversion-preview";
 import { ConversionResults } from "@/app/pixel/features/converter/components/conversion-results";
+import { FORMAT_CAPABILITIES } from "@/app/pixel/lib/image-engine/format-capabilities";
 import { Button } from "@/components/ui/button";
+
+/* ------------------------------------------------------------------ */
+/*  Cohérence format / mode                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Retourne un mode valide pour le format cible :
+ * - si le mode actuel est supporté → on le garde
+ * - sinon → premier mode supporté par le format
+ * - si le format ne supporte aucun mode → null
+ *
+ * Exemples :
+ *   coerceModeForFormat("png", "lossy")     → "lossless"
+ *   coerceModeForFormat("webp", "lossless") → "lossless"
+ *   coerceModeForFormat("tiff", "lossy")    → "lossless"
+ *   coerceModeForFormat("jpeg", "lossless") → "lossy"
+ */
+function coerceModeForFormat(
+  format: ImageFormat,
+  currentMode: ConversionMode | null,
+): ConversionMode | null {
+  const caps = FORMAT_CAPABILITIES[format];
+  if (currentMode !== null && caps.modes.includes(currentMode)) {
+    return currentMode;
+  }
+  return caps.modes[0] ?? null;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Composant                                                         */
+/* ------------------------------------------------------------------ */
 
 export interface ConverterPanelProps {
   readonly className?: string;
@@ -73,7 +137,22 @@ export function ConverterPanel({ className }: ConverterPanelProps) {
   const running = stage === "running";
 
   function patch(partial: Partial<ConversionOptions>) {
-    setOptions({ ...options, ...partial });
+    // Cas simple : pas de changement de format, ou le mode est
+    // explicitement fourni dans le patch. On merge directement sans
+    // toucher au mode.
+    if (partial.format === undefined || partial.mode !== undefined) {
+      setOptions({ ...options, ...partial });
+      return;
+    }
+
+    // Le format change ET le mode n'est pas explicitement fourni :
+    // on RECONSTRUIT l'objet avec le mode corrigé (ConversionOptions
+    // est readonly, on ne peut pas muter `next.mode`).
+    setOptions({
+      ...options,
+      ...partial,
+      mode: coerceModeForFormat(partial.format, options.mode),
+    });
   }
 
   return (
@@ -109,6 +188,10 @@ export function ConverterPanel({ className }: ConverterPanelProps) {
           disabled={running}
         />
       </div>
+
+      {/* Aperçu live avant/après — se rafraîchit automatiquement
+          quand format/quality/mode changent (debounce 500 ms). */}
+      <ConversionPreview options={options} />
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--pf-border)]/60 pt-3">
         <p className="text-xs text-[var(--pf-muted)]">

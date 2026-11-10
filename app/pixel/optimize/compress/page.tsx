@@ -6,11 +6,11 @@ type:            page
 generic:         false
 
 role:            Page de l'outil 03 (Compresseur JPEG/PNG). Affiche
-                 header + import/queue + <CompressorPanel /> + section
-                 d'aide "Parametres".
+                 header + import/queue + <CompressorPanel /> +
+                 <ExportManager /> + section "Parametres".
 
 flow:            Server Component -> header -> import/queue ->
-                 <CompressorPanel /> -> section parametres.
+                 <CompressorPanel /> -> <ExportManager /> -> parametres.
 
 ecosystem:       Pixel = [
                    "@/app/pixel/optimize/compress/page.tsx",
@@ -19,16 +19,18 @@ ecosystem:       Pixel = [
                    "@/app/pixel/components/image-queue/image-queue.tsx",
                  ]
 relatedFiles:    ["@/app/pixel/features/compressor/components/compressor-panel.tsx",
+                  "@/app/pixel/features/export-manager/components/export-manager.tsx",
                   "@/app/pixel/components/image-upload/image-uploader.tsx",
                   "@/app/pixel/components/image-queue/image-queue.tsx"]
 imports:         ["next", "lucide-react",
                   "@/app/pixel/features/compressor/components/compressor-panel",
+                  "@/app/pixel/features/export-manager/components/export-manager",
                   "@/app/pixel/components/image-upload/image-uploader",
                   "@/app/pixel/components/image-queue/image-queue"]
 exports:         ["default PixelCompressPage", "metadata"]
 useBy:           []
 
-userStories:     ["*en tant qu'utilisateur je veux compresser une image sans changer de format"]
+userStories:     ["*en tant qu'utilisateur je veux compresser mes images et les telecharger en ZIP"]
 status:          wip
 pathChecked:     true
 metaDataChecked: true
@@ -39,6 +41,7 @@ import type { Metadata } from "next";
 import { Shield, Sparkles } from "lucide-react";
 
 import { CompressorPanel } from "@/app/pixel/features/compressor/components/compressor-panel";
+import { ExportManager } from "@/app/pixel/features/export-manager/components/export-manager";
 import { ImageUploader } from "@/app/pixel/components/image-upload/image-uploader";
 import { ImageQueue } from "@/app/pixel/components/image-queue/image-queue";
 
@@ -96,6 +99,8 @@ export default function PixelCompressPage() {
       </section>
 
       <CompressorPanel />
+
+      <ExportManager />
 
       <section aria-labelledby="params-title">
         <h3

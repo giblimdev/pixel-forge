@@ -1,0 +1,29 @@
+{
+  "id": "2026-11-07T18-41-11-694Z",
+  "createdAt": "2026-11-07T18:41:11.694Z",
+  "scriptCount": 9,
+  "createdCount": 7,
+  "overwrittenCount": 2,
+  "backedUpCount": 2,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/image-engine/retouch.ts",
+      "app/api/images/retouch/route.ts",
+      "app/pixel/features/image-editor/types/image-editor.types.ts",
+      "app/pixel/features/image-editor/schemas/image-editor.schema.ts",
+      "app/pixel/features/image-editor/hooks/use-image-editor.ts",
+      "app/pixel/features/image-editor/components/adjustment-controls.tsx",
+      "app/pixel/features/image-editor/components/watermark-editor.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/features/image-editor/components/image-editor-panel.tsx",
+      "app/pixel/features/image-editor/index.ts"
+    ],
+    "backedUp": [
+      "app/pixel/features/image-editor/components/image-editor-panel.tsx",
+      "app/pixel/features/image-editor/index.ts"
+    ],
+    "rejected": []
+  }
+}

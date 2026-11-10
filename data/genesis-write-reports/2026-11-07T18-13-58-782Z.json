@@ -1,0 +1,23 @@
+{
+  "id": "2026-11-07T18-13-58-782Z",
+  "createdAt": "2026-11-07T18:13:58.782Z",
+  "scriptCount": 3,
+  "createdCount": 1,
+  "overwrittenCount": 2,
+  "backedUpCount": 2,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/export-manager/index.ts"
+    ],
+    "overwritten": [
+      "app/pixel/optimize/page.tsx",
+      "app/pixel/optimize/compress/page.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/optimize/page.tsx",
+      "app/pixel/optimize/compress/page.tsx"
+    ],
+    "rejected": []
+  }
+}

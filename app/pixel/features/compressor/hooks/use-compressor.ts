@@ -10,10 +10,14 @@ role:            Hook client du module compressor. Meme pattern que
                  /api/images/compress. Le format source est conserve
                  (options.format = null cote route).
 
+                 Phase 19 : ajout d'une entree d'historique locale
+                 (localStorage) a la fin de submit(), si au moins un
+                 fichier a ete traite avec succes.
+
 flow:            useState(options, stage, outcome) -> submit() ->
                  pending items -> FormData(files, options) -> fetch
                  /api/images/compress -> blob ou json -> setResult /
-                 setError par fichier -> outcome.
+                 setError par fichier -> outcome -> recordHistory().
 
 ecosystem:       Compressor = [
                    "@/app/pixel/features/compressor/types/compressor.types.ts",
@@ -23,29 +27,33 @@ ecosystem:       Compressor = [
                    "@/app/pixel/features/compressor/components/compression-results.tsx",
                    "@/app/pixel/features/compressor/components/compressor-panel.tsx",
                    "@/app/pixel/features/compressor/index.ts",
+                   "@/app/pixel/lib/history/local-history.ts",
                  ]
 relatedFiles:    ["@/app/pixel/stores/image-queue.store.ts",
                   "@/app/pixel/types/image.ts",
                   "@/app/pixel/types/processing.ts",
-                  "@/app/pixel/features/compressor/types/compressor.types.ts"]
+                  "@/app/pixel/features/compressor/types/compressor.types.ts",
+                  "@/app/pixel/lib/history/local-history.ts"]
 imports:         ["react",
                   "@/app/pixel/stores/image-queue.store",
                   "@/app/pixel/types/image",
                   "@/app/pixel/types/processing",
                   "@/app/pixel/features/compressor/types/compressor.types",
-                  "@/app/pixel/features/compressor/schemas/compressor.schema"]
+                  "@/app/pixel/features/compressor/schemas/compressor.schema",
+                  "@/app/pixel/lib/history/local-history"]
 exports:         ["UseCompressorReturn", "useCompressor"]
 useBy:           ["@/app/pixel/features/compressor/components/compressor-panel.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux compresser mes images sans changer de format"]
+userStories:     ["*en tant qu'utilisateur je veux compresser mes images sans changer de format",
+                  "*en tant qu'utilisateur je veux retrouver mes compressions dans mon historique"]
 status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 "use client";
-// "use client" justifie : useState + fetch + store Zustand.
+// "use client" justifie : useState + fetch + store Zustand + localStorage.
 
 import { useCallback, useState } from "react";
 
@@ -67,6 +75,11 @@ import {
   type CompressorStage,
 } from "@/app/pixel/features/compressor/types/compressor.types";
 import { compressorFormSchema } from "@/app/pixel/features/compressor/schemas/compressor.schema";
+import { saveHistory } from "@/app/pixel/lib/history/local-history";
+
+// ---------------------------------------------------------------------------
+// Types exposes
+// ---------------------------------------------------------------------------
 
 export interface UseCompressorReturn {
   readonly options: CompressorOptions;
@@ -77,9 +90,44 @@ export interface UseCompressorReturn {
   readonly submit: () => Promise<void>;
 }
 
+// ---------------------------------------------------------------------------
+// Helpers internes
+// ---------------------------------------------------------------------------
+
 function errorOf(code: ProcessingErrorCode, message: string): ProcessingError {
   return { code, message };
 }
+
+function recordHistory(success: readonly CompressionSuccessItem[]): void {
+  if (success.length === 0) return;
+
+  const first = success[0]!;
+  const totalSourceBytes = success.reduce(
+    (sum, s) => sum + s.sourceSizeBytes,
+    0,
+  );
+  const totalResultBytes = success.reduce(
+    (sum, s) => sum + s.result.sizeBytes,
+    0,
+  );
+
+  saveHistory({
+    id: crypto.randomUUID(),
+    type: "compress",
+    createdAt: new Date().toISOString(),
+    toolHref: "/pixel/optimize/compress",
+    sourceFilename: first.sourceFilename,
+    sourceSizeBytes: totalSourceBytes,
+    resultFilename: first.result.filename,
+    resultSizeBytes: totalResultBytes,
+    savedBytes: totalSourceBytes - totalResultBytes,
+    itemCount: success.length,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 
 export function useCompressor(): UseCompressorReturn {
   const items = useImageQueueStore(selectItems);
@@ -170,7 +218,7 @@ export function useCompressor(): UseCompressorReturn {
           const mime = res.headers.get("Content-Type") ?? "application/octet-stream";
           const disposition = res.headers.get("Content-Disposition");
           const filename =
-            disposition?.match(/filename="(.+)"/)?.[1] ?? "compressed";
+            disposition?.match(/filename="(.+?)"/)?.[1] ?? "compressed";
           const downloadUrl = URL.createObjectURL(blob);
           const result: ResultImage = {
             id: single.source.id,
@@ -278,6 +326,9 @@ export function useCompressor(): UseCompressorReturn {
       errors,
       durationMs: Date.now() - startedAt,
     });
+
+    // Phase 19 — Historique local
+    recordHistory(success);
   }, [items, options, pendingCount, setError, setResult, setStatus]);
 
   return { options, setOptions, stage, outcome, pendingCount, submit };

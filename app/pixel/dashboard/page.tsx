@@ -1,43 +1,41 @@
 /*
-path :           app/pixel/dashboard/page.tsx
-tag :            ["pixel", "pixel-forge", "dashboard", "page", "pixel-forge-charte"]
-projectId:       pixel
+path:            app/pixel/dashboard/page.tsx
+tag:             ["pixel", "pixel-forge", "dashboard", "page", "history"]
+projectId:       <Pixel-fotgen>
 type:            page
 generic:         false
 
-role:            Tableau de bord PixelForge. Affiche l'historique
-                 (localStorage, vide par défaut) et les raccourcis.
+role:            Tableau de bord PixelForge. Affiche :
+                 - header
+                 - historique des traitements (localStorage via
+                   <HistoryList />, qui gere lui-meme l'etat vide)
+                 - raccourcis vers les outils.
 
-flow:            Server Component → header → historique → raccourcis.
+                 Le composant HistoryList est Client (lit localStorage).
+                 Le reste de la page reste Server Component : pas de
+                 fetch, pas de Prisma, aucune session requise.
+
+flow:            Server Component -> header -> <HistoryList /> ->
+                 raccourcis (4 cartes).
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/metadata/page.tsx",      ⚠️ À CRÉER
-                   "@/app/pixel/analyze/page.tsx",               ⚠️ À CRÉER
-                   "@/app/pixel/components/PixelNav.tsx",
-                   "@/app/pixel/convert/page.tsx",
                    "@/app/pixel/dashboard/page.tsx",
-                   "@/app/pixel/edit/page.tsx",
-                   "@/app/pixel/generate/page.tsx",
-                   "@/app/pixel/layout.tsx",
-                   "@/app/pixel/optimize/page.tsx",
-                   "@/app/pixel/page.tsx",
+                   "@/app/pixel/components/history/history-list.tsx",
+                   "@/app/pixel/components/history/history-empty.tsx",
+                   "@/app/pixel/components/history/history-toolbar.tsx",
+                   "@/app/pixel/lib/history/local-history.ts",
                  ]
-
-                 ⚠️ NOTE : `analyze/page.tsx` et `analyze/metadata/page.tsx`
-                 sont référencés mais n'existent pas encore.
-
 relatedFiles:    ["@/app/pixel/page.tsx",
-                  "@/components/ui/button.tsx"]
-
+                  "@/components/ui/button.tsx",
+                  "@/app/pixel/components/history/history-list.tsx"]
 imports:         ["next", "next/link", "lucide-react",
-                  "@/components/ui/button"]
-
+                  "@/components/ui/button",
+                  "@/app/pixel/components/history/history-list"]
 exports:         ["default PixelDashboardPage", "metadata"]
-
 useBy:           []
 
-userStories:     ["*en tant qu'utilisateur je veux voir un résumé de mes traitements"]
-
+userStories:     ["*en tant qu'utilisateur je veux voir mes derniers traitements",
+                  "*en tant qu'utilisateur je veux acceder rapidement aux outils"]
 status:          wip
 pathChecked:     ✔true
 metaDataChecked: ✔true
@@ -46,9 +44,10 @@ scriptChecked:   ✔true
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Clock, ListChecks } from "lucide-react";
+import { ArrowRight, ListChecks } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { HistoryList } from "@/app/pixel/components/history/history-list";
 
 export const metadata: Metadata = {
   title: "Tableau de bord",
@@ -72,40 +71,14 @@ export default function PixelDashboardPage() {
         </p>
       </header>
 
-      <section
-        aria-labelledby="history-title"
-        className="rounded-2xl border border-dashed border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/20 p-8 text-center backdrop-blur-xl"
-      >
-        <Clock
-          className="mx-auto mb-3 size-8 text-[var(--pf-muted)]"
-          aria-hidden
-        />
+      <section aria-labelledby="history-title" className="space-y-3">
         <h3
           id="history-title"
-          className="text-base font-semibold text-[var(--pf-foreground)]"
+          className="text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
         >
-          Aucun traitement pour l&apos;instant
+          Historique récent
         </h3>
-        <p className="mx-auto mt-1 max-w-md text-sm text-[var(--pf-muted)]">
-          Vos derniers traitements apparaîtront ici. L&apos;historique est
-          stocké localement (localStorage) et ne quitte jamais votre
-          navigateur.
-        </p>
-        <div className="mt-5 flex flex-wrap justify-center gap-2">
-          <Link
-            href="/pixel/convert"
-            className={`${buttonVariants()} gap-2 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] text-white shadow-lg shadow-[var(--pf-primary)]/30 hover:brightness-110`}
-          >
-            Convertir une image
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
-          <Link
-            href="/pixel/optimize"
-            className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
-          >
-            Optimiser un lot
-          </Link>
-        </div>
+        <HistoryList />
       </section>
 
       <section aria-labelledby="shortcuts-title">
@@ -135,6 +108,18 @@ export default function PixelDashboardPage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-dashed border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/20 p-5 text-center backdrop-blur-xl">
+        <p className="text-sm text-[var(--pf-muted)]">
+          Prêt à commencer ?{" "}
+          <Link
+            href="/pixel/convert"
+            className={`${buttonVariants({ variant: "link" })} h-auto p-0 text-sm`}
+          >
+            Lancer une conversion
+          </Link>
+        </p>
       </section>
     </div>
   );

@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-07T20-21-15-963Z",
+  "createdAt": "2026-11-07T20:21:15.963Z",
+  "scriptCount": 1,
+  "createdCount": 0,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/api/images/retouch/route.ts"
+    ],
+    "backedUp": [
+      "app/api/images/retouch/route.ts"
+    ],
+    "rejected": []
+  }
+}

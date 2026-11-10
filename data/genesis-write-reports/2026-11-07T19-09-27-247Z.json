@@ -1,0 +1,23 @@
+{
+  "id": "2026-11-07T19-09-27-247Z",
+  "createdAt": "2026-11-07T19:09:27.247Z",
+  "scriptCount": 3,
+  "createdCount": 2,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 1,
+  "report": {
+    "created": [
+      "app/pixel/lib/ecosystems.ts",
+      "app/pixel/dataNav.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": [
+      {
+        "path": "next.config.ts",
+        "reason": "Path interdit : \"next.config.ts\""
+      }
+    ]
+  }
+}

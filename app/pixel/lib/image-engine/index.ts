@@ -7,18 +7,15 @@ generic:         true
 
 role:            API publique du moteur Image Engine. Reexporte :
                  - les operations (convert, resize, crop, rotate, flip,
-                   grayscale, analyze) ;
+                   grayscale, removeBackground, retouch, analyze) ;
                  - les types (EngineInput, EngineOutput, EngineMetadata,
                    EngineOptions) ;
                  - le registre des formats (INPUT_FORMATS,
                    OUTPUT_FORMATS, FORMAT_CAPABILITIES) ;
                  - les tables MIME/extension.
 
-                 Les consommateurs (routes API, Server Actions) doivent
-                 importer depuis CET index et jamais depuis les fichiers
-                 internes (sharp.adapter, sharp.factory, etc.). Cela
-                 laisse la liberte de changer l'implementation Sharp
-                 sans toucher aux consommateurs.
+                 Phase 13 : ajout de removeBackground et RemoveBackgroundInput.
+                 Phase 14 : ajout de retouch et RetouchInput.
 
 flow:            Module TypeScript pur -> reexports.
 
@@ -43,9 +40,10 @@ imports:         ["@/app/pixel/lib/image-engine/image-engine",
                   "@/app/pixel/lib/image-engine/format-capabilities",
                   "@/app/pixel/lib/image-engine/format-mime"]
 exports:         ["convert", "resize", "crop", "rotate", "flip",
-                  "grayscale", "analyze",
+                  "grayscale", "removeBackground", "retouch", "analyze",
                   "Result", "ResizeInput", "CropInput", "RotateInput",
-                  "FlipInput", "GrayscaleInput",
+                  "FlipInput", "GrayscaleInput", "RemoveBackgroundInput",
+                  "RetouchInput",
                   "EngineInput", "EngineOutput", "EngineMetadata",
                   "EngineOptions",
                   "INPUT_FORMATS", "OUTPUT_FORMATS",
@@ -82,6 +80,8 @@ export {
   rotate,
   flip,
   grayscale,
+  removeBackground,
+  retouch,
   analyze,
 } from "@/app/pixel/lib/image-engine/image-engine";
 
@@ -93,6 +93,8 @@ export type {
   RotateInput,
   FlipInput,
   GrayscaleInput,
+  RemoveBackgroundInput,
+  RetouchInput,
 } from "@/app/pixel/lib/image-engine/image-engine";
 
 // Types du moteur

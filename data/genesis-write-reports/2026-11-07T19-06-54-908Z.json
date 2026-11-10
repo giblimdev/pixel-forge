@@ -1,0 +1,20 @@
+{
+  "id": "2026-11-07T19-06-54-908Z",
+  "createdAt": "2026-11-07T19:06:54.908Z",
+  "scriptCount": 1,
+  "createdCount": 0,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 1,
+  "report": {
+    "created": [],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": [
+      {
+        "path": "next.config.ts",
+        "reason": "Path interdit : \"next.config.ts\""
+      }
+    ]
+  }
+}

@@ -1,54 +1,46 @@
 /*
-path :           app/pixel/edit/crop/page.tsx
-tag :            ["pixel", "pixel-forge", "edit", "crop", "page", "outil-06", "pixel-forge-charte"]
-projectId:       pixel
+path:            app/pixel/edit/crop/page.tsx
+tag:             ["pixel", "pixel-forge", "edit", "crop", "page", "outil-06", "pixel-forge-charte"]
+projectId:       <Pixel-fotgen>
 type:            page
 generic:         false
 
-role:            Page de l'outil 06 (Éditeur de recadrage).
-                 Affiche header + CropEditorPanel + "Comment ça marche"
-                 + "Ratios disponibles".
+role:            Page de l'outil 06 (Editeur de recadrage). Affiche
+                 header + import/queue + <CropEditorPanel /> + section
+                 "Ratios disponibles".
 
-                 ⚠️ IMPORTS : features sous app/pixel/features/ (Option A).
-
-flow:            Server Component → header → <CropEditorPanel /> →
-                 sections d'aide.
+flow:            Server Component -> header -> import/queue ->
+                 <CropEditorPanel /> -> ratios.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/page.tsx",
-                   "@/app/pixel/components/PixelNav.tsx",
-                   "@/app/pixel/convert/page.tsx",
-                   "@/app/pixel/dashboard/page.tsx",
+                   "@/app/pixel/edit/crop/page.tsx",
                    "@/app/pixel/edit/page.tsx",
-                   "@/app/pixel/generate/page.tsx",
-                   "@/app/pixel/layout.tsx",
-                   "@/app/pixel/optimize/page.tsx",
-                   "@/app/pixel/page.tsx",
+                   "@/app/pixel/components/image-upload/image-uploader.tsx",
+                   "@/app/pixel/components/image-queue/image-queue.tsx",
                  ]
-
 relatedFiles:    ["@/app/pixel/features/crop-editor/components/crop-editor-panel.tsx",
-                  "@/app/pixel/features/crop-editor/index.ts",
-                  "@/app/pixel/edit/page.tsx"]
-
+                  "@/app/pixel/components/image-upload/image-uploader.tsx",
+                  "@/app/pixel/components/image-queue/image-queue.tsx"]
 imports:         ["next", "lucide-react",
-                  "@/app/pixel/features/crop-editor/components/crop-editor-panel"]
-
+                  "@/app/pixel/features/crop-editor/components/crop-editor-panel",
+                  "@/app/pixel/components/image-upload/image-uploader",
+                  "@/app/pixel/components/image-queue/image-queue"]
 exports:         ["default PixelCropPage", "metadata"]
-
 useBy:           []
 
 userStories:     ["*en tant qu'utilisateur je veux recadrer manuellement une image"]
-
 status:          wip
-pathChecked:     ✔true
-metaDataChecked: ✔true
-scriptChecked:   ✔true
+pathChecked:     true
+metaDataChecked: true
+scriptChecked:   true
 */
 
 import type { Metadata } from "next";
 import { Scissors, Sparkles } from "lucide-react";
 
 import { CropEditorPanel } from "@/app/pixel/features/crop-editor/components/crop-editor-panel";
+import { ImageUploader } from "@/app/pixel/components/image-upload/image-uploader";
+import { ImageQueue } from "@/app/pixel/components/image-queue/image-queue";
 
 export const metadata: Metadata = {
   title: "Recadrer",
@@ -56,12 +48,11 @@ export const metadata: Metadata = {
 };
 
 const RATIOS: readonly { readonly label: string; readonly value: string }[] = [
-  { label: "Libre", value: "libre" },
-  { label: "Carré", value: "1:1" },
+  { label: "Carre", value: "1:1" },
   { label: "Paysage", value: "16:9" },
   { label: "Photo", value: "4:3" },
   { label: "Portrait", value: "3:4" },
-  { label: "Story", value: "9:16" },
+  { label: "Cinema", value: "21:9" },
 ];
 
 export default function PixelCropPage() {
@@ -70,65 +61,36 @@ export default function PixelCropPage() {
       <header className="space-y-2">
         <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--pf-info)]">
           <Scissors className="size-3.5" aria-hidden />
-          Outil 06 · Recadrer
+          Outil 06 - Recadrer
         </p>
         <h2 className="text-2xl font-bold tracking-tight text-[var(--pf-foreground)]">
-          Éditeur de recadrage
+          Editeur de recadrage
         </h2>
         <p className="max-w-2xl text-sm text-[var(--pf-muted)]">
           Recadrez manuellement une image, faites-la pivoter, retournez-la
-          horizontalement ou verticalement, ou verrouillez un ratio prédéfini.
+          horizontalement, ou verrouillez un ratio predefini.
         </p>
       </header>
 
-      <CropEditorPanel />
-
-      <section aria-labelledby="how-title">
+      <section aria-labelledby="import-title" className="space-y-4">
         <h3
-          id="how-title"
-          className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
+          id="import-title"
+          className="text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
         >
-          <Sparkles className="size-5 text-[var(--pf-info)]" aria-hidden />
-          Comment ça marche
+          Importer des images
         </h3>
-        <ol className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {[
-            {
-              step: "1",
-              detail:
-                "Déposez une image. Un cadre interactif apparaît sur le canvas.",
-            },
-            {
-              step: "2",
-              detail:
-                "Déplacez et redimensionnez le cadre. Activez la grille des tiers pour composer.",
-            },
-            {
-              step: "3",
-              detail:
-                "Appliquez : sharp.extract() recadre, sharp.rotate() pivote, sharp.flip()/flop() retourne.",
-            },
-          ].map((h) => (
-            <li
-              key={h.step}
-              className="rounded-xl border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 p-4 backdrop-blur-xl"
-            >
-              <span className="mb-2 grid size-8 place-items-center rounded-full bg-gradient-to-br from-[var(--pf-info)] to-[var(--pf-primary)] font-mono text-sm font-bold text-white shadow-md">
-                {h.step}
-              </span>
-              <p className="text-xs leading-relaxed text-[var(--pf-muted)]">
-                {h.detail}
-              </p>
-            </li>
-          ))}
-        </ol>
+        <ImageUploader />
+        <ImageQueue />
       </section>
+
+      <CropEditorPanel />
 
       <section aria-labelledby="ratios-title">
         <h3
           id="ratios-title"
-          className="mb-4 text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
+          className="mb-4 flex items-center gap-2 text-lg font-bold tracking-tight text-[var(--pf-foreground)]"
         >
+          <Sparkles className="size-5 text-[var(--pf-info)]" aria-hidden />
           Ratios disponibles
         </h3>
         <div className="flex flex-wrap gap-2">

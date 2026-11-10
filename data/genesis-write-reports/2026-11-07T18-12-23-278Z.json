@@ -1,0 +1,22 @@
+{
+  "id": "2026-11-07T18-12-23-278Z",
+  "createdAt": "2026-11-07T18:12:23.278Z",
+  "scriptCount": 6,
+  "createdCount": 6,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/api/images/export/route.ts",
+      "app/pixel/lib/archive/archive-entry.ts",
+      "app/pixel/lib/archive/archive-builder.ts",
+      "app/pixel/features/export-manager/types/export-manager.types.ts",
+      "app/pixel/features/export-manager/schemas/export-manager.schema.ts",
+      "app/pixel/features/export-manager/hooks/use-export-manager.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

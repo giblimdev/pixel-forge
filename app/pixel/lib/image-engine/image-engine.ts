@@ -5,21 +5,25 @@ projectId:       <Pixel-fotgen>
 type:            helper
 generic:         true
 
-role:            FAcade publique du moteur. Point d'entree UNIQUE pour
+role:            Facade publique du moteur. Point d'entree UNIQUE pour
                  les routes API, les Server Actions et les hooks. Cette
                  facade N'IMPORTE PAS sharp : elle delegue a
                  sharp.adapter.ts, qui est le seul a parler a la
                  librairie native. Les consommateurs n'ont donc aucune
-                 dependance a Sharp dans leur bundle ni dans leurs
-                 types.
+                 dependance a Sharp dans leur bundle ni dans leurs types.
 
-flow:            convert(buffer, options) -> convertSharp(buffer, options)
-                 resize(buffer, options) -> resizeSharp(buffer, options)
-                 crop(buffer, options) -> cropSharp(buffer, options)
-                 rotate(buffer, options) -> rotateSharp(buffer, options)
-                 flip(buffer, options) -> flipSharp(buffer, options)
-                 grayscale(buffer, options) -> grayscaleSharp(buffer, options)
-                 analyze(buffer) -> analyzeSharp(buffer)
+                 Phase 13 : ajout de removeBackground.
+                 Phase 14 : ajout de retouch.
+
+flow:            convert -> convertSharp
+                 resize -> resizeSharp
+                 crop -> cropSharp
+                 rotate -> rotateSharp
+                 flip -> flipSharp
+                 grayscale -> grayscaleSharp
+                 removeBackground -> removeBackgroundSharp
+                 retouch -> retouchSharp
+                 analyze -> analyzeSharp
 
 ecosystem:       ImageEngine = [
                    "@/app/pixel/lib/image-engine/format-mime.ts",
@@ -41,9 +45,10 @@ imports:         ["server-only",
                   "@/app/pixel/lib/image-engine/image-engine.types",
                   "@/app/pixel/types/conversion"]
 exports:         ["convert", "resize", "crop", "rotate", "flip",
-                  "grayscale", "analyze",
+                  "grayscale", "removeBackground", "retouch", "analyze",
+                  "Result",
                   "ResizeInput", "CropInput", "RotateInput", "FlipInput",
-                  "GrayscaleInput"]
+                  "GrayscaleInput", "RemoveBackgroundInput", "RetouchInput"]
 useBy:           ["@/app/api/images/convert/route.ts",
                   "@/app/api/images/optimize/route.ts",
                   "@/app/api/images/compress/route.ts",
@@ -71,12 +76,16 @@ import {
   cropSharp,
   flipSharp,
   grayscaleSharp,
+  removeBackgroundSharp,
   resizeSharp,
+  retouchSharp,
   rotateSharp,
   type CropSharpOptions,
   type FlipSharpOptions,
   type GrayscaleSharpOptions,
+  type RemoveBackgroundSharpOptions,
   type ResizeSharpOptions,
+  type RetouchSharpOptions,
   type RotateSharpOptions,
 } from "@/app/pixel/lib/image-engine/sharp.adapter";
 import type {
@@ -99,6 +108,8 @@ export type CropInput = CropSharpOptions;
 export type RotateInput = RotateSharpOptions;
 export type FlipInput = FlipSharpOptions;
 export type GrayscaleInput = GrayscaleSharpOptions;
+export type RemoveBackgroundInput = RemoveBackgroundSharpOptions;
+export type RetouchInput = RetouchSharpOptions;
 
 // ---------------------------------------------------------------------------
 // Facade publique
@@ -144,6 +155,20 @@ export function grayscale(
   options: GrayscaleInput,
 ): Promise<Result<EngineOutput>> {
   return grayscaleSharp(buffer, options);
+}
+
+export function removeBackground(
+  buffer: Buffer,
+  options: RemoveBackgroundInput,
+): Promise<Result<EngineOutput>> {
+  return removeBackgroundSharp(buffer, options);
+}
+
+export function retouch(
+  buffer: Buffer,
+  options: RetouchInput,
+): Promise<Result<EngineOutput>> {
+  return retouchSharp(buffer, options);
 }
 
 export function analyze(buffer: Buffer): Promise<Result<EngineMetadata>> {

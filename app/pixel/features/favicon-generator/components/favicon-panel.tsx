@@ -1,98 +1,182 @@
 /*
-path :           app/pixel/features/favicon-generator/components/favicon-panel.tsx
-tag :            ["pixel", "pixel-forge", "favicon-generator", "component", "placeholder", "panel"]
-projectId:       new-genesis
+path:            app/pixel/features/favicon-generator/components/favicon-panel.tsx
+tag:             ["pixel", "feature", "favicon-generator", "component", "panel"]
+projectId:       <Pixel-fotgen>
 type:            component
 generic:         false
 
-role:            ⚠️ PLACEHOLDER — Panneau du générateur de favicons
-                 (outil 09). Squelette temporaire pour permettre le build
-                 de app/pixel/generate/favicon/page.tsx sans erreur. Sera
-                 REMPLACÉ par l'implémentation réelle (upload, sélection
-                 des tailles, aperçu multi-résolutions, génération ZIP).
+role:            Orchestrateur du generateur de favicons (outil 09).
+                 Compose : un bloc "importer une image source" qui accepte
+                 PNG/JPEG/SVG (1 seul fichier, via <ImageUploader /> en mode
+                 mono), FaviconOptions (tailles + manifest + toggles),
+                 un bouton "Generer les favicons", FaviconPreview (si
+                 outcome) et la liste des fichiers ZIP a telecharger.
+                 Le composant lit useFaviconGenerator() + le store global
+                 pour verifier qu'une image source est bien en file.
+                 Responsive mobile-first (grid-cols-1 -> md:grid-cols-2).
 
-                 Contrat futur prévu :
-                 - Client Component (upload + sélection tailles + aperçu).
-                 - Monté dans app/pixel/generate/favicon/page.tsx.
-                 - Déclenchera POST /api/images/favicon.
-                 - Utilisera sharp (multi-tailles) + png-to-ico (assemblage ICO)
-                   + archiver (ZIP).
-                 - Exposera : FaviconPanelProps (vide pour l'instant).
-
-                 ⚠️ AUCUNE PROP pour l'instant : le placeholder est
-                 monté sans props. Si une prop devient nécessaire
-                 (ex. defaultSizes), elle sera ajoutée dans
-                 l'implémentation réelle.
-
-                 ⚠️ ARCHITECTURE : conformément à l'Option A validée,
-                 le fichier est sous app/pixel/features/ (et non à la
-                 racine). Tous les imports internes au module devront
-                 pointer vers `@/app/pixel/features/favicon-generator/...`.
-
-flow:            Server Component → carte "à implémenter" avec le
-                 nom du composant, son rôle futur, et le chemin du
-                 fichier.
+flow:            useFaviconGenerator() + useImageQueueStore ->
+                 si pendingCount === 0 : message vide + ImageUploader ->
+                 sinon : FaviconOptions + bouton submit ->
+                 si outcome.success[0] : FaviconPreview ->
+                 si outcome.errors : liste erreurs.
 
 ecosystem:       FaviconGenerator = [
+                   "@/app/api/images/favicon/route.ts",
+                   "@/app/pixel/features/favicon-generator/components/favicon-options.tsx",
                    "@/app/pixel/features/favicon-generator/components/favicon-panel.tsx",
+                   "@/app/pixel/features/favicon-generator/components/favicon-preview.tsx",
+                   "@/app/pixel/features/favicon-generator/hooks/use-favicon-generator.ts",
                    "@/app/pixel/features/favicon-generator/index.ts",
+                   "@/app/pixel/features/favicon-generator/schemas/favicon.schema.ts",
+                   "@/app/pixel/features/favicon-generator/types/favicon.types.ts",
+                   "@/app/pixel/lib/archive/archive-builder.ts",
+                   "@/app/pixel/lib/favicon/ico-builder.ts",
+                   "@/app/pixel/lib/favicon/manifest-builder.ts",
+                   "@/app/pixel/lib/image-engine/index.ts",
+                   "@/app/pixel/lib/storage/temp-cleanup.ts",
+                   "@/app/pixel/lib/validators/file-validator.ts",
+                   "@/app/pixel/lib/validators/image-validator.ts",
+                   "@/app/pixel/lib/validators/svg-sanitizer.ts",
+                   "@/app/pixel/types/processing.ts",
                  ]
-
-relatedFiles:    ["@/app/pixel/generate/favicon/page.tsx",
-                  "@/app/pixel/features/favicon-generator/index.ts"]
-
-imports:         ["lucide-react"]
-
+relatedFiles:    ["@/app/pixel/features/favicon-generator/hooks/use-favicon-generator.ts",
+                  "@/app/pixel/features/favicon-generator/components/favicon-options.tsx",
+                  "@/app/pixel/features/favicon-generator/components/favicon-preview.tsx",
+                  "@/app/pixel/components/image-upload/image-uploader.tsx",
+                  "@/app/pixel/components/image-queue/image-queue.tsx",
+                  "@/app/pixel/stores/image-queue.store.ts",
+                  "@/components/ui/button.tsx"]
+imports:         ["lucide-react",
+                  "@/app/pixel/features/favicon-generator/hooks/use-favicon-generator",
+                  "@/app/pixel/features/favicon-generator/types/favicon.types",
+                  "@/app/pixel/features/favicon-generator/components/favicon-options",
+                  "@/app/pixel/features/favicon-generator/components/favicon-preview",
+                  "@/app/pixel/components/image-upload/image-uploader",
+                  "@/app/pixel/stores/image-queue.store",
+                  "@/components/ui/button"]
 exports:         ["FaviconPanel", "FaviconPanelProps"]
-
 useBy:           ["@/app/pixel/generate/favicon/page.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux générer tous les favicons d'un site"]
-
+userStories:     ["*en tant qu'utilisateur je veux generer tous les favicons d'un site"]
 status:          wip
 pathChecked:     ✔true
 metaDataChecked: ✔true
 scriptChecked:   ✔true
 */
 
-import { Image as ImageIcon } from "lucide-react";
+"use client";
+// "use client" justifie : hook + store Zustand + interactions.
+
+import { ArrowRight, Loader2 } from "lucide-react";
+
+import { useFaviconGenerator } from "@/app/pixel/features/favicon-generator/hooks/use-favicon-generator";
+import type { FaviconGeneratorOptions } from "@/app/pixel/features/favicon-generator/types/favicon.types";
+import { FaviconOptions } from "@/app/pixel/features/favicon-generator/components/favicon-options";
+import { FaviconPreview } from "@/app/pixel/features/favicon-generator/components/favicon-preview";
+import { ImageUploader } from "@/app/pixel/components/image-upload/image-uploader";
+import { useImageQueueStore } from "@/app/pixel/stores/image-queue.store";
+import { Button } from "@/components/ui/button";
+
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
 
 export interface FaviconPanelProps {
-  // Placeholder — props réelles à ajouter plus tard :
-  // - defaultSizes?: number[]
-  // - onGenerate?: (buffer: Buffer) => void
+  readonly className?: string;
 }
 
-export function FaviconPanel(_props: FaviconPanelProps) {
+// ---------------------------------------------------------------------------
+// Composant
+// ---------------------------------------------------------------------------
+
+export function FaviconPanel({ className }: FaviconPanelProps) {
+  const { options, setOptions, stage, outcome, pendingCount, submit } =
+    useFaviconGenerator();
+  const items = useImageQueueStore((s) => s.items);
+  const running = stage === "running";
+
+  // Une seule image source attendue : on prend le premier item pending.
+  const firstPending = items.find((i) => i.status === "pending");
+  const lastSuccess = outcome?.success[0];
+
+  function patch(partial: Partial<FaviconGeneratorOptions>) {
+    setOptions({ ...options, ...partial });
+  }
+
   return (
     <section
-      aria-label="Panneau de génération de favicons (placeholder)"
-      className="rounded-2xl border-2 border-dashed border-[var(--pf-success)]/40 bg-[var(--pf-success)]/5 p-8 backdrop-blur-xl"
+      aria-labelledby="favicon-panel-title"
+      className={`space-y-4 rounded-2xl border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 p-5 backdrop-blur-xl ${className ?? ""}`}
     >
-      <div className="flex flex-col items-center gap-3 text-center">
-        <span className="grid size-12 place-items-center rounded-xl bg-[var(--pf-success)]/15 text-[var(--pf-success)]">
-          <ImageIcon className="size-6" aria-hidden />
-        </span>
-        <h3 className="text-lg font-bold tracking-tight text-[var(--pf-foreground)]">
-          Générateur de favicons
+      <header className="space-y-1">
+        <h3
+          id="favicon-panel-title"
+          className="text-base font-bold tracking-tight text-[var(--pf-foreground)]"
+        >
+          Generateur de favicons
         </h3>
-        <p className="max-w-md text-sm leading-relaxed text-[var(--pf-muted)]">
-          ⚠️ <strong>Placeholder</strong> — Ce composant sera remplacé par
-          l&apos;interface réelle : upload d&apos;une image source, sélection
-          des tailles (16/24/32/48/64/128/256), aperçu par résolution,
-          génération ICO (png-to-ico) + PNG Apple/Android + manifest,
-          téléchargement ZIP.
+        <p className="text-xs text-[var(--pf-muted)]">
+          {pendingCount === 0
+            ? "Ajoutez une image source (PNG, JPEG, SVG) pour commencer."
+            : `${pendingCount} image(s) prete(s).`}
         </p>
-        <code className="rounded bg-[var(--pf-background)]/60 px-2 py-1 font-mono text-[11px] text-[var(--pf-muted)]">
-          app/pixel/features/favicon-generator/components/favicon-panel.tsx
-        </code>
-        <ul className="mt-2 space-y-1 text-left text-[11px] text-[var(--pf-muted)]">
-          <li>• Aperçu : canvas multi-tailles</li>
-          <li>• Traitement : sharp (redimensionnement) + png-to-ico (assemblage ICO)</li>
-          <li>• Export : archiver (ZIP)</li>
-          <li>• Endpoint : POST /api/images/favicon</li>
+      </header>
+
+      {pendingCount === 0 ? (
+        <ImageUploader />
+      ) : (
+        <>
+          <FaviconOptions
+            options={options}
+            onChange={(next) => setOptions(next)}
+            disabled={running}
+          />
+
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--pf-border)]/60 pt-3">
+            <p className="text-xs text-[var(--pf-muted)]">
+              Le ZIP contient favicon.ico, PNG Apple/Android et manifest.webmanifest.
+            </p>
+            <Button
+              type="button"
+              onClick={() => void submit()}
+              disabled={pendingCount === 0 || running}
+              className="gap-1.5 bg-gradient-to-r from-[var(--pf-success)] to-[var(--pf-primary)] text-white"
+            >
+              {running ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                  Generation...
+                </>
+              ) : (
+                <>
+                  Generer les favicons
+                  <ArrowRight className="size-3.5" aria-hidden />
+                </>
+              )}
+            </Button>
+          </div>
+        </>
+      )}
+
+      {firstPending && lastSuccess && <FaviconPreview outcome={outcome!} />}
+
+      {outcome && outcome.errors.length > 0 && (
+        <ul className="space-y-2 pt-2">
+          {outcome.errors.map((e, i) => (
+            <li
+              key={`err-${e.sourceId}-${i}`}
+              className="rounded-lg border border-destructive/40 bg-destructive/5 p-2 text-xs text-destructive"
+            >
+              <code className="font-mono text-[10px] uppercase">
+                {e.error.code}
+              </code>
+              {" : "}
+              {e.sourceFilename} - {e.error.message}
+            </li>
+          ))}
         </ul>
-      </div>
+      )}
     </section>
   );
 }

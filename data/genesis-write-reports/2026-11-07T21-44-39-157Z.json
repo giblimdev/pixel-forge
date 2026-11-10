@@ -1,0 +1,23 @@
+{
+  "id": "2026-11-07T21-44-39-157Z",
+  "createdAt": "2026-11-07T21:44:39.158Z",
+  "scriptCount": 4,
+  "createdCount": 3,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/dashboard/loading.tsx",
+      "app/pixel/convert/loading.tsx",
+      "app/pixel/analyze/loading.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/dev/page.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/dev/page.tsx"
+    ],
+    "rejected": []
+  }
+}

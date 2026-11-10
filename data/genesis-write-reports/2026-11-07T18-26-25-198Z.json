@@ -1,0 +1,30 @@
+{
+  "id": "2026-11-07T18-26-25-198Z",
+  "createdAt": "2026-11-07T18:26:25.198Z",
+  "scriptCount": 9,
+  "createdCount": 6,
+  "overwrittenCount": 3,
+  "backedUpCount": 3,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/features/crop-editor/types/crop-editor.types.ts",
+      "app/pixel/features/crop-editor/schemas/crop-editor.schema.ts",
+      "app/pixel/features/crop-editor/hooks/use-crop-editor.ts",
+      "app/pixel/features/crop-editor/components/crop-canvas.tsx",
+      "app/pixel/features/crop-editor/components/crop-toolbar.tsx",
+      "app/pixel/features/crop-editor/components/crop-controls.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/features/crop-editor/components/crop-editor-panel.tsx",
+      "app/pixel/features/crop-editor/index.ts",
+      "app/pixel/edit/crop/page.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/features/crop-editor/components/crop-editor-panel.tsx",
+      "app/pixel/features/crop-editor/index.ts",
+      "app/pixel/edit/crop/page.tsx"
+    ],
+    "rejected": []
+  }
+}

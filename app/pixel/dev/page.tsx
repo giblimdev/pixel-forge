@@ -1,94 +1,68 @@
 /*
-path :           app/pixel/dev/page.tsx
-tag :            ["dev", "dependencies", "packages", "installation",
-                  "pixel-forge", "guide", "audit", "blob", "react-easy-crop"]
-projectId:       new-genesis
+path:            app/pixel/dev/page.tsx
+tag:             ["dev", "dependencies", "packages", "installation",
+                  "pixel-forge", "guide", "audit", "status"]
+projectId:       <Pixel-fotgen>
 type:            page
 generic:         false
 
-role:            Page de référence des bibliothèques à installer pour
-                 PixelForge — version consolidée 2.0 (alignée sur les
-                 décisions techniques validées du 2026-11-07).
+role:            Page de reference des dependances PixelForge — version
+                 consolidee 3.1 (post-Phase 20, alignee sur le
+                 package.json reel). Toutes les dependances REELLEMENT
+                 installees sont listees. Les packages mentionnes dans
+                 la roadmap initiale mais non installes (png-to-ico)
+                 sont explicitement marques comme "remplaces par
+                 implementation custom".
 
-                 Groupes :
-                 - Groupe A — Pipeline de traitement (sharp, file-type,
-                   png-to-ico, archiver, p-limit) : INDISPENSABLES.
-                 - Groupe B — Validation (zod) : déjà présent.
-                 - Groupe C — UI (Base UI, dnd-kit, lucide, sonner,
-                   react-hook-form, motion) : déjà présent.
-                 - Groupe D — Édition interactive : react-easy-crop
-                   (outil 06, recadrage manuel).
-                 - Groupe E — Stockage temporaire : @vercel/blob
-                   (obligatoire sur Vercel serverless).
-                 - Groupe F — Placeholder (blurhash) : outil 10.
-                 - Groupe G — Configuration Next.js (bodySizeLimit,
-                   serverExternalPackages, maxDuration).
+                 ⚠️ Etat actuel (Phase 20 terminee) :
+                 - Groupe A (pipeline) : INSTALLE
+                   (sharp, file-type, archiver, p-limit)
+                   Note : png-to-ico N'EST PAS installe — l'assemblage
+                   ICO est fait par lib/favicon/ico-builder.ts (custom).
+                 - Groupe B (validation) : INSTALLE
+                 - Groupe C (UI) : INSTALLE
+                 - Groupe D (edition interactive) : INSTALLE
+                 - Groupe E (stockage temporaire) : INSTALLE
+                 - Groupe F (placeholder) : INSTALLE
+                 - Groupe G (config Next.js) : APPLIQUE
 
-                 ⚠️ CHANGEMENT v2 : SSIM RETIRÉ. sharp.stats() ne
-                 fournit pas SSIM nativement. Aucune métrique SSIM dans
-                 l'UI. La comparaison avant/après affiche poids,
-                 dimensions et entropie (sharp.stats().entropy).
+                 ⚠️ Audit orphelins : aucun. @imgly/background-removal
+                 a ete retire (detourage IA non implemente, chroma-key
+                 pur sharp suffit).
 
-                 ⚠️ CHANGEMENT v2 : react-easy-crop AJOUTÉ (Groupe D)
-                 pour l'outil 06 (recadrage manuel). Konva n'est PAS
-                 retenu (périmètre = recadrage, pas peinture).
+                 Page publique (comme /genesis/cmd). Aucune session,
+                 aucun acces DB. Server Component pur.
 
-                 ⚠️ CHANGEMENT v2 : @vercel/blob AJOUTÉ (Groupe E)
-                 pour le stockage temporaire des fichiers de sortie
-                 (lot > 1 fichier). Variable d'env :
-                 BLOB_READ_WRITE_TOKEN.
-
-                 ⚠️ CHANGEMENT v2 : blurhash AJOUTÉ (Groupe F) pour
-                 l'outil 10 (placeholders).
-
-                 ⚠️ to-ico → png-to-ico : to-ico (2017, obsolète) a été
-                 remplacé par png-to-ico (maintenu, 0 vulnérabilité
-                 connue). L'API est légèrement différente (prend des
-                 Buffers PNG, pas des chemins) mais le résultat est
-                 identique.
-
-                 ⚠️ PAGE PUBLIQUE, comme /genesis/cmd. Aucune session
-                 requise, aucun accès DB. Server Component pur.
-
-                 ⚠️ SUPPRIMABLE EN PROD : cette page n'est référencée
-                 par aucune nav par défaut.
-
-flow:            Server Component sync → wrapper min-h-svh →
-                 Hero (badge, titre gradient, tagline, compteurs)
-                 → section "Installation rapide" (CodeBlock avec
-                 séquence npm i complète)
-                 → sections "Groupe A..G" (cartes + tableaux)
-                 → section "Features × Dépendances" (tableau croisé)
-                 → section "Configuration Next.js" (CodeBlock)
-                 → section "Plan d'installation" (4 étapes numérotées)
-                 → note finale packages orphelins.
-                 Aucun état, aucun effet, aucun fetch.
+flow:            Server Component sync -> wrapper min-h-svh ->
+                 Hero (badge "Complet", titre gradient, compteurs)
+                 -> section "Installation rapide" (CodeBlock)
+                 -> sections "Groupe A..F" (cartes)
+                 -> section "Features x Dependances"
+                 -> section "Configuration Next.js"
+                 -> section "Plan d'installation" (4 etapes)
+                 -> note finale (aucun orphelin)
+                 -> CTA final.
 
 ecosystem:       Dev = [
                    "@/app/pixel/dev/page.tsx",
                  ]
-
 relatedFiles:    ["@/components/ui/card.tsx",
                   "@/components/ui/button.tsx",
                   "@/components/ui/code-block.tsx",
                   "@/app/pixel/page.tsx",
                   "@/app/genesis/cmd/page.tsx",
                   "@/next.config.ts"]
-
 imports:         ["next", "next/link", "lucide-react",
                   "@/components/ui/button",
                   "@/components/ui/card",
                   "@/components/ui/code-block"]
-
 exports:         ["default DevPage", "metadata"]
-
 useBy:           []
 
-userStories:     ["*en tant que développeur je veux savoir quels packages installer pour PixelForge",
-                  "*en tant que développeur je veux voir quelles features sont bloquées par quels packages",
-                  "*en tant que développeur je veux un audit des packages orphelins"]
-
-status:          wip
+userStories:     ["*en tant que developpeur je veux voir l'etat des dependances PixelForge",
+                  "*en tant que developpeur je veux voir quelles features sont disponibles",
+                  "*en tant que developpeur je veux verifier que tout est installe"]
+status:          done
 pathChecked:     ✔true
 metaDataChecked: ✔true
 scriptChecked:   ✔true
@@ -133,9 +107,9 @@ import {
 /* ------------------------------------------------------------------ */
 
 export const metadata: Metadata = {
-  title: "Dépendances PixelForge — Guide d'installation (v2)",
+  title: "Dépendances PixelForge — État final (v3.1)",
   description:
-    "Liste exhaustive des bibliothèques à installer pour PixelForge v2 : pipeline, validation, UI, édition interactive, stockage temporaire, placeholders et configuration Next.js.",
+    "État final des dépendances PixelForge : tous les packages installés, toutes les phases livrées. Audit complet, configuration Next.js et plan d'installation.",
 };
 
 /* ------------------------------------------------------------------ */
@@ -146,7 +120,7 @@ interface PackageEntry {
   readonly name: string;
   readonly version: string;
   readonly weight: string;
-  readonly status: "to-install" | "installed";
+  readonly status: "to-install" | "installed" | "custom";
   readonly features: readonly string[];
   readonly tasks: readonly string[];
   readonly note?: string;
@@ -186,15 +160,15 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
     id: "pipeline",
     title: "A · Pipeline de traitement",
     description:
-      "Le noyau de PixelForge. Sans ces packages, aucune conversion, optimisation, génération ICO ou détourage n'est possible. sharp embarque libvips (binaire natif précompilé ~30 Mo).",
+      "Le noyau de PixelForge. Sans ces packages, aucune conversion, optimisation, génération ICO ou détourage n'est possible. sharp embarque libvips (~30 Mo).",
     icon: Zap,
     accent: "var(--pf-primary)",
     packages: [
       {
         name: "sharp",
-        version: "^0.34.0",
+        version: "^0.35.5",
         weight: "~30 Mo (binaire libvips)",
-        status: "to-install",
+        status: "installed",
         features: [
           "Outil 01 · Convertir",
           "Outil 02 · Optimiser",
@@ -213,9 +187,9 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
       },
       {
         name: "file-type",
-        version: "^21.0.0",
+        version: "^22.3.0",
         weight: "~80 Ko (pure JS)",
-        status: "to-install",
+        status: "installed",
         features: [
           "Sécurité MIME (tous les outils)",
           "Validation ICO",
@@ -224,43 +198,43 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         tasks: ["T4"],
       },
       {
-        name: "png-to-ico",
-        version: "^3.0.2",
-        weight: "~50 Ko (pure JS)",
-        status: "to-install",
-        features: ["Outil 09 · Générer un .ico"],
-        tasks: ["T5"],
-        note: "Remplace to-ico (2017, obsolète, 24 vulnérabilités dont 5 critiques). png-to-ico : 0 vulnérabilité connue, 341k téléchargements/semaine, API moderne (prend des Buffers PNG).",
-      },
-      {
         name: "archiver",
-        version: "^7.0.1",
+        version: "^8.0.0",
         weight: "~90 Ko",
-        status: "to-install",
+        status: "installed",
         features: ["Export ZIP (tous les outils batch)"],
         tasks: ["T8"],
       },
       {
         name: "p-limit",
-        version: "^6.2.0",
+        version: "^7.3.3",
         weight: "~3 Ko",
-        status: "to-install",
+        status: "installed",
         features: ["Concurrence 4 workers max"],
         tasks: ["T9"],
+      },
+      {
+        name: "png-to-ico",
+        version: "—",
+        weight: "—",
+        status: "custom",
+        features: ["Outil 09 · Générer un .ico"],
+        tasks: ["T5"],
+        note: "NON INSTALLÉ — remplacé par lib/favicon/ico-builder.ts (implémentation custom du format ICO, ~50 lignes, 0 dépendance, 0 CVE). Le package npm reste une option si tu préfères la dépendance.",
       },
     ],
   },
   {
     id: "validation",
     title: "B · Validation & types",
-    description: "Déjà présent dans package.json. Aucune installation requise.",
+    description: "Tous installés. Schémas Zod + types TypeScript partagés.",
     icon: Shield,
     accent: "var(--pf-secondary)",
     packages: [
       {
         name: "zod",
         version: "^4.6.7",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
         features: ["Validation des options et schémas (tous les outils)"],
         tasks: ["T3"],
@@ -271,14 +245,14 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
     id: "ui",
     title: "C · UI et composants",
     description:
-      "Déjà présents dans package.json. Tous les composants dont PixelForge a besoin existent.",
+      "Tous installés. Tous les composants dont PixelForge a besoin existent.",
     icon: Palette,
     accent: "var(--pf-info)",
     packages: [
       {
         name: "@base-ui/react",
         version: "^1.9.0",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
         features: ["Slider, Dialog, Select, Progress"],
         tasks: ["T11"],
@@ -286,15 +260,16 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
       {
         name: "@dnd-kit/core + sortable + utilities",
         version: "^6.3.1",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
-        features: ["Drag & drop multi-fichiers"],
+        features: ["Drag & drop multi-fichiers (Genesis)"],
         tasks: ["T10"],
+        note: "Utilisé par Genesis. PixelForge utilise le DnD natif HTML5 dans dropzone.tsx (pas @dnd-kit).",
       },
       {
         name: "lucide-react",
         version: "^1.58.0",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
         features: ["Toutes les icônes"],
         tasks: ["T10", "T11", "T12"],
@@ -302,7 +277,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
       {
         name: "sonner",
         version: "^2.0.8",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
         features: ["Toasts d'erreur / succès"],
         tasks: ["T10"],
@@ -310,7 +285,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
       {
         name: "react-hook-form + @hookform/resolvers",
         version: "^7.90.0",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
         features: ["Formulaires d'options"],
         tasks: ["—"],
@@ -318,26 +293,33 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
       {
         name: "motion",
         version: "^14.3.0",
-        weight: "déjà installé",
+        weight: "installé",
         status: "installed",
         features: ["Animations de progression"],
         tasks: ["—"],
+      },
+      {
+        name: "zustand",
+        version: "^5.0.15",
+        weight: "installé",
+        status: "installed",
+        features: ["Store file d'attente", "Store historique"],
+        tasks: ["T10"],
       },
     ],
   },
   {
     id: "edit-interactive",
     title: "D · Édition interactive",
-    description:
-      "Nouveau en v2. Bibliothèque canvas pour l'éditeur de recadrage manuel (outil 06).",
+    description: "Installé. Bibliothèque canvas pour l'éditeur de recadrage manuel (outil 06).",
     icon: Palette,
     accent: "var(--pf-warning)",
     packages: [
       {
         name: "react-easy-crop",
-        version: "^5.5.0",
+        version: "^6.2.4",
         weight: "~30 Ko",
-        status: "to-install",
+        status: "installed",
         features: ["Outil 06 · Recadrer manuellement"],
         tasks: ["T14"],
         note: "Choisi à la place de Konva (~180 Ko) : le périmètre est le recadrage (pas la peinture pixel). Fournit drag, zoom, rotation, ratios prédéfinis et accessibilité clavier.",
@@ -348,15 +330,15 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
     id: "storage-temp",
     title: "E · Stockage temporaire",
     description:
-      "Nouveau en v2. Obligatoire sur Vercel serverless pour les traitements par lot (> 1 fichier) : les fichiers de sortie sont stockés temporairement et servis via URL.",
+      "Installé. Obligatoire sur Vercel serverless pour les traitements par lot (> 1 fichier).",
     icon: Download,
     accent: "var(--pf-success)",
     packages: [
       {
         name: "@vercel/blob",
-        version: "^2.0.0",
+        version: "^2.8.2",
         weight: "~40 Ko",
-        status: "to-install",
+        status: "installed",
         features: [
           "Traitement par lot > 1 fichier",
           "Retour URL temporaire (TTL 1h)",
@@ -370,8 +352,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
   {
     id: "placeholder",
     title: "F · Placeholder (blurhash)",
-    description:
-      "Nouveau en v2. Génération de placeholders BlurHash (outil 10).",
+    description: "Installé. Génération de placeholders BlurHash (outil 10).",
     icon: Palette,
     accent: "var(--pf-secondary)",
     packages: [
@@ -379,7 +360,7 @@ const PACKAGE_GROUPS: readonly PackageGroup[] = [
         name: "blurhash",
         version: "^2.0.5",
         weight: "~8 Ko",
-        status: "to-install",
+        status: "installed",
         features: ["Outil 10 · BlurHash"],
         tasks: ["T16"],
       },
@@ -396,8 +377,8 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 01",
     title: "Convertir un format",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "file-type", installed: false },
+      { name: "sharp", installed: true },
+      { name: "file-type", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -405,9 +386,9 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 02",
     title: "Optimiser un lot avec seuil",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "p-limit", installed: false },
-      { name: "archiver", installed: false },
+      { name: "sharp", installed: true },
+      { name: "p-limit", installed: true },
+      { name: "archiver", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -415,8 +396,8 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 03",
     title: "Compresser JPEG/PNG",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "file-type", installed: false },
+      { name: "sharp", installed: true },
+      { name: "file-type", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -424,8 +405,8 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 04",
     title: "Redimensionner un lot",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "p-limit", installed: false },
+      { name: "sharp", installed: true },
+      { name: "p-limit", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -433,7 +414,7 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 05",
     title: "Smart crop (attention/entropy)",
     packages: [
-      { name: "sharp", installed: false },
+      { name: "sharp", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -441,8 +422,8 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 06",
     title: "Recadrer manuellement",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "react-easy-crop", installed: false },
+      { name: "sharp", installed: true },
+      { name: "react-easy-crop", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -450,8 +431,8 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 07",
     title: "Détourer un fond uni",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "file-type", installed: false },
+      { name: "sharp", installed: true },
+      { name: "file-type", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -459,7 +440,7 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 08",
     title: "Retoucher + filigrane",
     packages: [
-      { name: "sharp", installed: false },
+      { name: "sharp", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -467,10 +448,10 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 09",
     title: "Générer des favicons",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "png-to-ico", installed: false },
-      { name: "archiver", installed: false },
-      { name: "file-type", installed: false },
+      { name: "sharp", installed: true },
+      { name: "ico-builder (custom)", installed: true },
+      { name: "archiver", installed: true },
+      { name: "file-type", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -478,8 +459,8 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 10",
     title: "Générer des placeholders",
     packages: [
-      { name: "sharp", installed: false },
-      { name: "blurhash", installed: false },
+      { name: "sharp", installed: true },
+      { name: "blurhash", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -487,7 +468,7 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 11",
     title: "Extraire des palettes",
     packages: [
-      { name: "sharp", installed: false },
+      { name: "sharp", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -495,7 +476,7 @@ const FEATURE_ROWS: readonly FeatureRow[] = [
     usId: "Outil 12",
     title: "Analyser les métadonnées",
     packages: [
-      { name: "sharp", installed: false },
+      { name: "sharp", installed: true },
       { name: "zod", installed: true },
     ],
   },
@@ -509,16 +490,16 @@ const INSTALL_STEPS: readonly InstallStep[] = [
   {
     step: "1",
     title: "Noyau de traitement",
-    command: "npm i sharp file-type && npm i -D @types/sharp",
+    command: "npm i sharp file-type",
     description:
       "Le strict minimum pour que les outils 01, 03, 05, 07, 08, 11, 12 fonctionnent. sharp embarque libvips (~30 Mo).",
   },
   {
     step: "2",
     title: "Traitement par lot + ICO",
-    command: "npm i archiver p-limit png-to-ico",
+    command: "npm i archiver p-limit",
     description:
-      "Débloque les outils 02, 04, 09 (batch + ZIP + ICO). p-limit borne à 4 workers.",
+      "Débloque les outils 02, 04, 09 (batch + ZIP). L'assemblage ICO est fait par lib/favicon/ico-builder.ts (custom, pas de package npm).",
   },
   {
     step: "3",
@@ -541,7 +522,9 @@ const INSTALL_STEPS: readonly InstallStep[] = [
 /* ------------------------------------------------------------------ */
 
 const FULL_INSTALL_COMMAND = `# Installation complète (production + types)
-npm i sharp file-type png-to-ico archiver p-limit react-easy-crop blurhash @vercel/blob
+# Note : png-to-ico n'est PAS nécessaire — l'assemblage ICO est fait
+# par lib/favicon/ico-builder.ts (implémentation custom, 0 dépendance).
+npm i sharp file-type archiver p-limit react-easy-crop blurhash @vercel/blob
 npm i -D @types/sharp`;
 
 const NEXT_CONFIG_SNIPPET = `import type { NextConfig } from "next";
@@ -556,11 +539,10 @@ const nextConfig: NextConfig = {
   },
 
   // Empêche Turbopack de bundler les modules natifs. sharp charge
-  // libvips (binaire) à l'exécution ; png-to-ico et archiver utilisent
+  // libvips (binaire) à l'exécution ; archiver et blurhash utilisent
   // des modules Node.js purs qui ne doivent pas être bundlés non plus.
   serverExternalPackages: [
     "sharp",
-    "png-to-ico",
     "archiver",
     "blurhash",
   ],
@@ -568,7 +550,7 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;`;
 
-const MAX_DURATION_SNIPPET = `// À ajouter en haut de chaque page /pixel/tools/*/page.tsx
+const MAX_DURATION_SNIPPET = `// À ajouter en haut de chaque page /pixel/*/page.tsx
 // pour autoriser les traitements longs sur Vercel.
 export const maxDuration = 60; // secondes`;
 
@@ -583,9 +565,14 @@ const STATUS_CONFIG = {
     className: "bg-[var(--pf-warning)]/15 text-[var(--pf-warning)]",
   },
   installed: {
-    label: "Déjà présent",
+    label: "Installé",
     icon: CheckCircle2,
     className: "bg-[var(--pf-success)]/15 text-[var(--pf-success)]",
+  },
+  custom: {
+    label: "Custom",
+    icon: Cog,
+    className: "bg-[var(--pf-info)]/15 text-[var(--pf-info)]",
   },
 } as const;
 
@@ -605,9 +592,16 @@ function StatusBadge({ status }: { readonly status: PackageEntry["status"] }) {
 function PackageGroupCard({ group }: { readonly group: PackageGroup }) {
   const Icon = group.icon;
   const accent = group.accent;
+  const installed = group.packages.filter(
+    (p) => p.status === "installed",
+  ).length;
+  const custom = group.packages.filter(
+    (p) => p.status === "custom",
+  ).length;
   const toInstall = group.packages.filter(
     (p) => p.status === "to-install",
   ).length;
+  const total = group.packages.length;
 
   return (
     <Card
@@ -634,10 +628,26 @@ function PackageGroupCard({ group }: { readonly group: PackageGroup }) {
           <CardTitle className="text-base text-[var(--pf-foreground)]">
             {group.title}
           </CardTitle>
-          <CardDescription className="mt-0.5 text-xs text-[var(--pf-muted)]">
-            {group.packages.length} package
-            {group.packages.length > 1 ? "s" : ""}
-            {toInstall > 0 && ` · ${toInstall} à installer`}
+          <CardDescription className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-[var(--pf-muted)]">
+            <span>{total} package{total > 1 ? "s" : ""}</span>
+            {installed > 0 && (
+              <span className="inline-flex items-center gap-1 text-[var(--pf-success)]">
+                <CheckCircle2 className="size-3" aria-hidden />
+                {installed} installé{installed > 1 ? "s" : ""}
+              </span>
+            )}
+            {custom > 0 && (
+              <span className="inline-flex items-center gap-1 text-[var(--pf-info)]">
+                <Cog className="size-3" aria-hidden />
+                {custom} custom
+              </span>
+            )}
+            {toInstall > 0 && (
+              <span className="inline-flex items-center gap-1 text-[var(--pf-warning)]">
+                <AlertCircle className="size-3" aria-hidden />
+                {toInstall} à installer
+              </span>
+            )}
           </CardDescription>
         </div>
       </CardHeader>
@@ -674,8 +684,8 @@ function PackageGroupCard({ group }: { readonly group: PackageGroup }) {
                 ))}
               </div>
               {pkg.note && (
-                <p className="rounded-md bg-[var(--pf-warning)]/10 p-2 text-[10px] leading-relaxed text-[var(--pf-warning)]">
-                  ⚠️ {pkg.note}
+                <p className="rounded-md bg-[var(--pf-info)]/10 p-2 text-[10px] leading-relaxed text-[var(--pf-info)]">
+                  ℹ️ {pkg.note}
                 </p>
               )}
               <p className="text-[10px] text-[var(--pf-muted)]/70">
@@ -694,11 +704,15 @@ function PackageGroupCard({ group }: { readonly group: PackageGroup }) {
 /* ------------------------------------------------------------------ */
 
 export default function DevPage() {
-  const totalToInstall = PACKAGE_GROUPS.flatMap((g) => g.packages).filter(
-    (p) => p.status === "to-install",
-  ).length;
-  const totalInstalled = PACKAGE_GROUPS.flatMap((g) => g.packages).filter(
+  const allPackages = PACKAGE_GROUPS.flatMap((g) => g.packages);
+  const totalInstalled = allPackages.filter(
     (p) => p.status === "installed",
+  ).length;
+  const totalCustom = allPackages.filter(
+    (p) => p.status === "custom",
+  ).length;
+  const totalToInstall = allPackages.filter(
+    (p) => p.status === "to-install",
   ).length;
 
   return (
@@ -707,7 +721,7 @@ export default function DevPage() {
       <section className="relative overflow-hidden px-4 pt-16 pb-12 sm:px-6 sm:pt-20 sm:pb-16">
         <div
           aria-hidden
-          className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-[var(--pf-primary)]/20 blur-3xl"
+          className="pointer-events-none absolute -left-32 -top-32 size-96 rounded-full bg-[var(--pf-success)]/20 blur-3xl"
         />
         <div
           aria-hidden
@@ -715,42 +729,53 @@ export default function DevPage() {
         />
 
         <div className="relative mx-auto max-w-4xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 px-3 py-1 text-xs font-medium text-[var(--pf-muted)] backdrop-blur-xl">
-            <Cog className="size-3.5 text-[var(--pf-primary)]" aria-hidden />
-            Atelier de développement · Dépendances v2
+          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--pf-success)]/40 bg-[var(--pf-success)]/10 px-3 py-1 text-xs font-medium text-[var(--pf-success)] backdrop-blur-xl">
+            <CheckCircle2 className="size-3.5" aria-hidden />
+            État final · Phase 20 terminée
           </span>
 
-          <h1 className="mt-5 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-info)] bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl">
+          <h1 className="mt-5 bg-gradient-to-r from-[var(--pf-success)] via-[var(--pf-primary)] to-[var(--pf-info)] bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl">
             Dépendances PixelForge
           </h1>
 
           <div
             aria-hidden
-            className="mx-auto mt-4 h-1 w-32 rounded-full bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)]"
+            className="mx-auto mt-4 h-1 w-32 rounded-full bg-gradient-to-r from-[var(--pf-success)] via-[var(--pf-primary)] to-[var(--pf-info)]"
           />
 
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[var(--pf-muted)] sm:text-lg">
-            Liste exhaustive des packages à installer pour faire fonctionner les
-            12 outils de PixelForge. Chaque package est rattaché à son outil
-            et à sa task du backlog.
+            <strong className="text-[var(--pf-foreground)]">
+              Tous les packages nécessaires sont installés.
+            </strong>{" "}
+            Certains packages de la roadmap initiale ont été remplacés par des
+            implémentations custom (0 dépendance). PixelForge est prêt à être
+            déployé en production.
           </p>
 
           {/* Compteurs */}
-          <div className="mx-auto mt-8 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-[var(--pf-warning)]/30 bg-[var(--pf-warning)]/5 p-4 text-center backdrop-blur">
-              <p className="font-mono text-2xl font-bold tabular-nums text-[var(--pf-warning)]">
-                {totalToInstall}
-              </p>
-              <p className="text-[11px] text-[var(--pf-muted)]">
-                packages à installer
-              </p>
-            </div>
+          <div className="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-[var(--pf-success)]/30 bg-[var(--pf-success)]/5 p-4 text-center backdrop-blur">
               <p className="font-mono text-2xl font-bold tabular-nums text-[var(--pf-success)]">
                 {totalInstalled}
               </p>
               <p className="text-[11px] text-[var(--pf-muted)]">
-                déjà présents
+                packages installés
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--pf-info)]/30 bg-[var(--pf-info)]/5 p-4 text-center backdrop-blur">
+              <p className="font-mono text-2xl font-bold tabular-nums text-[var(--pf-info)]">
+                {totalCustom}
+              </p>
+              <p className="text-[11px] text-[var(--pf-muted)]">
+                implémentations custom
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--pf-warning)]/30 bg-[var(--pf-warning)]/5 p-4 text-center backdrop-blur">
+              <p className="font-mono text-2xl font-bold tabular-nums text-[var(--pf-warning)]">
+                {totalToInstall}
+              </p>
+              <p className="text-[11px] text-[var(--pf-muted)]">
+                packages restants
               </p>
             </div>
           </div>
@@ -763,24 +788,25 @@ export default function DevPage() {
           <Card className="relative overflow-hidden border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl">
             <div
               aria-hidden
-              className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)]"
+              className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--pf-success)] via-[var(--pf-primary)] to-[var(--pf-info)]"
             />
             <CardHeader className="flex flex-row items-center gap-3">
               <div
                 className="grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-md"
                 style={{
                   background:
-                    "linear-gradient(135deg, var(--pf-primary), color-mix(in oklab, var(--pf-primary) 60%, black))",
+                    "linear-gradient(135deg, var(--pf-success), color-mix(in oklab, var(--pf-success) 60%, black))",
                 }}
               >
                 <Terminal className="size-5" aria-hidden />
               </div>
               <div>
                 <CardTitle className="text-base text-[var(--pf-foreground)]">
-                  Installation en 2 commandes
+                  Installation complète (déjà appliquée)
                 </CardTitle>
                 <CardDescription className="text-xs text-[var(--pf-muted)]">
-                  Copie-colle dans ton terminal, à la racine du projet.
+                  Séquence npm i complète. Toutes les dépendances sont déjà
+                  installées dans ton projet.
                 </CardDescription>
               </div>
             </CardHeader>
@@ -807,7 +833,8 @@ export default function DevPage() {
               Détail par groupe
             </h2>
             <p className="mt-2 text-sm text-[var(--pf-muted)]">
-              6 groupes, du plus critique au plus spécifique.
+              6 groupes, du plus critique au plus spécifique. Aucune
+              dépendance manquante.
             </p>
           </header>
 
@@ -827,7 +854,7 @@ export default function DevPage() {
               Outils × Dépendances
             </h2>
             <p className="mt-2 text-sm text-[var(--pf-muted)]">
-              Pour chaque outil, les packages requis et leur statut.
+              12 outils, tous opérationnels. Statut des packages par outil.
             </p>
           </header>
 
@@ -860,6 +887,12 @@ export default function DevPage() {
                         </td>
                         <td className="px-4 py-3 align-top text-[var(--pf-foreground)]">
                           {row.title}
+                          {!blocked && (
+                            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[var(--pf-success)]/15 px-1.5 py-0.5 text-[10px] text-[var(--pf-success)]">
+                              <CheckCircle2 className="size-3" aria-hidden />
+                              prêt
+                            </span>
+                          )}
                           {blocked && (
                             <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[var(--pf-warning)]/15 px-1.5 py-0.5 text-[10px] text-[var(--pf-warning)]">
                               <AlertCircle className="size-3" aria-hidden />
@@ -931,7 +964,7 @@ export default function DevPage() {
           <CodeBlock>
             <CodeBlockHeader>
               <CodeBlockTitle>
-                app/pixel/tools/*/page.tsx (en haut de chaque page outil)
+                app/pixel/*/page.tsx (en haut de chaque page outil)
               </CodeBlockTitle>
               <CodeBlockActions>
                 <CodeBlockCopyButton value={MAX_DURATION_SNIPPET} />
@@ -950,8 +983,7 @@ export default function DevPage() {
               Plan d&apos;installation ordonné
             </h2>
             <p className="mt-2 text-sm text-[var(--pf-muted)]">
-              4 étapes, du noyau aux features avancées. Chaque étape débloque un
-              sous-ensemble d&apos;outils.
+              4 étapes, du noyau aux features avancées. Toutes déjà appliquées.
             </p>
           </header>
 
@@ -966,7 +998,7 @@ export default function DevPage() {
                     className="grid size-10 shrink-0 place-items-center rounded-full font-mono text-sm font-bold text-white shadow-md"
                     style={{
                       background:
-                        "linear-gradient(135deg, var(--pf-primary), var(--pf-secondary))",
+                        "linear-gradient(135deg, var(--pf-success), var(--pf-primary))",
                     }}
                   >
                     {s.step}
@@ -995,77 +1027,82 @@ export default function DevPage() {
         </div>
       </section>
 
-      {/* ===================== NOTE PACKAGES ORPHELINS =============== */}
+      {/* ===================== AUDIT PACKAGES ORPHELINS =============== */}
       <section className="px-4 pb-20 sm:px-6">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-2xl border border-[var(--pf-info)]/30 bg-[var(--pf-info)]/5 p-5 backdrop-blur-xl">
+          <div className="rounded-2xl border border-[var(--pf-success)]/30 bg-[var(--pf-success)]/5 p-5 backdrop-blur-xl">
             <header className="mb-2 flex items-center gap-2">
-              <Info className="size-4 text-[var(--pf-info)]" aria-hidden />
+              <CheckCircle2
+                className="size-4 text-[var(--pf-success)]"
+                aria-hidden
+              />
               <h2 className="text-sm font-bold text-[var(--pf-foreground)]">
-                Audit — packages orphelins
+                Audit — aucun package orphelin
               </h2>
             </header>
             <p className="text-xs leading-relaxed text-[var(--pf-muted)]">
-              Les packages suivants sont présents dans{" "}
+              Tous les packages listés dans{" "}
               <code className="rounded bg-[var(--pf-surface-hover)] px-1.5 py-0.5 font-mono text-xs">
                 package.json
               </code>{" "}
-              mais ne sont utilisés par aucun module du projet (ni PixelForge,
-              ni Genesis, ni Scrum). Ils peuvent être retirés pour réduire la
-              surface d&apos;attaque et le poids du{" "}
-              <code className="rounded bg-[var(--pf-surface-hover)] px-1.5 py-0.5 font-mono text-xs">
-                node_modules
-              </code>
-              .
+              sont utilisés par au moins un module du projet (PixelForge,
+              Genesis, Scrum ou Blog). Aucun package orphelin à retirer.
             </p>
             <ul className="mt-3 space-y-1.5">
-              <li className="flex items-center gap-2 rounded-md bg-[var(--pf-warning)]/10 px-3 py-1.5 text-xs">
-                <AlertCircle
-                  className="size-3.5 shrink-0 text-[var(--pf-warning)]"
+              <li className="flex items-center gap-2 rounded-md bg-[var(--pf-success)]/10 px-3 py-1.5 text-xs">
+                <CheckCircle2
+                  className="size-3.5 shrink-0 text-[var(--pf-success)]"
                   aria-hidden
                 />
                 <code className="font-mono font-semibold text-[var(--pf-foreground)]">
                   @imgly/background-removal
                 </code>
                 <span className="text-[var(--pf-muted)]">
-                  — supprimable (détourage IA non implémenté, chroma-key pur
+                  — déjà retiré (détourage IA non implémenté, chroma-key pur
                   sharp suffit)
                 </span>
               </li>
+              <li className="flex items-center gap-2 rounded-md bg-[var(--pf-info)]/10 px-3 py-1.5 text-xs">
+                <Info
+                  className="size-3.5 shrink-0 text-[var(--pf-info)]"
+                  aria-hidden
+                />
+                <code className="font-mono font-semibold text-[var(--pf-foreground)]">
+                  png-to-ico
+                </code>
+                <span className="text-[var(--pf-muted)]">
+                  — jamais installé, remplacé par lib/favicon/ico-builder.ts
+                  (custom)
+                </span>
+              </li>
             </ul>
-            <p className="mt-3 text-[10px] text-[var(--pf-muted)]/80">
-              Commande de nettoyage :{" "}
-              <code className="rounded bg-[var(--pf-background)]/60 px-1.5 py-0.5 font-mono">
-                npm uninstall @imgly/background-removal
-              </code>
-            </p>
           </div>
         </div>
       </section>
 
       {/* ===================== CTA FINAL ============================= */}
       <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-[var(--pf-border)]/60 bg-gradient-to-br from-[var(--pf-primary)]/10 via-[var(--pf-secondary)]/10 to-[var(--pf-info)]/10 p-8 text-center backdrop-blur-xl">
-          <h2 className="bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-info)] bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
-            Prêt à coder PixelForge ?
+        <div className="mx-auto max-w-3xl rounded-2xl border border-[var(--pf-border)]/60 bg-gradient-to-br from-[var(--pf-success)]/10 via-[var(--pf-primary)]/10 to-[var(--pf-info)]/10 p-8 text-center backdrop-blur-xl">
+          <h2 className="bg-gradient-to-r from-[var(--pf-success)] via-[var(--pf-primary)] to-[var(--pf-info)] bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
+            PixelForge est prêt
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[var(--pf-muted)]">
-            Une fois les packages installés et next.config.ts mis à jour, tu
-            peux démarrer la Phase 0 (audit) puis la Phase 1 (types).
+            12 outils fonctionnels, toutes les phases livrées, aucun package
+            orphelin. Le projet est prêt à être déployé en production.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Link
               href="/pixel"
-              className={`${buttonVariants()} gap-2 bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-secondary)] to-[var(--pf-info)] text-white shadow-lg shadow-[var(--pf-primary)]/30 hover:brightness-110`}
+              className={`${buttonVariants()} gap-2 bg-gradient-to-r from-[var(--pf-success)] via-[var(--pf-primary)] to-[var(--pf-info)] text-white shadow-lg shadow-[var(--pf-success)]/30 hover:brightness-110`}
             >
-              Voir PixelForge
+              Ouvrir PixelForge
               <ArrowRight className="size-4" aria-hidden />
             </Link>
             <Link
-              href="/genesis/cmd"
+              href="/pixel/help"
               className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
             >
-              Commandes CLI
+              Guide utilisateur
             </Link>
           </div>
         </div>

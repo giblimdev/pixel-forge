@@ -1,6 +1,6 @@
 /*
 path:            app/pixel/components/image-comparison/comparison-slider.tsx
-tag:             ["pixel", "component", "comparison", "slider"]
+tag:             ["pixel", "component", "comparison", "slider", "debug"]
 projectId:       <Pixel-fotgen>
 type:            component
 generic:         true
@@ -9,6 +9,13 @@ role:            Slider de comparaison avant/apres. Superpose deux images :
                  "apres" en dessous, "avant" au-dessus clippee a gauche du
                  curseur. Un <input type="range"> invisible au-dessus fait
                  office de controle (accessible clavier + tactile).
+
+                 ⚠️ DIAGNOSTIC TEMPORAIRE (logs) :
+                 console.log dans le corps du composant pour tracer les
+                 valeurs de beforeSrc / afterSrc / showGrid a chaque
+                 render. Sert a identifier la source du warning React
+                 "An empty string ("") was passed to the src attribute".
+                 A SUPPRIMER une fois le bug identifie.
 
 flow:            useState(50) -> conteneur aspect-[4/3] ->
                  TransparencyGrid -> <img after> -> <img before
@@ -26,7 +33,9 @@ relatedFiles:    ["@/app/pixel/components/image-comparison/transparency-grid.tsx
 imports:         ["react",
                   "@/app/pixel/components/image-comparison/transparency-grid"]
 exports:         ["ComparisonSlider", "ComparisonSliderProps"]
-useBy:           ["@/app/pixel/components/image-comparison/image-comparison.tsx"]
+useBy:           ["@/app/pixel/components/image-comparison/image-comparison.tsx",
+                  "@/app/pixel/features/background-removal/components/background-preview.tsx",
+                  "@/app/pixel/features/converter/components/conversion-preview.tsx"]
 
 userStories:     ["*en tant qu'utilisateur je veux comparer visuellement avant/apres avec un slider"]
 status:          done
@@ -59,6 +68,22 @@ export function ComparisonSlider({
   showGrid = true,
   className,
 }: ComparisonSliderProps) {
+  // ⚠️ DEBUG — trace des props a chaque render. Sert a identifier
+  // l'appelant qui passe une chaine vide a `src`.
+  console.log("[ComparisonSlider] render", {
+    beforeSrc,
+    beforeSrcType: typeof beforeSrc,
+    beforeSrcLength: beforeSrc?.length,
+    beforeSrcIsEmpty: beforeSrc === "",
+    afterSrc,
+    afterSrcType: typeof afterSrc,
+    afterSrcLength: afterSrc?.length,
+    afterSrcIsEmpty: afterSrc === "",
+    showGrid,
+    beforeAlt,
+    afterAlt,
+  });
+
   const [position, setPosition] = useState(50);
 
   return (
@@ -67,6 +92,19 @@ export function ComparisonSlider({
     >
       {showGrid && <TransparencyGrid />}
 
+      {/*
+        ⚠️ DEBUG — deux logs distincts AVANT chaque <img> pour identifier
+        lequel des deux declenche le warning React (before ou after).
+      */}
+      {(() => {
+        console.log("[ComparisonSlider] <img AFTER> src=", {
+          afterSrc,
+          isEmpty: afterSrc === "",
+          willWarn: afterSrc === "",
+        });
+        return null;
+      })()}
+
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={afterSrc}
@@ -74,6 +112,15 @@ export function ComparisonSlider({
         className="absolute inset-0 size-full object-contain"
         draggable={false}
       />
+
+      {(() => {
+        console.log("[ComparisonSlider] <img BEFORE> src=", {
+          beforeSrc,
+          isEmpty: beforeSrc === "",
+          willWarn: beforeSrc === "",
+        });
+        return null;
+      })()}
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

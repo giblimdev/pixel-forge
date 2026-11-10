@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-07T21-39-58-480Z",
+  "createdAt": "2026-11-07T21:39:58.480Z",
+  "scriptCount": 1,
+  "createdCount": 0,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/pixel/features/image-editor/hooks/use-image-editor.ts"
+    ],
+    "backedUp": [
+      "app/pixel/features/image-editor/hooks/use-image-editor.ts"
+    ],
+    "rejected": []
+  }
+}

@@ -6,12 +6,11 @@ type:            page
 generic:         false
 
 role:            Page HUB de la famille "Optimiser" (outil 02). Affiche
-                 le header + section import/queue (Phase 5) +
-                 <OptimizerPanel /> (Phase 9) + grille vers les 3 autres
-                 outils (compress, resize, smart-crop).
+                 le header + import/queue + <OptimizerPanel /> +
+                 <ExportManager /> + grille vers les 3 autres outils.
 
 flow:            Server Component -> header -> import/queue ->
-                 <OptimizerPanel /> -> grille 3 cartes.
+                 <OptimizerPanel /> -> <ExportManager /> -> grille.
 
 ecosystem:       Pixel = [
                    "@/app/pixel/optimize/page.tsx",
@@ -22,16 +21,18 @@ ecosystem:       Pixel = [
                    "@/app/pixel/components/image-queue/image-queue.tsx",
                  ]
 relatedFiles:    ["@/app/pixel/features/optimizer/components/optimizer-panel.tsx",
+                  "@/app/pixel/features/export-manager/components/export-manager.tsx",
                   "@/app/pixel/components/image-upload/image-uploader.tsx",
                   "@/app/pixel/components/image-queue/image-queue.tsx"]
 imports:         ["next", "next/link", "lucide-react",
                   "@/app/pixel/features/optimizer/components/optimizer-panel",
+                  "@/app/pixel/features/export-manager/components/export-manager",
                   "@/app/pixel/components/image-upload/image-uploader",
                   "@/app/pixel/components/image-queue/image-queue"]
 exports:         ["default PixelOptimizePage", "metadata"]
 useBy:           []
 
-userStories:     ["*en tant qu'utilisateur je veux optimiser mes images"]
+userStories:     ["*en tant qu'utilisateur je veux optimiser mes images et les telecharger en ZIP"]
 status:          wip
 pathChecked:     true
 metaDataChecked: true
@@ -44,13 +45,13 @@ import {
   ArrowRight,
   Layers,
   Scissors,
-  Settings,
   Shield,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
 
 import { OptimizerPanel } from "@/app/pixel/features/optimizer/components/optimizer-panel";
+import { ExportManager } from "@/app/pixel/features/export-manager/components/export-manager";
 import { ImageUploader } from "@/app/pixel/components/image-upload/image-uploader";
 import { ImageQueue } from "@/app/pixel/components/image-queue/image-queue";
 
@@ -120,6 +121,8 @@ export default function PixelOptimizePage() {
       </section>
 
       <OptimizerPanel />
+
+      <ExportManager />
 
       <section>
         <h3 className="mb-4 text-lg font-bold tracking-tight text-[var(--pf-foreground)]">

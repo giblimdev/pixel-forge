@@ -119,7 +119,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     return errorResponse("INVALID_INPUT", "Corps multipart invalide.");
   }
 
-  const files = form.getAll("files").filter((f): f is File => f instanceof File);
+  const files = form
+    .getAll("files")
+    .filter((f): f is File => f instanceof File);
   if (files.length === 0) {
     return errorResponse("INVALID_INPUT", "Aucun fichier fourni.");
   }
@@ -141,7 +143,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const batch = validateBatch(files.map((f) => f.size));
-  if (!batch.ok) return errorResponse(batch.error.code, batch.error.message, batch.error.details);
+  if (!batch.ok)
+    return errorResponse(
+      batch.error.code,
+      batch.error.message,
+      batch.error.details,
+    );
 
   const results: ResultImage[] = [];
   const errors: { filename: string; message: string }[] = [];
@@ -149,13 +156,19 @@ export async function POST(request: Request): Promise<NextResponse> {
   for (const file of files) {
     const basics = validateFileBasics(file.name, file.size);
     if (!basics.ok) {
-      errors.push({ filename: file.name, message: `${basics.error.code}: ${basics.error.message}` });
+      errors.push({
+        filename: file.name,
+        message: `${basics.error.code}: ${basics.error.message}`,
+      });
       continue;
     }
     const buffer = Buffer.from(await file.arrayBuffer());
     const dims = await validateImageDimensions(buffer);
     if (!dims.ok) {
-      errors.push({ filename: file.name, message: `${dims.error.code}: ${dims.error.message}` });
+      errors.push({
+        filename: file.name,
+        message: `${dims.error.code}: ${dims.error.message}`,
+      });
       continue;
     }
 
@@ -174,7 +187,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
 
     if (!converted.ok) {
-      errors.push({ filename: file.name, message: `${converted.error.code}: ${converted.error.message}` });
+      errors.push({
+        filename: file.name,
+        message: `${converted.error.code}: ${converted.error.message}`,
+      });
       continue;
     }
 
@@ -191,7 +207,10 @@ export async function POST(request: Request): Promise<NextResponse> {
       sizeBytes: out.length,
       dimensions: converted.data.metadata.dimensions,
       url: null,
-      buffer: out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength) as ArrayBuffer,
+      buffer: out.buffer.slice(
+        out.byteOffset,
+        out.byteOffset + out.byteLength,
+      ) as ArrayBuffer,
       expiresAt: null,
     });
   }
@@ -203,13 +222,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   const durationMs = Date.now() - startedAt;
   if (results.length === 1 && errors.length === 0) {
     const single = results[0]!;
-    const buf = Buffer.from(single.buffer!);
-    return new NextResponse(buf, {
+    const raw = single.buffer!;
+    // Normalise ArrayBuffer | Uint8Array en Uint8Array<ArrayBuffer> (compatible BodyInit).
+    const body: Uint8Array<ArrayBuffer> =
+      raw instanceof Uint8Array ? raw : new Uint8Array(raw);
+    return new NextResponse(body, {
       status: 200,
       headers: {
         "Content-Type": single.mime,
         "Content-Disposition": `attachment; filename="${single.filename}"`,
-        "Content-Length": String(buf.length),
+        "Content-Length": String(body.byteLength),
         "X-PixelForge-Duration-Ms": String(durationMs),
       },
     });

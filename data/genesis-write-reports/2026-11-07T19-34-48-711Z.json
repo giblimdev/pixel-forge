@@ -1,0 +1,23 @@
+{
+  "id": "2026-11-07T19-34-48-711Z",
+  "createdAt": "2026-11-07T19:34:48.711Z",
+  "scriptCount": 3,
+  "createdCount": 0,
+  "overwrittenCount": 3,
+  "backedUpCount": 3,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/pixel/types/image.ts",
+      "app/pixel/components/image-upload/image-uploader.tsx",
+      "app/pixel/components/image-upload/image-uploader.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/types/image.ts",
+      "app/pixel/components/image-upload/image-uploader.tsx",
+      "app/pixel/components/image-upload/image-uploader.tsx"
+    ],
+    "rejected": []
+  }
+}

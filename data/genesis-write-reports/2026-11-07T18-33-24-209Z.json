@@ -1,0 +1,38 @@
+{
+  "id": "2026-11-07T18-33-24-209Z",
+  "createdAt": "2026-11-07T18:33:24.209Z",
+  "scriptCount": 14,
+  "createdCount": 8,
+  "overwrittenCount": 6,
+  "backedUpCount": 6,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/image-engine/chroma-key.ts",
+      "app/api/images/background/route.ts",
+      "app/pixel/features/background-removal/types/background.types.ts",
+      "app/pixel/features/background-removal/schemas/background.schema.ts",
+      "app/pixel/features/background-removal/hooks/use-background-removal.ts",
+      "app/pixel/features/background-removal/components/color-picker.tsx",
+      "app/pixel/features/background-removal/components/background-settings.tsx",
+      "app/pixel/features/background-removal/components/background-preview.tsx"
+    ],
+    "overwritten": [
+      "app/pixel/features/background-removal/components/background-panel.tsx",
+      "app/pixel/features/background-removal/index.ts",
+      "app/pixel/edit/background/page.tsx",
+      "app/pixel/lib/image-engine/sharp.adapter.ts",
+      "app/pixel/lib/image-engine/image-engine.ts",
+      "app/pixel/lib/image-engine/index.ts"
+    ],
+    "backedUp": [
+      "app/pixel/features/background-removal/components/background-panel.tsx",
+      "app/pixel/features/background-removal/index.ts",
+      "app/pixel/edit/background/page.tsx",
+      "app/pixel/lib/image-engine/sharp.adapter.ts",
+      "app/pixel/lib/image-engine/image-engine.ts",
+      "app/pixel/lib/image-engine/index.ts"
+    ],
+    "rejected": []
+  }
+}

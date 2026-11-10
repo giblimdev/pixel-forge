@@ -8,12 +8,22 @@ generic:         false
 role:            Page d'accueil PixelForge (racine /pixel). Hub marketing
                  + navigation rapide vers les 6 familles / pages d'entrée.
 
-flow:            Server Component sync → hero → grille 6 cartes familles
-                 → CTA final.
+                 ⚠️ Mise à jour état réel (Phase 20 terminée) :
+                 - 12 outils (au lieu de 11) — l'outil 12 (Analyser)
+                   est désormais fonctionnel.
+                 - 5 familles + Dashboard (6 cartes au total).
+                 - /pixel/analyze et /pixel/analyze/metadata existent.
+                 - Historique localStorage sur /pixel/dashboard.
+                 - Guide utilisateur sur /pixel/help.
+                 - Page dépendances sur /pixel/dev (au lieu de /dev).
+                 - Tous les liens ci-dessous fonctionnent (plus de 404).
+
+flow:            Server Component sync -> hero -> grille 6 cartes familles
+                 -> CTA final.
 
 ecosystem:       Pixel = [
-                   "@/app/pixel/analyze/metadata/page.tsx",      ⚠️ À CRÉER
-                   "@/app/pixel/analyze/page.tsx",               ⚠️ À CRÉER
+                   "@/app/pixel/analyze/metadata/page.tsx",
+                   "@/app/pixel/analyze/page.tsx",
                    "@/app/pixel/components/PixelNav.tsx",
                    "@/app/pixel/convert/page.tsx",
                    "@/app/pixel/dashboard/page.tsx",
@@ -23,11 +33,6 @@ ecosystem:       Pixel = [
                    "@/app/pixel/optimize/page.tsx",
                    "@/app/pixel/page.tsx",
                  ]
-
-                 ⚠️ NOTE : `analyze/page.tsx` et `analyze/metadata/page.tsx`
-                 sont référencés (règle du CONTRIBUTING : tous les fichiers
-                 du domaine portent le même tableau) mais les fichiers
-                 n'existent pas encore.
 
 relatedFiles:    ["@/app/pixel/layout.tsx",
                   "@/components/ui/button.tsx"]
@@ -39,9 +44,11 @@ exports:         ["default PixelHomePage", "metadata"]
 
 useBy:           []
 
-userStories:     ["*en tant que visiteur je veux découvrir les 5 familles d'outils"]
+userStories:     ["*en tant que visiteur je veux découvrir les 5 familles d'outils",
+                  "*en tant que visiteur je veux accéder à l'historique de mes traitements",
+                  "*en tant que visiteur je veux consulter le guide utilisateur"]
 
-status:          wip
+status:          done
 pathChecked:     ✔true
 metaDataChecked: ✔true
 scriptChecked:   ✔true
@@ -65,7 +72,7 @@ import { buttonVariants } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "PixelForge",
   description:
-    "11 outils pour convertir, optimiser, éditer, générer et analyser vos images.",
+    "12 outils pour convertir, optimiser, éditer, générer et analyser vos images.",
 };
 
 interface FamilyCard {
@@ -84,7 +91,7 @@ const FAMILIES: readonly FamilyCard[] = [
     title: "Dashboard",
     tagline: "Vue d'ensemble",
     description:
-      "Historique des traitements récents, raccourcis vers les outils, statistiques d'usage.",
+      "Historique des traitements récents (localStorage), raccourcis vers les outils, statistiques d'usage.",
     icon: ListChecks,
     accent: "var(--pf-primary)",
     count: 0,
@@ -134,7 +141,7 @@ const FAMILIES: readonly FamilyCard[] = [
     title: "Analyser",
     tagline: "Comprendre une image",
     description:
-      "Dimensions, format, EXIF, GPS, ICC. Fonction intégrée à tous les outils.",
+      "Dimensions, format, EXIF, GPS, ICC. Suppression des métadonnées pour la vie privée.",
     icon: Scissors,
     accent: "var(--pf-warning)",
     count: 1,
@@ -155,7 +162,7 @@ export default function PixelHomePage() {
             Atelier d&apos;images · local, gratuit, open-source
           </span>
           <h2 className="bg-gradient-to-r from-[var(--pf-primary)] via-[var(--pf-primary-light)] to-[var(--pf-secondary)] bg-clip-text text-3xl font-black tracking-tight text-transparent sm:text-4xl">
-            11 outils, 5 familles
+            12 outils, 5 familles
           </h2>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--pf-muted)] sm:text-base">
             Convertir, optimiser, éditer, générer et analyser vos images.
@@ -171,7 +178,13 @@ export default function PixelHomePage() {
               <ArrowRight className="size-4" aria-hidden />
             </Link>
             <Link
-              href="/dev"
+              href="/pixel/help"
+              className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
+            >
+              Guide utilisateur
+            </Link>
+            <Link
+              href="/pixel/dev"
               className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
             >
               <Terminal className="size-4" aria-hidden />
@@ -253,7 +266,7 @@ export default function PixelHomePage() {
           Prêt à forger vos images ?
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm text-[var(--pf-muted)]">
-          11 outils autonomes. Sélectionnez un outil, déposez vos images,
+          12 outils autonomes. Sélectionnez un outil, déposez vos images,
           récupérez-les optimisées.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -263,6 +276,12 @@ export default function PixelHomePage() {
           >
             Commencer
             <ArrowRight className="size-4" aria-hidden />
+          </Link>
+          <Link
+            href="/pixel/help"
+            className={`${buttonVariants({ variant: "outline" })} border-[var(--pf-border)]/60 bg-[var(--pf-surface)]/40 backdrop-blur-xl`}
+          >
+            Guide utilisateur
           </Link>
         </div>
       </section>

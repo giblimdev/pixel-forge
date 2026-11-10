@@ -11,10 +11,18 @@ role:            Hook client du module optimizer. Meme pattern que
                  outcome. Detecte le mode blob vs JSON selon le nombre
                  d'items pending.
 
+                 Phase 19 : ajout d'une entree d'historique locale
+                 (localStorage) a la fin de submit(), si au moins un
+                 fichier a ete traite avec succes. L'entree contient
+                 uniquement des metadonnees serialisables — aucun
+                 Buffer, aucune URL blob. L'economie est calculee comme
+                 la somme des poids sources moins la somme des poids
+                 resultats.
+
 flow:            useState(options, stage, outcome) -> submit() ->
                  pending items -> FormData(files, options) -> fetch
                  /api/images/optimize -> blob ou json -> setResult /
-                 setError par fichier -> outcome.
+                 setError par fichier -> outcome -> saveHistory().
 
 ecosystem:       Optimizer = [
                    "@/app/pixel/features/optimizer/types/optimizer.types.ts",
@@ -29,26 +37,29 @@ relatedFiles:    ["@/app/pixel/stores/image-queue.store.ts",
                   "@/app/pixel/types/optimization.ts",
                   "@/app/pixel/types/image.ts",
                   "@/app/pixel/types/processing.ts",
-                  "@/app/pixel/features/optimizer/types/optimizer.types.ts"]
+                  "@/app/pixel/features/optimizer/types/optimizer.types.ts",
+                  "@/app/pixel/lib/history/local-history.ts"]
 imports:         ["react",
                   "@/app/pixel/stores/image-queue.store",
                   "@/app/pixel/types/optimization",
                   "@/app/pixel/types/image",
                   "@/app/pixel/types/processing",
                   "@/app/pixel/features/optimizer/types/optimizer.types",
-                  "@/app/pixel/features/optimizer/schemas/optimizer.schema"]
+                  "@/app/pixel/features/optimizer/schemas/optimizer.schema",
+                  "@/app/pixel/lib/history/local-history"]
 exports:         ["UseOptimizerReturn", "useOptimizer"]
 useBy:           ["@/app/pixel/features/optimizer/components/optimizer-panel.tsx"]
 
-userStories:     ["*en tant qu'utilisateur je veux optimiser toutes mes images"]
+userStories:     ["*en tant qu'utilisateur je veux optimiser toutes mes images",
+                  "*en tant qu'utilisateur je veux retrouver mes optimisations recentes dans l'historique"]
 status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 "use client";
-// "use client" justifie : useState + fetch + store Zustand.
+// "use client" justifie : useState + fetch + store Zustand + localStorage.
 
 import { useCallback, useState } from "react";
 
@@ -70,6 +81,11 @@ import {
   type OptimizerStage,
 } from "@/app/pixel/features/optimizer/types/optimizer.types";
 import { optimizerFormSchema } from "@/app/pixel/features/optimizer/schemas/optimizer.schema";
+import { saveHistory } from "@/app/pixel/lib/history/local-history";
+
+// ---------------------------------------------------------------------------
+// Types exposes
+// ---------------------------------------------------------------------------
 
 export interface UseOptimizerReturn {
   readonly options: OptimizationOptions;
@@ -80,9 +96,17 @@ export interface UseOptimizerReturn {
   readonly submit: () => Promise<void>;
 }
 
+// ---------------------------------------------------------------------------
+// Helpers internes
+// ---------------------------------------------------------------------------
+
 function errorOf(code: ProcessingErrorCode, message: string): ProcessingError {
   return { code, message };
 }
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 
 export function useOptimizer(): UseOptimizerReturn {
   const items = useImageQueueStore(selectItems);
@@ -166,7 +190,7 @@ export function useOptimizer(): UseOptimizerReturn {
           const mime = res.headers.get("Content-Type") ?? "application/octet-stream";
           const disposition = res.headers.get("Content-Disposition");
           const filename =
-            disposition?.match(/filename="(.+)"/)?.[1] ?? "optimized";
+            disposition?.match(/filename="(.+?)"/)?.[1] ?? "optimized";
 
           const downloadUrl = URL.createObjectURL(blob);
           const result: ResultImage = {
@@ -270,6 +294,36 @@ export function useOptimizer(): UseOptimizerReturn {
       durationMs: Date.now() - startedAt,
       preset: options.preset,
     });
+
+    // -----------------------------------------------------------------
+    // Phase 19 — Historique local (localStorage)
+    // -----------------------------------------------------------------
+    // Une seule entree par soumission (agrege les N fichiers du lot).
+    // Les metadonnees sont serialisables : pas de Buffer, pas d'URL
+    // blob (ephemere), pas de File.
+    if (success.length > 0) {
+      const first = success[0]!;
+      const totalSourceBytes = success.reduce(
+        (sum, s) => sum + s.sourceSizeBytes,
+        0,
+      );
+      const totalResultBytes = success.reduce(
+        (sum, s) => sum + s.result.sizeBytes,
+        0,
+      );
+      saveHistory({
+        id: crypto.randomUUID(),
+        type: "optimize",
+        createdAt: new Date().toISOString(),
+        toolHref: "/pixel/optimize",
+        sourceFilename: first.sourceFilename,
+        sourceSizeBytes: totalSourceBytes,
+        resultFilename: first.result.filename,
+        resultSizeBytes: totalResultBytes,
+        savedBytes: totalSourceBytes - totalResultBytes,
+        itemCount: success.length,
+      });
+    }
   }, [items, options, pendingCount, setError, setResult, setStatus]);
 
   return { options, setOptions, stage, outcome, pendingCount, submit };

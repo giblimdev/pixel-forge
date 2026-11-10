@@ -12,6 +12,12 @@ role:            Types locaux du module converter. Etend les contrats
                  enrichi pour l'affichage, et resultat par fichier.
                  Aucune dependance runtime.
 
+                 Phase 19 : ajout de `sourceSizeBytes` dans
+                 ConversionSuccessItem pour unifier l'interface avec
+                 les autres modules (optimizer, compressor, resize,
+                 smart-crop, crop-editor, image-editor). Cela permet
+                 a `recordHistory()` de fonctionner sans hack.
+
 flow:            Module TypeScript pur -> export des types.
 
 ecosystem:       Converter = [
@@ -23,10 +29,12 @@ ecosystem:       Converter = [
                    "@/app/pixel/features/converter/components/conversion-results.tsx",
                    "@/app/pixel/features/converter/components/converter-panel.tsx",
                    "@/app/pixel/features/converter/index.ts",
+                   "@/app/pixel/lib/history/local-history.ts",
                  ]
 relatedFiles:    ["@/app/pixel/types/conversion.ts",
                   "@/app/pixel/types/image.ts",
-                  "@/app/pixel/types/processing.ts"]
+                  "@/app/pixel/types/processing.ts",
+                  "@/app/pixel/lib/history/local-history.ts"]
 imports:         ["@/app/pixel/types/conversion",
                   "@/app/pixel/types/image",
                   "@/app/pixel/types/processing"]
@@ -37,11 +45,12 @@ exports:         ["ConverterStage",
 useBy:           ["@/app/pixel/features/converter/hooks/use-converter.ts",
                   "@/app/pixel/features/converter/components/conversion-results.tsx"]
 
-userStories:     ["*en tant que developpeur je veux des types locaux pour l'UI converter"]
+userStories:     ["*en tant que developpeur je veux des types locaux pour l'UI converter",
+                  "*en tant qu'utilisateur je veux retrouver mes conversions dans mon historique"]
 status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 import type { ConversionOptions } from "@/app/pixel/types/conversion";
@@ -68,10 +77,16 @@ export type ConverterStage = "idle" | "running" | "done";
  * Fichier converti avec succes. Contient les informations necessaires
  * au telechargement individuel (URL blob creee a partir du Buffer
  * renvoye par l'API pour 1 fichier, ou l'URL temporaire pour 2+).
+ *
+ * `sourceSizeBytes` est le poids du fichier source (avant conversion).
+ * Il est disponible cote client via `item.source.file.size` dans le
+ * store Zustand — on le propage ici pour alimenter ComparisonStats et
+ * l'historique local.
  */
 export interface ConversionSuccessItem {
   readonly sourceId: string;
   readonly sourceFilename: string;
+  readonly sourceSizeBytes: number;
   readonly result: ResultImage;
   /** URL blob (createObjectURL) ou URL @vercel/blob, pour telechargement. */
   readonly downloadUrl: string;

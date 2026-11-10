@@ -1,0 +1,17 @@
+{
+  "id": "2026-11-07T20-46-01-361Z",
+  "createdAt": "2026-11-07T20:46:01.361Z",
+  "scriptCount": 1,
+  "createdCount": 1,
+  "overwrittenCount": 0,
+  "backedUpCount": 0,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/api/images/placeholder/route.ts"
+    ],
+    "overwritten": [],
+    "backedUp": [],
+    "rejected": []
+  }
+}

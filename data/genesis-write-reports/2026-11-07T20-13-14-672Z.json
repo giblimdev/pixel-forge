@@ -1,0 +1,33 @@
+{
+  "id": "2026-11-07T20-13-14-672Z",
+  "createdAt": "2026-11-07T20:13:14.672Z",
+  "scriptCount": 8,
+  "createdCount": 1,
+  "overwrittenCount": 7,
+  "backedUpCount": 7,
+  "rejectedCount": 0,
+  "report": {
+    "created": [
+      "app/pixel/lib/api/source-ids.ts"
+    ],
+    "overwritten": [
+      "app/api/images/convert/route.ts",
+      "app/api/images/compress/route.ts",
+      "app/api/images/optimize/route.ts",
+      "app/api/images/resize/route.ts",
+      "app/api/images/crop/route.ts",
+      "app/api/images/background/route.ts",
+      "app/api/images/retouch/route.ts"
+    ],
+    "backedUp": [
+      "app/api/images/convert/route.ts",
+      "app/api/images/compress/route.ts",
+      "app/api/images/optimize/route.ts",
+      "app/api/images/resize/route.ts",
+      "app/api/images/crop/route.ts",
+      "app/api/images/background/route.ts",
+      "app/api/images/retouch/route.ts"
+    ],
+    "rejected": []
+  }
+}

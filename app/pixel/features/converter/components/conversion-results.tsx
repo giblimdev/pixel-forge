@@ -13,6 +13,13 @@ role:            Affichage des resultats de conversion. Pour chaque
                  cible. Composant purement presentationnel (controle
                  par les props, aucun state local).
 
+                 Phase 19 : sourceSizeBytes est disponible sur chaque
+                 ConversionSuccessItem — on pourrait brancher
+                 ComparisonStats par fichier (avant/apres), mais on
+                 garde l'affichage simple pour rester coherent avec
+                 le contrat initial. L'economie est calculee dans
+                 l'historique (dashboard) et non ici.
+
 flow:            Props { outcome, className? } -> rend 2 sections
                  (Succes, Erreurs) + un bandeau duree. Chaque succes
                  est un <a download> cliquable.
@@ -26,6 +33,7 @@ ecosystem:       Converter = [
                    "@/app/pixel/features/converter/components/conversion-results.tsx",
                    "@/app/pixel/features/converter/components/converter-panel.tsx",
                    "@/app/pixel/features/converter/index.ts",
+                   "@/app/pixel/lib/history/local-history.ts",
                  ]
 relatedFiles:    ["@/app/pixel/features/converter/types/converter.types.ts",
                   "@/components/ui/button.tsx"]
@@ -37,9 +45,9 @@ useBy:           ["@/app/pixel/features/converter/components/converter-panel.tsx
 
 userStories:     ["*en tant qu'utilisateur je veux voir les fichiers convertis et les telecharger"]
 status:          wip
-pathChecked:     true
-metaDataChecked: true
-scriptChecked:   true
+pathChecked:     ✔true
+metaDataChecked: ✔true
+scriptChecked:   ✔true
 */
 
 "use client";
@@ -86,12 +94,17 @@ export function ConversionResults({
               key={`success-${item.sourceId}`}
               className="flex items-center gap-2 rounded-lg border border-[var(--pf-success)]/30 bg-[var(--pf-success)]/5 p-3"
             >
-              <CheckCircle2 className="size-4 shrink-0 text-[var(--pf-success)]" aria-hidden />
+              <CheckCircle2
+                className="size-4 shrink-0 text-[var(--pf-success)]"
+                aria-hidden
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-[var(--pf-foreground)]">
                   {item.result.filename}
                 </p>
                 <p className="font-mono text-[10px] text-[var(--pf-muted)]">
+                  {formatSize(item.sourceSizeBytes)}
+                  {" → "}
                   {formatSize(item.result.sizeBytes)}
                   {item.result.dimensions.width > 0 &&
                     ` · ${item.result.dimensions.width}x${item.result.dimensions.height}`}
@@ -119,7 +132,10 @@ export function ConversionResults({
               key={`error-${item.sourceId}-${index}`}
               className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3"
             >
-              <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+              <XCircle
+                className="mt-0.5 size-4 shrink-0 text-destructive"
+                aria-hidden
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-[var(--pf-foreground)]">
                   {item.sourceFilename}

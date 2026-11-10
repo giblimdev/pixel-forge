@@ -1,0 +1,21 @@
+{
+  "id": "2026-11-09T16-54-08-376Z",
+  "createdAt": "2026-11-09T16:54:08.376Z",
+  "scriptCount": 2,
+  "createdCount": 0,
+  "overwrittenCount": 2,
+  "backedUpCount": 2,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/pixel/features/converter/hooks/use-converter.ts",
+      "app/api/images/convert/route.ts"
+    ],
+    "backedUp": [
+      "app/pixel/features/converter/hooks/use-converter.ts",
+      "app/api/images/convert/route.ts"
+    ],
+    "rejected": []
+  }
+}

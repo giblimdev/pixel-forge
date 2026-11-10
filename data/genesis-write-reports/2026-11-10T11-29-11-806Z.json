@@ -1,0 +1,19 @@
+{
+  "id": "2026-11-10T11-29-11-806Z",
+  "createdAt": "2026-11-10T11:29:11.806Z",
+  "scriptCount": 1,
+  "createdCount": 0,
+  "overwrittenCount": 1,
+  "backedUpCount": 1,
+  "rejectedCount": 0,
+  "report": {
+    "created": [],
+    "overwritten": [
+      "app/pixel/components/image-comparison/comparison-slider.tsx"
+    ],
+    "backedUp": [
+      "app/pixel/components/image-comparison/comparison-slider.tsx"
+    ],
+    "rejected": []
+  }
+}
